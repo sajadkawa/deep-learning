@@ -5,7 +5,7 @@ Lecture notes in order. Each note includes formulas, diagrams, and worked exampl
 | # | Topic | File |
 |---|-------|------|
 | 01 | ML vs Deep Learning | [01-ml-vs-deep-learning.md](01-ml-vs-deep-learning.md) |
-| 02 | Biological Neuron → Artificial Neuron → Perceptron | |
+| 02 | Biological Neuron → Artificial Neuron → Perceptron | [02-biological-neuron-perceptron.md](02-biological-neuron-perceptron.md) |
 | 03 | Multilayer Perceptron (MLP) | |
 | 04 | Activation Functions | |
 | 05 | Loss Functions | |
