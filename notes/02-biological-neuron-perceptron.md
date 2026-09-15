@@ -45,7 +45,108 @@ This is called the **all-or-nothing principle**.
 
 ---
 
-## Part 2: Artificial Neuron and the Perceptron
+## Part 2: The McCulloch-Pitts Neuron
+
+Before Rosenblatt built the perceptron in 1958, Warren McCulloch and Walter Pitts proposed the first mathematical model of a neuron in 1943. It is simpler than the perceptron — and understanding it makes the perceptron's contribution clear.
+
+### The Model
+
+The McCulloch-Pitts (MP) neuron takes binary inputs and produces a binary output:
+
+```
+  x₁ ──(w₁)──┐
+              │
+  x₂ ──(w₂)──┼──► [ z = Σ wᵢxᵢ ] ──► [ z ≥ θ ? ] ──► ŷ ∈ {0, 1}
+              │
+  xₙ ──(wₙ)──┘
+```
+
+| Component | Description |
+|---|---|
+| Inputs xᵢ | Binary only — 0 or 1 |
+| Weights wᵢ | Fixed integers — set by the designer, not learned |
+| Weighted sum z | z = Σ wᵢxᵢ (no bias term) |
+| Threshold θ | Fixed — fires if z ≥ θ, silent otherwise |
+| Output ŷ | Binary — 0 or 1 |
+
+### The Rule
+
+```
+         ┌ 1   if z ≥ θ
+ŷ  =     │
+         └ 0   if z < θ
+```
+
+### Worked Example — AND Gate
+
+Set weights w₁ = 1, w₂ = 1 and threshold θ = 2:
+
+```
+x₁  x₂  z = x₁ + x₂   z ≥ 2?   ŷ
+ 0   0       0            No      0
+ 0   1       1            No      0
+ 1   0       1            No      0
+ 1   1       2            Yes     1
+```
+
+The MP neuron computes AND correctly — with manually chosen weights and threshold.
+
+### Worked Example — OR Gate
+
+Set weights w₁ = 1, w₂ = 1 and threshold θ = 1:
+
+```
+x₁  x₂  z = x₁ + x₂   z ≥ 1?   ŷ
+ 0   0       0            No      0
+ 0   1       1            Yes     1
+ 1   0       1            Yes     1
+ 1   1       2            Yes     1
+```
+
+### Worked Example — NOT Gate
+
+Single input, set weight w₁ = -1 and threshold θ = 0:
+
+```
+x₁   z = -x₁   z ≥ 0?   ŷ
+ 0      0         Yes     1
+ 1     -1         No      0
+```
+
+NOT is computed by using a negative (inhibitory) weight.
+
+### What the MP Neuron Got Right
+
+```
+✓ Binary threshold logic mirrors the all-or-nothing principle of biological neurons
+✓ Showed that logical functions (AND, OR, NOT) can be computed by neuron-like units
+✓ Proved that networks of such units are computationally universal
+✓ Established the mathematical framework that all later work builds on
+```
+
+### The Critical Limitation
+
+```
+Weights and threshold are fixed — set by hand
+              ↓
+The designer must already know the answer
+              ↓
+The system cannot learn from data
+              ↓
+Not a learning machine — a logic gate
+```
+
+This is the gap Rosenblatt closed. The perceptron keeps the same structure but makes the weights **adjustable** and introduces a **learning rule** that updates them from examples.
+
+```
+McCulloch-Pitts (1943):   fixed weights, no learning, binary inputs only
+         ↓
+Perceptron (1958):         learnable weights, learning rule, real-valued inputs
+```
+
+---
+
+## Part 3: Artificial Neuron and the Perceptron
 
 The perceptron (Rosenblatt, 1958) is the direct mathematical model of the biological neuron. There is no meaningful separation between "artificial neuron" and "perceptron" at this level — the perceptron IS the artificial neuron. We build it step by step.
 
@@ -248,7 +349,7 @@ For now, we use the step function to understand the perceptron fully.
 
 ---
 
-## Part 4: Forward Pass — How a Perceptron Computes
+## Part 5: Forward Pass — How a Perceptron Computes
 
 Given inputs, weights, and bias — the perceptron computes a prediction in two steps:
 
@@ -279,7 +380,7 @@ z = 0
 
 ---
 
-## Part 5: Perceptron Learning Rule
+## Part 6: Perceptron Learning Rule
 
 The perceptron learns by adjusting weights when it makes a wrong prediction.
 
@@ -310,7 +411,7 @@ Prediction too high →  e = -1 →  weights decrease (push output down)
 
 ---
 
-## Part 6: Full Training Example — OR Function
+## Part 7: Full Training Example — OR Function
 
 ### OR Truth Table
 
@@ -485,7 +586,7 @@ Everything below the line    → class 0
 
 ---
 
-## Part 7: Why XOR Fails — The Limitation of a Single Perceptron
+## Part 8: Why XOR Fails — The Limitation of a Single Perceptron
 
 ### XOR Truth Table
 
@@ -591,6 +692,8 @@ Axon output                Output ŷ = f(z)
 
 Key takeaways:
 
+- The McCulloch-Pitts neuron (1943) was the first mathematical model of a neuron — binary inputs, fixed weights, hard threshold, no learning
+- The perceptron (1958) extended MP by making weights learnable from data — that is the key advance
 - Artificial neuron and perceptron are the same thing — the perceptron is the artificial neuron with a step function
 - The neuron formula `z = wᵀx + b` is a straight line — the decision boundary is literally `y = mx + c`
 - Without non-linear activation, stacking any number of layers collapses to a single line — depth is meaningless

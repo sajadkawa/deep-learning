@@ -6,14 +6,18 @@ Postgraduate level course.
 
 ## Unit I — Foundations of Neural Networks
 
-| # | Topic |
-|---|-------|
-| 01 | ML vs Deep Learning |
-| 02 | Biological Neuron → Artificial Neuron → Perceptron |
-| 03 | Multilayer Perceptron (MLP) |
-| 04 | Activation Functions |
-| 05 | Loss Functions |
-| 06 | Gradient Descent & Backpropagation |
-| 07 | Overfitting, Underfitting & Bias-Variance Tradeoff |
-| 08 | Regularization |
-| 09 | Learning Mechanisms: Hebbian, Competitive, Boltzmann |
+### 01 — AI Foundations, ML Paradigms & Deep Learning
+- What is AI — rational agents, Norvig & Russell's definition
+- Symbolic AI and expert systems — the knowledge bottleneck
+- Traditional programming vs machine learning — rules vs learned patterns
+- Types of learning: supervised, unsupervised, reinforcement
+- Types of tasks: classification, regression, clustering
+- ML vs Deep Learning — feature engineering vs feature learning
+
+### 02 — Biological Neuron → McCulloch-Pitts Unit → Perceptron
+- Biological neuron — structure and all-or-nothing firing principle
+- McCulloch-Pitts neuron — binary logic, fixed weights, hard threshold, no learning
+- Perceptron — learnable weights, bias, step function, learning rule
+- Decision boundary as a straight line — geometry of the neuron formula
+- Why non-linear activation is necessary — the linearity collapse problem
+- XOR failure — a single perceptron can only solve linearly separable problems
