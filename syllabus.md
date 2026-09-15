@@ -4,7 +4,7 @@ Postgraduate level course.
 
 ---
 
-## Unit 1 — Foundations
+## Unit I — Foundations of Neural Networks
 
 | # | Topic |
 |---|-------|
@@ -15,3 +15,5 @@ Postgraduate level course.
 | 05 | Loss Functions |
 | 06 | Gradient Descent & Backpropagation |
 | 07 | Overfitting, Underfitting & Bias-Variance Tradeoff |
+| 08 | Regularization |
+| 09 | Learning Mechanisms: Hebbian, Competitive, Boltzmann |
