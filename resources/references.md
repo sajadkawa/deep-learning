@@ -12,6 +12,9 @@
 
 ## Key Papers
 
+- Cybenko (1989) — Approximation by superpositions of a sigmoidal function
+- Hornik, Stinchcombe, & White (1989) — Multilayer feedforward networks are universal approximators
 - LeCun et al. (1998) — Gradient-based learning applied to document recognition
 - Krizhevsky et al. (2012) — ImageNet Classification with Deep CNNs (AlexNet)
 - He et al. (2015) — Deep Residual Learning for Image Recognition (ResNet)
+
