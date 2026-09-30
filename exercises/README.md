@@ -10,3 +10,5 @@ Practice problems per topic. Added as the course progresses.
 | 04 | Activation Functions | [04-activation-functions.md](04-activation-functions.md) |
 | 05 | Loss Functions | [05-loss-functions.md](05-loss-functions.md) |
 | 06 | Gradient Descent & Backpropagation | [06-gradient-descent-backpropagation.md](06-gradient-descent-backpropagation.md) |
+| 07 | Overfitting, Underfitting & Bias-Variance Tradeoff | [07-overfitting-bias-variance.md](07-overfitting-bias-variance.md) |
+| 08 | Learning Mechanisms: Hebbian, Competitive, Boltzmann | [08-learning-mechanisms.md](08-learning-mechanisms.md) |
