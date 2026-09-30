@@ -13,3 +13,4 @@ Practice problems per topic. Added as the course progresses.
 | 07 | Overfitting, Underfitting & Bias-Variance Tradeoff | [07-overfitting-bias-variance.md](07-overfitting-bias-variance.md) |
 | 08 | Learning Mechanisms: Hebbian, Competitive, Boltzmann | [08-learning-mechanisms.md](08-learning-mechanisms.md) |
 | 09 | Deep Feedforward Network Architectures | [09-deep-feedforward-networks.md](09-deep-feedforward-networks.md) |
+| 10 | Weight Initialization | [10-weight-initialization.md](10-weight-initialization.md) |
