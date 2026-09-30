@@ -173,14 +173,9 @@ This is why three separate datasets are needed.
 
 ### The Three Sets
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                        Full Dataset                             │
-├──────────────────────┬──────────────────┬───────────────────────┤
-│    Training Set      │  Validation Set  │      Test Set         │
-│    (60–80%)          │    (10–20%)      │      (10–20%)         │
-└──────────────────────┴──────────────────┴───────────────────────┘
-```
+The diagram below shows how the full dataset is divided, with approximate proportions and the role of each split.
+
+![Dataset Split: Training / Validation / Test](images/dataset_split.png)
 
 **Training set:**
 - Used to compute gradients and update weights

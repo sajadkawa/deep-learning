@@ -143,22 +143,9 @@ The weight vector of the winner moves toward the current input. Over many inputs
 
 Each output neuron becomes a **prototype** — a representative of a cluster of similar inputs. The network partitions the input space into regions, with each neuron responsible for one region.
 
-```
-Input space (2D for illustration):
+The diagram below shows the input space before and after competitive learning: on the left, prototypes are randomly placed; on the right, each prototype has converged to the centroid of its cluster.
 
-  ●  ●  ●          ○  ○
-  ●  ●  ●          ○  ○  ○
-  ●  ●             ○  ○
-
-  ▲  ▲  ▲  ▲  ▲
-  ▲  ▲  ▲  ▲
-  ▲  ▲  ▲
-
-After competitive learning:
-  Neuron 1 → prototype for ● cluster
-  Neuron 2 → prototype for ○ cluster
-  Neuron 3 → prototype for ▲ cluster
-```
+![Competitive Learning — Winner-Takes-All Clustering](images/competitive_learning.png)
 
 No labels were provided. The network discovered the cluster structure from the data alone.
 

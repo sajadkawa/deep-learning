@@ -8,21 +8,9 @@ Before machine learning, before deep learning — what is the field we are actua
 
 ### Norvig and Russell's Definition
 
-Russell and Norvig's *Artificial Intelligence: A Modern Approach* — the standard reference in the field — defines AI not as a single thing but as a space of goals along two axes:
+Russell and Norvig's *Artificial Intelligence: A Modern Approach* — the standard reference in the field — defines AI not as a single thing but as a space of goals along two axes. The diagram below shows the four quadrants, with modern AI sitting in the acting rationally quadrant.
 
-```
-                    THINKING
-                       ↑
-         Thinking      │      Thinking
-         Humanly       │      Rationally
-                       │
-HUMANLY ─────────────┼───────────── RATIONALLY
-                       │
-         Acting        │      Acting
-         Humanly       │      Rationally
-                       ↓
-                     ACTING
-```
+![Russell & Norvig AI Definition Space](images/ai_quadrants.png)
 
 | Quadrant | Goal | Example |
 |---|---|---|
@@ -674,21 +662,9 @@ It becomes very hard to give a simple human explanation of why the network arriv
 | **LIME** | ML + DL | Builds a simple local explanation around one prediction |
 | **Grad-CAM** | CNN (images) | Highlights which regions of an image the network focused on |
 
-**Grad-CAM example** — a CNN predicting a chest X-ray as pneumonia:
+**Grad-CAM example** — a CNN predicting a chest X-ray as pneumonia. The three panels below show the input image, the prediction, and the Grad-CAM heatmap highlighting where the network focused.
 
-```
-Input X-ray image
-        ↓
-   CNN predicts: Pneumonia
-        ↓
-   Grad-CAM produces a heatmap:
-   ┌──────────────────────┐
-   │  ░░░░░░░░░░░░░░░░░░  │
-   │  ░░░░▓▓▓▓▓▓░░░░░░░  │  ← high activation (network focused here)
-   │  ░░░▓▓▓▓▓▓▓▓░░░░░░  │
-   │  ░░░░░░░░░░░░░░░░░░  │
-   └──────────────────────┘
-```
+![Grad-CAM — Where the CNN Looked to Predict Pneumonia](images/gradcam_example.png)
 
 You can see *where* the network looked, but not *why* it learned to look there — that distinction matters at postgraduate level.
 

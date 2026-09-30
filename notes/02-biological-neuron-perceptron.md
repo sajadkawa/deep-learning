@@ -8,19 +8,9 @@ The artificial neuron is directly inspired by how a biological neuron works. Und
 
 ### Structure of a Biological Neuron
 
-```
-                        Cell Body (Soma)
-                        ┌─────────────┐
-Dendrites               │             │
-(receive signals)       │   Nucleus   │──────────── Axon ──────────► (to next neuron)
-    ──────────┐         │             │
-    ──────────┼────────►│             │
-    ──────────┘         └─────────────┘
-                               │
-                        Axon Terminals
-                        (send signals to
-                         next neuron's dendrites)
-```
+The diagram below shows the key anatomical parts of a biological neuron and the direction of signal flow.
+
+![Structure of a Biological Neuron](images/biological_neuron.png)
 
 | Biological Part | Role |
 |---|---|
@@ -51,15 +41,9 @@ Before Rosenblatt built the perceptron in 1958, Warren McCulloch and Walter Pitt
 
 ### The Model
 
-The McCulloch-Pitts (MP) neuron takes binary inputs and produces a binary output:
+The McCulloch-Pitts (MP) neuron takes binary inputs and produces a binary output. The diagram below shows the structure: inputs weighted by fixed integers, summed, then compared to a fixed threshold.
 
-```
-  x₁ ──(w₁)──┐
-              │
-  x₂ ──(w₂)──┼──► [ z = Σ wᵢxᵢ ] ──► [ z ≥ θ ? ] ──► ŷ ∈ {0, 1}
-              │
-  xₙ ──(wₙ)──┘
-```
+![McCulloch-Pitts Neuron](images/mp_neuron.png)
 
 | Component | Description |
 |---|---|
@@ -161,15 +145,9 @@ The perceptron (Rosenblatt, 1958) is the direct mathematical model of the biolog
 | Axon output | Output ŷ = f(z) |
 | Resting state | Bias term b |
 
-### Diagram
+The diagram below shows the perceptron structure: real-valued inputs, learnable weights, a bias, a weighted sum, and a differentiable activation function.
 
-```
-  x₁ ──(w₁)──┐
-              │
-  x₂ ──(w₂)──┼──► [ z = Σwᵢxᵢ + b ] ──► [ f(z) ] ──► ŷ
-              │
-  xₙ ──(wₙ)──┘
-```
+![Perceptron (Artificial Neuron)](images/perceptron_diagram.png)
 
 ### The Math
 
@@ -225,21 +203,7 @@ x₂ = -(w₁/w₂)x₁ - (b/w₂)
       └── slope ──┘  └── intercept
 ```
 
-This is literally a straight line in the x₁-x₂ plane:
-
-```
-x₂
- │          /
- │         /  ← decision boundary (a line)
- │        /      w₁x₁ + w₂x₂ + b = 0
- │       /
- └──────────── x₁
-
-One side → z > 0 → neuron fires  (class 1)
-Other side → z < 0 → neuron silent (class 0)
-```
-
-So a single perceptron can only ever draw **one straight line** to separate classes. This is exactly why it fails on XOR — and why we need multiple layers.
+This is literally a straight line in the x₁-x₂ plane. One side gives z > 0 (neuron fires, class 1); the other gives z < 0 (neuron silent, class 0). A single perceptron can only ever draw one straight line to separate classes — exactly why it fails on XOR and why we need multiple layers.
 
 ### What is the Bias?
 
@@ -250,17 +214,9 @@ Without bias:   x₂ = -(w₁/w₂)x₁         (line always passes through orig
 With bias:      x₂ = -(w₁/w₂)x₁ - b/w₂  (line can shift freely)
 ```
 
-Geometrically:
+The diagram below shows the geometric effect: without bias every decision boundary passes through the origin; with bias it can shift freely.
 
-```
-No bias:              With bias:
-x₂                    x₂
- │    /                │       /
- │   /                 │      /
- │  / ← fixed at       │     / ← can shift
- │ /   origin          │    /   anywhere
- └──── x₁              └──── x₁
-```
+![Decision Boundary: Effect of the Bias Term](images/decision_boundary_bias.png)
 
 Without bias, the decision boundary is forced through the origin — severely limiting what the neuron can learn.
 
@@ -276,16 +232,9 @@ f(z)  =  │
          └ 0   if z < 0
 ```
 
-Visually:
+The diagram below shows the step function: output jumps from 0 to 1 at z = 0.
 
-```
-f(z)
- 1 │         ┌──────────────
-   │         │
- 0 │─────────┘
-   └──────────────────────── z
-             0
-```
+![Step Function (Heaviside)](images/step_function.png)
 
 The neuron outputs 1 (fires) if the weighted sum crosses zero, otherwise 0.
 
@@ -569,20 +518,9 @@ w₁x₁ + w₂x₂ + b = 0.5   (our threshold)
 x₁ + x₂ = 1
 ```
 
-Geometrically:
+The diagram below shows the four OR points and the learned decision boundary x₁ + x₂ = 1 that correctly separates them.
 
-```
-x₂
- 1 │  ●(0,1)    ●(1,1)
-   │      ╲
-   │        ╲  ← decision boundary: x₁ + x₂ = 1
- 0 │  ○(0,0)  ╲ ●(1,0)
-   └──────────────────── x₁
-      0          1
-
-Everything above/on the line → class 1
-Everything below the line    → class 0
-```
+![OR — Learned Decision Boundary](images/or_decision_boundary.png)
 
 ---
 
@@ -599,29 +537,12 @@ Everything below the line    → class 0
 
 ### Geometric Intuition
 
-```
-x₂
- 1 │  ●(0,1)    ○(1,1)
-   │
- 0 │  ○(0,0)    ●(1,0)
-   └──────────────────── x₁
-      0          1
+The coordinate plane below shows the four XOR points. The two class-1 points sit on opposite corners — no single straight line can separate them from the class-0 points.
 
-● = class 1 (XOR = 1)
-○ = class 0 (XOR = 0)
-```
+![XOR — Coordinate Plane](images/xor_coordinate_plane.png)
+The three panels below show three different line attempts — every one misclassifies at least one point.
 
-Try to draw a single straight line that separates ● from ○:
-
-```
-Attempt 1:          Attempt 2:          Attempt 3:
-x₂                  x₂                  x₂
- 1│ ●    ○           1│ ●    ○           1│ ●    ○
-  │   ╲              │      │            │ ─────────
- 0│ ○    ●          0│ ○    ●           0│ ○    ●
-  └────────           └────────           └────────
-  Misses (1,1)       Misses (0,0)        Misses both
-```
+![XOR is Not Linearly Separable — No Single Line Works](images/xor_attempts.png)
 
 **It is impossible.** No single straight line can separate the two classes of XOR. XOR is **not linearly separable**.
 

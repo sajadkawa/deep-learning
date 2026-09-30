@@ -450,37 +450,9 @@ The interdependence matters. A smooth loss with a step activation gives a starti
 
 Once these three pillars are in place, training any feedforward network follows this iterative loop:
 
-```
-                      ┌───────────────────────────────────────┐
-                      │             Training Data             │
-                      └───────────────────┬───────────────────┘
-                                          │
-                                          ▼
-                         ┌─────────────────────────────────┐
-                 ┌──────►│  1. Forward Pass                │
-                 │       │     z = Wᵀx + b,  ŷ = f(z)      │
-                 │       └────────────────┬────────────────┘
-                 │                        │
-                 │                        ▼
-                 │       ┌─────────────────────────────────┐
-                 │       │  2. Compute Loss                │
-                 │       │     L = Loss(y, ŷ)              │
-                 │       └────────────────┬────────────────┘
-                 │                        │
-                 │                        ▼
-                 │       ┌─────────────────────────────────┐
-                 │       │  3. Backward Pass (Backprop)    │
-                 │       │     Compute ∂L/∂W via Chain Rule│
-                 │       └────────────────┬────────────────┘
-                 │                        │
-                 │                        ▼
-                 │       ┌─────────────────────────────────┐
-                 │       │  4. Parameter Update            │
-                 │       │     W ← W − η (∂L/∂W)           │
-                 │       └────────────────┬────────────────┘
-                 │                        │
-                 └────── Repeat for E Epochs (until convergence)
-```
+The diagram below shows the four steps that repeat every epoch until convergence.
+
+![Universal Neural Network Training Loop](images/training_loop.png)
 
 **Step 1 — Forward Pass:** The input is fed through the network layer by layer. Each layer computes `z = Wᵀ(input) + b` then `h = f(z)`, passing activations forward. The final layer produces the prediction ŷ. All intermediate values z and h are stored — they will be needed in the backward pass.
 

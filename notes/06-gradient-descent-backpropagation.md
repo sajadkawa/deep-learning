@@ -282,38 +282,22 @@ This is exactly the formula from Note 03's credit assignment section. Three thin
 
 ### Forward Pass and Backward Pass
 
-Training consists of two passes. The forward pass computes and **stores** everything needed. The backward pass **reuses** those stored values to compute gradients efficiently.
+Training consists of two passes. The diagram below shows both: the forward pass computes and stores intermediate values left to right; the backward pass reuses those values to propagate gradients right to left.
 
-```
-FORWARD PASS — left to right, store everything:
-
-  x  →  z⁽¹⁾ = W⁽¹⁾ᵀx + b⁽¹⁾  →  h = f(z⁽¹⁾)  →  z⁽²⁾ = W⁽²⁾ᵀh + b⁽²⁾  →  ŷ = f(z⁽²⁾)  →  L
-                    ↑                    ↑                   ↑                    ↑
-               store z⁽¹⁾          store h            store z⁽²⁾           store ŷ
-```
-
-```
-BACKWARD PASS — right to left, reuse stored values:
-
-  L  →  ∂L/∂ŷ  →  ∂L/∂z⁽²⁾ = ∂L/∂ŷ · f'(z⁽²⁾)  →  ∂L/∂W⁽²⁾ = ∂L/∂z⁽²⁾ · hᵀ
-                                      ↓
-                              ∂L/∂h = ∂L/∂z⁽²⁾ · W⁽²⁾
-                                      ↓
-                       ∂L/∂z⁽¹⁾ = ∂L/∂h · f'(z⁽¹⁾)  →  ∂L/∂W⁽¹⁾ = ∂L/∂z⁽¹⁾ · xᵀ
-```
+![Forward and Backward Pass](images/forward_backward_pass.png)
 
 The quantity ∂L/∂z at each layer is called the **error signal** (often written δ) for that layer. It is computed once and reused to get both the weight gradient and the error signal for the layer below:
 
 ```
-δ⁽²⁾ = ∂L/∂z⁽²⁾ = ∂L/∂ŷ · f'(z⁽²⁾)          ← error signal at output layer
+δ⁻²⁾ = ∂L/∂z⁻²⁾ = ∂L/∂ŷ · f'(z⁻²⁾)          ← error signal at output layer
 
-∂L/∂W⁽²⁾ = δ⁽²⁾ · hᵀ                          ← weight gradient (outer product)
-∂L/∂b⁽²⁾ = δ⁽²⁾                               ← bias gradient
+∂L/∂W⁻²⁾ = δ⁻²⁾ · hᵀ                          ← weight gradient (outer product)
+∂L/∂b⁻²⁾ = δ⁻²⁾                               ← bias gradient
 
-δ⁽¹⁾ = ∂L/∂z⁽¹⁾ = (W⁽²⁾ · δ⁽²⁾) · f'(z⁽¹⁾)   ← error signal propagated back
+δ⁻¹⁾ = ∂L/∂z⁻¹⁾ = (W⁻²⁾ · δ⁻²⁾) · f'(z⁻¹⁾)   ← error signal propagated back
 
-∂L/∂W⁽¹⁾ = δ⁽¹⁾ · xᵀ                          ← weight gradient
-∂L/∂b⁽¹⁾ = δ⁽¹⁾                               ← bias gradient
+∂L/∂W⁻¹⁾ = δ⁻¹⁾ · xᵀ                          ← weight gradient
+∂L/∂b⁻¹⁾ = δ⁻¹⁾                               ← bias gradient
 ```
 
 This pattern — compute δ for a layer, use it to get weight gradients, propagate δ to the layer below — repeats for every layer in the network, no matter how deep.
