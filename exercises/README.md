@@ -21,3 +21,4 @@ Practice problems per topic. Added as the course progresses.
 | 15 | Hopfield Network | [15-hopfield-network.md](15-hopfield-network.md) |
 | 16 | Boltzmann Machine and Restricted Boltzmann Machine | [16-boltzmann-machine.md](16-boltzmann-machine.md) |
 | 17 | Kohonen's Self-Organising Map | [17-kohonen-som.md](17-kohonen-som.md) |
+| 18 | Associative Memory | [18-associative-memory.md](18-associative-memory.md) |
