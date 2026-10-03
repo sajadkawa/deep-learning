@@ -22,3 +22,4 @@ Lecture notes in order. Each note includes formulas, diagrams, and worked exampl
 | 16 | Boltzmann Machine and Restricted Boltzmann Machine | [16-boltzmann-machine.md](16-boltzmann-machine.md) |
 | 17 | Kohonen's Self-Organising Map | [17-kohonen-som.md](17-kohonen-som.md) |
 | 18 | Associative Memory | [18-associative-memory.md](18-associative-memory.md) |
+| 19 | Introduction to Convolutional Neural Networks | [19-introduction-to-cnns.md](19-introduction-to-cnns.md) |
