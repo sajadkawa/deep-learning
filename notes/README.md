@@ -14,3 +14,4 @@ Lecture notes in order. Each note includes formulas, diagrams, and worked exampl
 | 08 | Learning Mechanisms: Hebbian, Competitive, Boltzmann | [08-learning-mechanisms.md](08-learning-mechanisms.md) |
 | 09 | Deep Feedforward Network Architectures | [09-deep-feedforward-networks.md](09-deep-feedforward-networks.md) |
 | 10 | Weight Initialization | [10-weight-initialization.md](10-weight-initialization.md) |
+| 11 | Batch Normalization and Dropout | [11-batch-normalization-dropout.md](11-batch-normalization-dropout.md) |
