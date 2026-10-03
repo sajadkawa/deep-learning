@@ -18,3 +18,4 @@ Lecture notes in order. Each note includes formulas, diagrams, and worked exampl
 | 12 | Optimization Algorithms: SGD, Momentum, RMSProp, Adam | [12-optimization-algorithms.md](12-optimization-algorithms.md) |
 | 13 | Hyperparameter Tuning | [13-hyperparameter-tuning.md](13-hyperparameter-tuning.md) |
 | 14 | Model Evaluation: Metrics | [14-model-evaluation-metrics.md](14-model-evaluation-metrics.md) |
+| 15 | Hopfield Network | [15-hopfield-network.md](15-hopfield-network.md) |
