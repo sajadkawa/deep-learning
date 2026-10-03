@@ -15,3 +15,4 @@ Practice problems per topic. Added as the course progresses.
 | 09 | Deep Feedforward Network Architectures | [09-deep-feedforward-networks.md](09-deep-feedforward-networks.md) |
 | 10 | Weight Initialization | [10-weight-initialization.md](10-weight-initialization.md) |
 | 11 | Batch Normalization and Dropout | [11-batch-normalization-dropout.md](11-batch-normalization-dropout.md) |
+| 12 | Optimization Algorithms: SGD, Momentum, RMSProp, Adam | [12-optimization-algorithms.md](12-optimization-algorithms.md) |
