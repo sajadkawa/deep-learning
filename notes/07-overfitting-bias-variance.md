@@ -258,7 +258,7 @@ Update: w ← w − η × (∂L_original/∂w + 2λw)
            = w(1 − 2ηλ) − η × ∂L_original/∂w
 ```
 
-The factor `(1 − 2ηλ)` shrinks the weight at every step — this is why L2 is called **weight decay**. Large weights are penalised more than small weights, pushing the model toward solutions with small, distributed weights.
+The factor `(1 − 2ηλ)` shrinks the weight at every step provided `ηλ < 0.5`, which holds for any reasonable learning rate and regularisation strength — this is why L2 is called **weight decay**. Large weights are penalised more than small weights, pushing the model toward solutions with small, distributed weights.
 
 **Why this reduces overfitting:**
 

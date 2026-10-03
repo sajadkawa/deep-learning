@@ -188,15 +188,15 @@ Kaiming He et al. (2015) derived an initialization specifically for ReLU network
 
 ### The Derivation
 
-The same variance analysis as Xavier, but now the activation function is ReLU. ReLU passes positive values unchanged and zeros out negative values. If the input to ReLU has zero mean and variance Var(z), the output has:
+The same variance analysis as Xavier, but now the activation function is ReLU. ReLU passes positive values unchanged and zeros out negative values. If the input to ReLU has zero mean and variance Var(z), the relevant quantity for the forward pass is the **second moment** E[a²] — the expected squared activation — not the variance.
+
+For z ~ N(0, σ²), ReLU passes exactly the positive half of the distribution unchanged and zeros the rest. The second moment of the output is:
 
 ```
-E[ReLU(z)] = 0   (by symmetry, assuming z is zero-mean)
-
-Var(ReLU(z)) = Var(z) / 2
+E[ReLU(z)²] = E[z²] / 2 = Var(z) / 2
 ```
 
-The factor of 1/2 comes from the fact that ReLU zeroes out half the distribution. To compensate for this halving at every layer, the weight variance must be doubled:
+The factor of 1/2 comes from the fact that ReLU zeroes out half the distribution — only the positive half contributes to E[a²]. To preserve the second moment across layers, this halving must be compensated:
 
 ```
 nₗ₋₁ · Var(w) · (1/2) = 1
@@ -291,6 +291,6 @@ Key takeaways:
 - Zero initialization permanently destroys network capacity — all neurons in a layer remain identical forever because they receive identical gradients at every step. Biases are safe to initialize to zero; weights are not
 - Random initialization breaks symmetry but scale matters critically — too small causes vanishing activations and gradients, too large causes saturation or explosion
 - Xavier initialization sets Var(w) = 2 / (nₗ₋₁ + nₗ) — a compromise between preserving variance in the forward and backward pass. Designed for tanh and sigmoid
-- He initialization sets Var(w) = 2 / nₗ₋₁ — accounts for ReLU zeroing half its inputs by doubling the variance. The standard choice for ReLU networks
+- He initialization sets Var(w) = 2 / nₗ₋₁ — accounts for ReLU zeroing half its inputs, which halves the second moment E[a²] at each layer; doubling the weight variance compensates. The standard choice for ReLU networks
 - Bad initialization is a root cause of vanishing and exploding gradients, compounding the effect of activation function choice. Both axes multiply through the chain rule
 - Batch normalization (Note 11) reduces sensitivity to initialization but does not eliminate the need for it

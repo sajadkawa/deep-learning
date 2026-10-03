@@ -507,13 +507,13 @@ Can a network with just one hidden layer represent *any* mathematical function?
 
 The theorem is not just a formal result — there is a concrete constructive argument for why it holds.
 
-A single sigmoid neuron with a steep slope approximates a step function — it transitions sharply from 0 to 1 at a location controlled by its bias. Take two such neurons with opposite signs and subtract them:
+A single sigmoid neuron with a steep slope approximates a step function — it transitions sharply from 0 to 1 at a location controlled by its bias. Take two such neurons and subtract them:
 
 ```
 bump(x) = σ(w·x + b₁) − σ(w·x + b₂),   with b₁ > b₂
 ```
 
-The condition b₁ > b₂ ensures the left sigmoid rises before the right one falls, producing a positive bump. With a large weight w, this produces a narrow bump — a function that is near 1 in a small interval and near 0 everywhere else. The position of the bump is set by b₁ and b₂; its width is controlled by w.
+With b₁ > b₂, the first sigmoid transitions at a more negative x (rises earlier, further left) and the second transitions at a less negative x (rises later, further right). In the interval between the two transition points, the first sigmoid has already risen to ~1 while the second has not yet risen from ~0 — so their difference is positive. Outside this interval, both sigmoids are either both ~0 (far left) or both ~1 (far right), so the difference is ~0. The result is a localised positive bump. With a large weight w, the transitions are sharp and the bump is narrow. The position of the bump is controlled by b₁ and b₂; its width is controlled by w.
 
 Now tile the input domain with enough bumps, each scaled to the correct height:
 
