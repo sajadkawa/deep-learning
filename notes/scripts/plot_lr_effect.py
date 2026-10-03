@@ -1,0 +1,46 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import os
+
+rng = np.random.default_rng(42)
+epochs = np.arange(1, 81)
+
+def simulated_loss(eta_case, noise=0.02):
+    if eta_case == 'too_small':
+        loss = 2.0 * np.exp(-0.008 * epochs) + 0.5 + rng.normal(0, noise, len(epochs))
+    elif eta_case == 'too_large':
+        loss = np.where(epochs < 10,
+                        2.0 - 0.1 * epochs + rng.normal(0, 0.15, len(epochs)),
+                        1.5 + 0.8 * np.sin(0.5 * epochs) + rng.normal(0, 0.2, len(epochs)))
+        loss = np.clip(loss, 0.3, 3.5)
+    else:  # just right
+        loss = 0.15 + 1.85 * np.exp(-0.07 * epochs) + rng.normal(0, noise, len(epochs))
+        loss = np.clip(loss, 0.1, 2.5)
+    return loss
+
+configs = [
+    ('too_large',  '#f85149', 'η too large  — diverges / oscillates'),
+    ('too_small',  '#f0883e', 'η too small  — stalls'),
+    ('just_right', '#3fb950', 'η well-chosen — converges'),
+]
+
+fig, ax = plt.subplots(figsize=(10, 4.5))
+fig.patch.set_facecolor('#0d1117')
+ax.set_facecolor('#0d1117')
+
+for case, color, label in configs:
+    loss = simulated_loss(case)
+    ax.plot(epochs, loss, color=color, lw=2.2, label=label)
+
+ax.set_xlabel('Epoch', color='#8b949e', fontsize=9)
+ax.set_ylabel('Training Loss', color='#8b949e', fontsize=9)
+ax.tick_params(colors='#8b949e')
+for spine in ax.spines.values():
+    spine.set_edgecolor('#30363d')
+ax.legend(facecolor='#161b22', edgecolor='#30363d', labelcolor='#e6edf3', fontsize=9)
+ax.set_title('Effect of Learning Rate on Training', color='#e6edf3', fontsize=12, pad=8)
+
+plt.tight_layout()
+out = os.path.join(os.path.dirname(__file__), '..', 'images', 'lr_effect.png')
+plt.savefig(out, dpi=150, bbox_inches='tight', facecolor=fig.get_facecolor())
+plt.close()
