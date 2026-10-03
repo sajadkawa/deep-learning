@@ -1,0 +1,87 @@
+import matplotlib.pyplot as plt
+import matplotlib.patches as mpatches
+import numpy as np
+import os
+
+fig, axes = plt.subplots(1, 3, figsize=(15, 7))
+fig.patch.set_facecolor('#f8f8f8')
+fig.suptitle('Receptive Field Grows with Depth\n(each 3×3 conv adds 2 to the effective receptive field)',
+             fontsize=12, fontweight='bold', color='#222', y=0.98)
+
+cell = 0.62
+grid_size = 7
+
+rf_configs = [
+    dict(rf=3, color='#aed6f1', title='After Layer 1\n(one 3×3 conv)',
+         rf_label='Receptive field: 3×3',
+         params_label='9 params per filter',
+         extra_label=''),
+    dict(rf=5, color='#a9dfbf', title='After Layer 2\n(two 3×3 convs)',
+         rf_label='Receptive field: 5×5',
+         params_label='9 + 9 = 18 params',
+         extra_label=''),
+    dict(rf=7, color='#fad7a0', title='After Layer 3\n(three 3×3 convs)',
+         rf_label='Receptive field: 7×7',
+         params_label='9 + 9 + 9 = 27 params',
+         extra_label='vs one 7×7 filter: 49 params\nSame RF — 45% fewer params'),
+]
+
+for ax, cfg in zip(axes, rf_configs):
+    ax.set_facecolor('#f8f8f8')
+    ax.axis('off')
+    ax.set_title(cfg['title'], fontsize=11, fontweight='bold', color='#222', pad=8)
+
+    center = grid_size // 2
+    rf_half = cfg['rf'] // 2
+
+    # Grid
+    for r in range(grid_size):
+        for c in range(grid_size):
+            in_rf    = (abs(r - center) <= rf_half and abs(c - center) <= rf_half)
+            is_center = (r == center and c == center)
+
+            if is_center:
+                fc, ec, lw = '#e74c3c', '#aa0000', 2.5
+            elif in_rf:
+                fc, ec, lw = cfg['color'], '#555555', 1.5
+            else:
+                fc, ec, lw = '#e8e8e8', '#bbbbbb', 0.7
+
+            rect = plt.Rectangle((c * cell, (grid_size - 1 - r) * cell), cell, cell,
+                                  facecolor=fc, edgecolor=ec, linewidth=lw, zorder=2)
+            ax.add_patch(rect)
+
+    # RF border (dashed red rectangle)
+    c0 = center - rf_half
+    r0_bottom = center - rf_half
+    rect_b = plt.Rectangle((c0 * cell, r0_bottom * cell),
+                             cfg['rf'] * cell, cfg['rf'] * cell,
+                             facecolor='none', edgecolor='#cc2222',
+                             linewidth=3.0, linestyle='--', zorder=5)
+    ax.add_patch(rect_b)
+
+    # RF label — below grid
+    ax.text(grid_size * cell / 2, -0.5, cfg['rf_label'],
+            ha='center', va='top', fontsize=10.5, color='#cc2222', fontweight='bold',
+            bbox=dict(boxstyle='round,pad=0.35', facecolor='#fde8e8', edgecolor='#cc2222', linewidth=1.5))
+
+    # Params label — above grid
+    ax.text(grid_size * cell / 2, grid_size * cell + 0.25, cfg['params_label'],
+            ha='center', va='bottom', fontsize=9, color='#555',
+            bbox=dict(boxstyle='round,pad=0.3', facecolor='#f5f5f5', edgecolor='#aaa'))
+
+    # Extra label (only panel 3) — well below RF label
+    if cfg['extra_label']:
+        ax.text(grid_size * cell / 2, -1.5, cfg['extra_label'],
+                ha='center', va='top', fontsize=9, color='#1a7a1a', linespacing=1.5,
+                bbox=dict(boxstyle='round,pad=0.4', facecolor='#e8f8e8', edgecolor='#1a7a1a', linewidth=1.5))
+
+    # Set limits with enough room for all labels
+    ax.set_xlim(-0.4, grid_size * cell + 0.4)
+    ax.set_ylim(-2.5, grid_size * cell + 0.8)
+
+plt.tight_layout(pad=2.0, rect=[0, 0, 1, 0.95])
+out_dir = os.path.join(os.path.dirname(__file__), '..', 'images')
+plt.savefig(os.path.join(out_dir, 'cnn_receptive_field_growth.png'), dpi=150, bbox_inches='tight')
+plt.close()
+print("Saved cnn_receptive_field_growth.png")

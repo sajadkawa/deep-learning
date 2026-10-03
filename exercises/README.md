@@ -23,3 +23,4 @@ Practice problems per topic. Added as the course progresses.
 | 17 | Kohonen's Self-Organising Map | [17-kohonen-som.md](17-kohonen-som.md) |
 | 18 | Associative Memory | [18-associative-memory.md](18-associative-memory.md) |
 | 19 | Introduction to Convolutional Neural Networks | [19-introduction-to-cnns.md](19-introduction-to-cnns.md) |
+| 20 | CNN Architecture: Convolutional, Pooling, and Fully Connected Layers | [20-cnn-architecture.md](20-cnn-architecture.md) |
