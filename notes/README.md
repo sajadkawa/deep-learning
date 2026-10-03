@@ -26,4 +26,4 @@ Lecture notes in order. Each note includes formulas, diagrams, and worked exampl
 | 20 | CNN Architecture: Convolutional, Pooling, and Fully Connected Layers | [20-cnn-architecture.md](20-cnn-architecture.md) |
 | 21 | Transfer Learning and Pre-trained Models | [21-transfer-learning.md](21-transfer-learning.md) |
 | 22 | Data Augmentation | [22-data-augmentation.md](22-data-augmentation.md) |
-| 22 | Data Augmentation | [22-data-augmentation.md](22-data-augmentation.md) |
+| 23 | Case Studies: Image Classification and Object Detection | [23-case-studies.md](23-case-studies.md) |
