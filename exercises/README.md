@@ -19,3 +19,4 @@ Practice problems per topic. Added as the course progresses.
 | 13 | Hyperparameter Tuning | [13-hyperparameter-tuning.md](13-hyperparameter-tuning.md) |
 | 14 | Model Evaluation: Metrics | [14-model-evaluation-metrics.md](14-model-evaluation-metrics.md) |
 | 15 | Hopfield Network | [15-hopfield-network.md](15-hopfield-network.md) |
+| 16 | Boltzmann Machine and Restricted Boltzmann Machine | [16-boltzmann-machine.md](16-boltzmann-machine.md) |
