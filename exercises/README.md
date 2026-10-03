@@ -17,3 +17,4 @@ Practice problems per topic. Added as the course progresses.
 | 11 | Batch Normalization and Dropout | [11-batch-normalization-dropout.md](11-batch-normalization-dropout.md) |
 | 12 | Optimization Algorithms: SGD, Momentum, RMSProp, Adam | [12-optimization-algorithms.md](12-optimization-algorithms.md) |
 | 13 | Hyperparameter Tuning | [13-hyperparameter-tuning.md](13-hyperparameter-tuning.md) |
+| 14 | Model Evaluation: Metrics | [14-model-evaluation-metrics.md](14-model-evaluation-metrics.md) |
