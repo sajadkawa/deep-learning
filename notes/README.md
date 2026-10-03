@@ -24,3 +24,4 @@ Lecture notes in order. Each note includes formulas, diagrams, and worked exampl
 | 18 | Associative Memory | [18-associative-memory.md](18-associative-memory.md) |
 | 19 | Introduction to Convolutional Neural Networks | [19-introduction-to-cnns.md](19-introduction-to-cnns.md) |
 | 20 | CNN Architecture: Convolutional, Pooling, and Fully Connected Layers | [20-cnn-architecture.md](20-cnn-architecture.md) |
+| 21 | Transfer Learning and Pre-trained Models | [21-transfer-learning.md](21-transfer-learning.md) |
