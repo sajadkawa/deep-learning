@@ -17,7 +17,7 @@ Russell and Norvig's *Artificial Intelligence: A Modern Approach* — the standa
 | Thinking humanly | Model human cognition | Cognitive science, brain simulation |
 | Thinking rationally | Use logic and formal reasoning | Theorem provers, logic systems |
 | Acting humanly | Behave indistinguishably from a human | Turing Test |
-| Acting rationally | Do the right thing to achieve a goal | Most of modern AI |
+| Acting rationally | Do the right thing to achieve a goal | The rational agent approach |
 
 Modern AI — and everything in this course — sits in the **acting rationally** quadrant. The goal is not to simulate human thought but to build systems that act effectively to achieve objectives.
 
