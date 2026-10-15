@@ -22,10 +22,10 @@ def relu(z):
 def relu_deriv(z):
     return (z > 0).astype(float)
 
-def leaky_relu(z, alpha=0.01):
+def leaky_relu(z, alpha=0.1):
     return np.where(z > 0, z, alpha * z)
 
-def leaky_relu_deriv(z, alpha=0.01):
+def leaky_relu_deriv(z, alpha=0.1):
     return np.where(z > 0, 1.0, alpha)
 
 # --- layout: 4 rows x 2 cols ---
@@ -37,7 +37,7 @@ configs = [
     ("Sigmoid",      sigmoid(z),           sigmoid_deriv(z),    "#4fc3f7", (-0.1, 1.1),  (-0.05, 0.30)),
     ("Tanh",         np.tanh(z),           tanh_deriv(z),       "#81c784", (-1.1, 1.1),  (-0.05, 1.10)),
     ("ReLU",         relu(z),              relu_deriv(z),       "#ffb74d", (-0.5, 6.5),  (-0.1,  1.2)),
-    ("Leaky ReLU",   leaky_relu(z),        leaky_relu_deriv(z), "#ce93d8", (-6.5, 6.5),  (-0.1,  1.2)),
+    ("Leaky ReLU",   leaky_relu(z),        leaky_relu_deriv(z), "#ce93d8", (-0.6, 6.5),  (-0.05, 1.2)),
 ]
 
 for row, (name, f, df, color, ylim_f, ylim_df) in enumerate(configs):
