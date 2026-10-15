@@ -2,7 +2,94 @@
 
 ---
 
-## Part 1: What a Loss Function Is
+## Part 1: A Neural Network is a Parametric Function
+
+Before defining what a loss function is, we need to be precise about what a neural network actually is — not architecturally, but mathematically.
+
+A neural network is a **parametric function**. It takes an input vector x and produces an output ŷ. The mapping from x to ŷ is controlled entirely by a set of learned numerical values — the weights and biases — collectively written as θ:
+
+```
+ŷ = F(x ; θ)
+```
+
+This single expression is the most important abstraction in the course. Everything from here onwards — loss functions, gradient descent, backpropagation, regularisation, optimisation — is about one thing: finding the right θ.
+
+### The Three Distinct Things
+
+The expression F(x ; θ) contains three things that must never be conflated:
+
+**x — the input data**
+
+```
+x is fixed during training
+It is the raw feature vector fed into the network
+The network does not change x — it transforms it
+```
+
+**θ — the parameters**
+
+```
+θ = { W⁽¹⁾, b⁽¹⁾, W⁽²⁾, b⁽²⁾, ..., W⁽ᴸ⁾, b⁽ᴸ⁾ }
+
+θ is everything the network learns
+Before training: θ is random
+After training:  θ encodes everything the network has learned about the task
+Training is the process of finding the right θ
+```
+
+**The architecture — the structure of F**
+
+```
+The architecture is the designer's choice:
+  - How many layers
+  - How many neurons per layer
+  - Which activation functions
+  - How layers are connected
+
+The architecture is fixed before training begins
+It determines what functions F(x ; θ) is capable of representing
+No amount of training can compensate for a wrong architecture
+```
+
+The semicolon in F(x ; θ) is deliberate notation from the literature. It separates the variable the function acts on (x) from the parameters that define the function (θ). During inference, x varies and θ is fixed. During training, x is fixed (the dataset) and θ is what changes.
+
+### What Training Formally Is
+
+Given a dataset of input-output pairs (x, y), training is the process of finding the parameter values θ that make F(x ; θ) as close to y as possible across all examples.
+
+This is an optimisation problem. We need a scalar measure of how wrong the current θ is — that is the loss function L(y, ŷ). Training is then:
+
+```
+θ* = argmin L( y,  F(x ; θ) )
+          θ
+```
+
+Read: find the θ that minimises the loss between the true labels y and the network's predictions F(x ; θ).
+
+The diagram below shows this abstraction: x enters the network, θ controls the transformation, ŷ comes out, and the loss measures the gap between ŷ and the true label y. Training is the process of adjusting θ to close that gap.
+
+![A Neural Network as a Parametric Function](images/network_as_function.png)
+
+### Existence vs Findability
+
+The Universal Approximation Theorem (**Note 03**) established that a network with sufficient capacity can represent any continuous function — there exist θ values that make F(x ; θ) arbitrarily close to any target. That is a statement about the expressive power of the architecture.
+
+But existence is not the same as findability. The UAT says nothing about:
+
+```
+- Whether gradient descent can actually reach those θ values
+- Whether the training data is sufficient to constrain θ toward them
+- Whether the optimisation landscape has traps that prevent convergence
+- Whether the found θ generalises beyond the training examples
+```
+
+Those are four separate problems, and they are precisely what the rest of this course addresses. The F(x ; θ) framing makes this gap explicit: the architecture determines what is representable, but training determines what is actually found. A network can be theoretically capable of solving a task and practically unable to learn it — and the reason is always in the gap between existence and findability.
+
+> The UAT guarantees that the right θ exists. Everything from Note 05 onwards is about finding it.
+
+---
+
+## Part 2: What a Loss Function Is
 
 A neural network learns by adjusting its weights. But adjust them toward what? There must be a precise, mathematical measure of how wrong the network's current predictions are. That measure is the **loss function**.
 
@@ -26,7 +113,7 @@ Different tasks require different loss functions. The choice is not arbitrary �
 
 ---
 
-## Part 2: Mean Squared Error (MSE)
+## Part 3: Mean Squared Error (MSE)
 
 ### The Setting
 
@@ -89,11 +176,11 @@ The gradient is **linear in the error** — when the prediction is far from the 
 
 ### MSE for Classification — Why It Fails
 
-MSE can technically be applied to classification. It fails for a subtle but important reason related to gradient behaviour when combined with sigmoid or softmax outputs, which is explained in Part 5 after cross-entropy is introduced.
+MSE can technically be applied to classification. It fails for a subtle but important reason related to gradient behaviour when combined with sigmoid or softmax outputs, which is explained in Part 6 after cross-entropy is introduced.
 
 ---
 
-## Part 3: Binary Cross-Entropy
+## Part 4: Binary Cross-Entropy
 
 ### The Setting
 
@@ -222,7 +309,7 @@ The gradient is simply the prediction error. The sigmoid derivative cancels out 
 
 ---
 
-## Part 4: Categorical Cross-Entropy
+## Part 5: Categorical Cross-Entropy
 
 ### The Setting
 
@@ -298,7 +385,7 @@ This is the same clean form as BCE + sigmoid. Softmax and cross-entropy are natu
 
 ---
 
-## Part 5: Why Cross-Entropy Outperforms MSE for Classification
+## Part 6: Why Cross-Entropy Outperforms MSE for Classification
 
 This is one of the most important practical insights in deep learning. The issue is not accuracy — both losses can in principle converge to the correct answer. The issue is **gradient behaviour**.
 
@@ -355,7 +442,7 @@ The same principle applies to CCE + softmax for multiclass classification.
 
 ---
 
-## Part 6: Loss as the Landscape — Connection to Training
+## Part 7: Loss as the Landscape — Connection to Training
 
 The loss function defines a **surface** in parameter space. Every possible setting of the network's weights corresponds to a point on this surface, and the height of the surface at that point is the loss value.
 
@@ -387,6 +474,9 @@ The choice of loss function directly determines:
 
 Key takeaways:
 
+- A neural network is a parametric function ŷ = F(x ; θ) — x is the input, θ are the learned weights and biases, and the architecture is the designer's fixed choice of structure
+- Training is the optimisation problem θ* = argmin L(y, F(x ; θ)) — finding the parameters that minimise the loss over the training data
+- x, θ, and the architecture are three distinct things — conflating them is the source of most conceptual errors in deep learning
 - The loss function is the mathematical measure of prediction error — it is the signal that drives all learning; without it backpropagation has no starting point
 - MSE measures average squared error — appropriate for regression, penalises large errors disproportionately, well-behaved gradient for linear outputs
 - Binary cross-entropy is derived from maximum likelihood for Bernoulli outputs — the principled loss for binary classification with sigmoid; gradient simplifies to ŷ − y
