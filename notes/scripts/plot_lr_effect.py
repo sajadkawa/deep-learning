@@ -19,28 +19,28 @@ def simulated_loss(eta_case, noise=0.02):
     return loss
 
 configs = [
-    ('too_large',  '#f85149', 'η too large  — diverges / oscillates'),
-    ('too_small',  '#f0883e', 'η too small  — stalls'),
-    ('just_right', '#3fb950', 'η well-chosen — converges'),
+    ('too_large',  '#dc2626', 'η too large  — diverges / oscillates'),
+    ('too_small',  '#b45309', 'η too small  — stalls'),
+    ('just_right', '#15803d', 'η well-chosen — converges'),
 ]
 
 fig, ax = plt.subplots(figsize=(10, 4.5))
-fig.patch.set_facecolor('#0d1117')
-ax.set_facecolor('#0d1117')
+fig.patch.set_facecolor('white')
+ax.set_facecolor('white')
 
 for case, color, label in configs:
     loss = simulated_loss(case)
     ax.plot(epochs, loss, color=color, lw=2.2, label=label)
 
-ax.set_xlabel('Epoch', color='#8b949e', fontsize=9)
-ax.set_ylabel('Training Loss', color='#8b949e', fontsize=9)
-ax.tick_params(colors='#8b949e')
+ax.set_xlabel('Epoch', color='#374151', fontsize=9)
+ax.set_ylabel('Training Loss', color='#374151', fontsize=9)
+ax.tick_params(colors='#374151')
 for spine in ax.spines.values():
-    spine.set_edgecolor('#30363d')
-ax.legend(facecolor='#161b22', edgecolor='#30363d', labelcolor='#e6edf3', fontsize=9)
-ax.set_title('Effect of Learning Rate on Training', color='#e6edf3', fontsize=12, pad=8)
+    spine.set_edgecolor('#d1d5db')
+ax.legend(facecolor='white', edgecolor='#d1d5db', labelcolor='#111111', fontsize=9)
+ax.set_title('Effect of Learning Rate on Training', color='#111111', fontsize=12, pad=8)
 
 plt.tight_layout()
 out = os.path.join(os.path.dirname(__file__), '..', 'images', 'lr_effect.png')
-plt.savefig(out, dpi=150, bbox_inches='tight', facecolor=fig.get_facecolor())
+plt.savefig(out, dpi=150, bbox_inches='tight', facecolor='white', edgecolor='none')
 plt.close()
