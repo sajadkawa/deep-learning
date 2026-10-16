@@ -53,6 +53,47 @@ No amount of training can compensate for a wrong architecture
 
 The semicolon in F(x ; θ) is deliberate notation from the literature. It separates the variable the function acts on (x) from the parameters that define the function (θ). During inference, x varies and θ is fixed. During training, x is fixed (the dataset) and θ is what changes.
 
+### What the Network is Trying to Approximate
+
+Why do we want F(x ; θ) ≈ y? Because y was not generated arbitrarily — it came from some process.
+
+There exists a true underlying function f* that maps inputs to outputs. You do not have access to f* directly. What you have is a finite set of input-output pairs sampled from it:
+
+```
+True unknown function:     y = f*(x)
+
+What you observe:          (x₁, y₁), (x₂, y₂), ..., (xₙ, yₙ)
+                           — a finite sample from f*
+
+What you build:            ŷ = F(x ; θ)
+                           — a parametric approximation of f*
+```
+
+This is the framing Goodfellow et al. use in *Deep Learning* (2016, Section 5.1). They describe supervised learning as: given examples of f*, recover an approximation that generalises beyond those examples. The network F(x ; θ) is a **function approximator** — it defines a family of functions indexed by θ, and training selects the member of that family that best matches the observed samples from f*.
+
+This framing makes three things precise that are otherwise left vague:
+
+```
+1. f* exists but is never directly accessible
+   — you can only observe samples from it
+   — the true function could be anything: a physical law, a biological process,
+     a human decision, a statistical regularity in language
+
+2. The training data is a finite, noisy sample from f*
+   — it does not cover all of f*
+   — it may contain measurement noise: y = f*(x) + ε
+   — this is why generalisation is hard and not guaranteed
+
+3. F(x ; θ) approximates f*, it does not recover it exactly
+   — the architecture constrains what F can represent
+   — the training data constrains which θ is found
+   — the optimisation algorithm constrains how well θ* is reached
+```
+
+> A neural network does not learn a rule. It approximates an unknown function f* from a finite sample of its input-output behaviour. Everything that can go wrong in deep learning — overfitting, underfitting, poor generalisation — is a consequence of the gap between the finite sample and the true f*.
+
+This also clarifies what generalisation means precisely: training minimises L on the observed samples, but the actual goal is F(x ; θ) ≈ f*(x) for all x — including inputs never seen during training. The gap between those two objectives is the subject of **Note 07**.
+
 ### What Training Formally Is
 
 Given a dataset of input-output pairs (x, y), training is the process of finding the parameter values θ that make F(x ; θ) as close to y as possible across all examples.
@@ -475,6 +516,7 @@ The choice of loss function directly determines:
 Key takeaways:
 
 - A neural network is a parametric function ŷ = F(x ; θ) — x is the input, θ are the learned weights and biases, and the architecture is the designer's fixed choice of structure
+- The network approximates an unknown true function f* from a finite sample of its input-output behaviour — this is the function approximation framing of Goodfellow et al. (2016)
 - Training is the optimisation problem θ* = argmin L(y, F(x ; θ)) — finding the parameters that minimise the loss over the training data
 - x, θ, and the architecture are three distinct things — conflating them is the source of most conceptual errors in deep learning
 - The loss function is the mathematical measure of prediction error — it is the signal that drives all learning; without it backpropagation has no starting point
