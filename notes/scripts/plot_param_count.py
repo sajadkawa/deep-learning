@@ -31,24 +31,29 @@ for d in depths:
     sizes = [n0, width, n_out]
     shallow_wide.append(param_count(sizes))
 
-fig, ax = plt.subplots(figsize=(8, 5))
+fig, ax = plt.subplots(figsize=(5, 3))
+fig.patch.set_facecolor('white')
+ax.set_facecolor('white')
 
-ax.plot(depths, deep_narrow, color='#2196F3', linewidth=2.5,
+ax.plot(depths, deep_narrow, color='#2563eb', linewidth=2.5,
         marker='o', markersize=7, label='Deep narrow (width=32 per layer)')
-ax.plot(depths, shallow_wide, color='#F44336', linewidth=2.5,
+ax.plot(depths, shallow_wide, color='#dc2626', linewidth=2.5,
         marker='s', markersize=7, label='Shallow wide (1 hidden layer, same total neurons)')
 
-ax.set_xlabel('Number of hidden layers', fontsize=12)
-ax.set_ylabel('Total parameters', fontsize=12)
-ax.set_title('Parameter count: deep narrow vs shallow wide', fontsize=13)
-ax.legend(fontsize=11)
+ax.set_xlabel('Number of hidden layers', fontsize=11, color='#374151')
+ax.set_ylabel('Total parameters', fontsize=11, color='#374151')
+ax.set_title('Parameter count: deep narrow vs shallow wide', fontsize=11, color='#111111')
+ax.legend(fontsize=9)
 ax.set_xticks(depths)
 ax.yaxis.get_major_formatter().set_scientific(False)
-ax.grid(True, alpha=0.3)
+ax.tick_params(colors='#374151')
+for spine in ax.spines.values():
+    spine.set_edgecolor('#d1d5db')
+ax.grid(True, alpha=0.3, color='#d1d5db')
 
 plt.tight_layout()
 
 out_path = os.path.join(os.path.dirname(__file__), '..', 'images', 'param_count_depth_width.png')
-plt.savefig(out_path, dpi=150, bbox_inches='tight')
+plt.savefig(out_path, dpi=150, bbox_inches='tight', facecolor='white', edgecolor='none')
 plt.close()
 print("Saved param_count_depth_width.png")
