@@ -26,32 +26,32 @@ def forward_activations(layer_sizes, init_std, activation, n_samples=1000):
 layer_sizes = [500] + [500] * 8   # 8 hidden layers
 
 configs = [
-    ('Too small  (std=0.01)',  lambda n_in, n_out: 0.01,                    relu,  '#f85149'),
-    ('Too large  (std=1.0)',   lambda n_in, n_out: 1.0,                     relu,  '#f0883e'),
-    ('He init',               lambda n_in, n_out: np.sqrt(2.0 / n_in),     relu,  '#3fb950'),
-    ('Xavier init (tanh)',    lambda n_in, n_out: np.sqrt(1.0 / n_in),     tanh,  '#388bfd'),
+    ('Too small  (std=0.01)',  lambda n_in, n_out: 0.01,                    relu,  '#dc2626'),
+    ('Too large  (std=1.0)',   lambda n_in, n_out: 1.0,                     relu,  '#b45309'),
+    ('He init',               lambda n_in, n_out: np.sqrt(2.0 / n_in),     relu,  '#15803d'),
+    ('Xavier init (tanh)',    lambda n_in, n_out: np.sqrt(1.0 / n_in),     tanh,  '#2563eb'),
 ]
 
 fig, axes = plt.subplots(1, 4, figsize=(14, 4.5), sharey=False)
-fig.patch.set_facecolor('#0d1117')
+fig.patch.set_facecolor('white')
 
 for ax, (label, init_fn, act_fn, color) in zip(axes, configs):
-    ax.set_facecolor('#0d1117')
+    ax.set_facecolor('white')
     stds = forward_activations(layer_sizes, init_fn, act_fn)
     layers = list(range(len(stds)))
     ax.plot(layers, stds, color=color, lw=2.5, marker='o', markersize=5)
-    ax.axhline(0, color='#30363d', lw=0.8)
-    ax.set_xlabel('Layer', color='#8b949e', fontsize=9)
-    ax.set_ylabel('Activation std', color='#8b949e', fontsize=9)
-    ax.tick_params(colors='#8b949e')
+    ax.axhline(0, color='#d1d5db', lw=0.8)
+    ax.set_xlabel('Layer', color='#374151', fontsize=9)
+    ax.set_ylabel('Activation std', color='#374151', fontsize=9)
+    ax.tick_params(colors='#374151')
     for spine in ax.spines.values():
-        spine.set_edgecolor('#30363d')
-    ax.set_title(label, color='#e6edf3', fontsize=10, pad=6)
+        spine.set_edgecolor('#d1d5db')
+    ax.set_title(label, color='#111111', fontsize=10, pad=6)
     ax.set_xticks(layers)
 
 fig.suptitle('Activation Standard Deviation Across Layers — Effect of Initialization',
-             color='#e6edf3', fontsize=12, y=1.02)
+             color='#111111', fontsize=12, y=1.02)
 plt.tight_layout()
 out = os.path.join(os.path.dirname(__file__), '..', 'images', 'init_activation_distributions.png')
-plt.savefig(out, dpi=150, bbox_inches='tight', facecolor=fig.get_facecolor())
+plt.savefig(out, dpi=150, bbox_inches='tight', facecolor='white', edgecolor='none')
 plt.close()

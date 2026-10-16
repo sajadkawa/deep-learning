@@ -40,31 +40,31 @@ def forward_and_backward(layer_sizes, init_std, n_samples=500):
 layer_sizes = [500] + [500] * 6 + [500]
 
 configs = [
-    ('Too small  (std=0.01)', lambda n_in, n_out: 0.01,                '#f85149'),
-    ('Too large  (std=1.0)',  lambda n_in, n_out: 1.0,                 '#f0883e'),
-    ('He init',              lambda n_in, n_out: np.sqrt(2.0 / n_in), '#3fb950'),
+    ('Too small  (std=0.01)', lambda n_in, n_out: 0.01,                '#dc2626'),
+    ('Too large  (std=1.0)',  lambda n_in, n_out: 1.0,                 '#b45309'),
+    ('He init',              lambda n_in, n_out: np.sqrt(2.0 / n_in), '#15803d'),
 ]
 
 fig, axes = plt.subplots(1, 3, figsize=(12, 4.5), sharey=False)
-fig.patch.set_facecolor('#0d1117')
+fig.patch.set_facecolor('white')
 
 for ax, (label, init_fn, color) in zip(axes, configs):
-    ax.set_facecolor('#0d1117')
+    ax.set_facecolor('white')
     grad_stds = forward_and_backward(layer_sizes, init_fn)
     layers = list(range(1, len(grad_stds) + 1))
     ax.plot(layers, grad_stds, color=color, lw=2.5, marker='o', markersize=5)
-    ax.axhline(0, color='#30363d', lw=0.8)
-    ax.set_xlabel('Layer (1 = first hidden)', color='#8b949e', fontsize=9)
-    ax.set_ylabel('Gradient std', color='#8b949e', fontsize=9)
-    ax.tick_params(colors='#8b949e')
+    ax.axhline(0, color='#d1d5db', lw=0.8)
+    ax.set_xlabel('Layer (1 = first hidden)', color='#374151', fontsize=9)
+    ax.set_ylabel('Gradient std', color='#374151', fontsize=9)
+    ax.tick_params(colors='#374151')
     for spine in ax.spines.values():
-        spine.set_edgecolor('#30363d')
-    ax.set_title(label, color='#e6edf3', fontsize=10, pad=6)
+        spine.set_edgecolor('#d1d5db')
+    ax.set_title(label, color='#111111', fontsize=10, pad=6)
     ax.set_xticks(layers)
 
 fig.suptitle('Gradient Standard Deviation Across Layers — Effect of Initialization',
-             color='#e6edf3', fontsize=12, y=1.02)
+             color='#111111', fontsize=12, y=1.02)
 plt.tight_layout()
 out = os.path.join(os.path.dirname(__file__), '..', 'images', 'init_gradient_flow.png')
-plt.savefig(out, dpi=150, bbox_inches='tight', facecolor=fig.get_facecolor())
+plt.savefig(out, dpi=150, bbox_inches='tight', facecolor='white', edgecolor='none')
 plt.close()
