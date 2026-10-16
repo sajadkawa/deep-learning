@@ -5,75 +5,49 @@ import os
 
 z = np.linspace(-6, 6, 400)
 
-# --- functions ---
-def sigmoid(z):
-    return 1 / (1 + np.exp(-z))
-
-def sigmoid_deriv(z):
-    s = sigmoid(z)
-    return s * (1 - s)
-
-def tanh_deriv(z):
-    return 1 - np.tanh(z) ** 2
-
-def relu(z):
-    return np.maximum(0, z)
-
-def relu_deriv(z):
-    return (z > 0).astype(float)
-
-def leaky_relu(z, alpha=0.1):
-    return np.where(z > 0, z, alpha * z)
-
-def leaky_relu_deriv(z, alpha=0.1):
-    return np.where(z > 0, 1.0, alpha)
-
-# --- layout: 4 rows x 2 cols ---
-fig = plt.figure(figsize=(12, 14))
-fig.patch.set_facecolor('#1e1e1e')
-gs = gridspec.GridSpec(4, 2, hspace=0.55, wspace=0.35)
+def sigmoid(z):       return 1 / (1 + np.exp(-z))
+def sigmoid_deriv(z): s = sigmoid(z); return s * (1 - s)
+def tanh_deriv(z):    return 1 - np.tanh(z) ** 2
+def relu(z):          return np.maximum(0, z)
+def relu_deriv(z):    return (z > 0).astype(float)
+def leaky_relu(z, alpha=0.1):       return np.where(z > 0, z, alpha * z)
+def leaky_relu_deriv(z, alpha=0.1): return np.where(z > 0, 1.0, alpha)
 
 configs = [
-    ("Sigmoid",      sigmoid(z),           sigmoid_deriv(z),    "#4fc3f7", (-0.1, 1.1),  (-0.05, 0.30)),
-    ("Tanh",         np.tanh(z),           tanh_deriv(z),       "#81c784", (-1.1, 1.1),  (-0.05, 1.10)),
-    ("ReLU",         relu(z),              relu_deriv(z),       "#ffb74d", (-0.5, 6.5),  (-0.1,  1.2)),
-    ("Leaky ReLU",   leaky_relu(z),        leaky_relu_deriv(z), "#ce93d8", (-0.6, 6.5),  (-0.05, 1.2)),
+    ("Sigmoid",    sigmoid(z),      sigmoid_deriv(z),    '#2563eb', (-0.1, 1.1),  (-0.05, 0.30)),
+    ("Tanh",       np.tanh(z),      tanh_deriv(z),       '#15803d', (-1.1, 1.1),  (-0.05, 1.10)),
+    ("ReLU",       relu(z),         relu_deriv(z),       '#b45309', (-0.5, 6.5),  (-0.1,  1.2)),
+    ("Leaky ReLU", leaky_relu(z),   leaky_relu_deriv(z), '#7c3aed', (-0.6, 6.5),  (-0.05, 1.2)),
 ]
 
+fig = plt.figure(figsize=(11, 12))
+fig.patch.set_facecolor('white')
+gs = gridspec.GridSpec(4, 2, hspace=0.55, wspace=0.35)
+
 for row, (name, f, df, color, ylim_f, ylim_df) in enumerate(configs):
-    # function
-    ax1 = fig.add_subplot(gs[row, 0])
-    ax1.set_facecolor('#2d2d2d')
-    ax1.plot(z, f, color=color, linewidth=2)
-    ax1.axhline(0, color='#666', linewidth=0.8, linestyle='--')
-    ax1.axvline(0, color='#666', linewidth=0.8, linestyle='--')
-    ax1.set_title(f"{name}  —  f(z)", color='white', fontsize=11, pad=6)
-    ax1.set_xlabel("z", color='#aaa', fontsize=9)
-    ax1.set_ylabel("f(z)", color='#aaa', fontsize=9)
-    ax1.set_xlim(-6, 6)
-    ax1.set_ylim(*ylim_f)
-    ax1.tick_params(colors='#aaa', labelsize=8)
-    for spine in ax1.spines.values():
-        spine.set_edgecolor('#555')
+    for col, (data, ylim, ylabel, title_suffix) in enumerate([
+        (f,  ylim_f,  "f(z)",  "f(z)"),
+        (df, ylim_df, "f'(z)", "f'(z)"),
+    ]):
+        ax = fig.add_subplot(gs[row, col])
+        ax.set_facecolor('white')
+        ls = '--' if col == 1 else '-'
+        ax.plot(z, data, color=color, linewidth=2, linestyle=ls)
+        ax.axhline(0, color='#e5e7eb', linewidth=0.8)
+        ax.axvline(0, color='#e5e7eb', linewidth=0.8)
+        ax.set_title(f"{name}  —  {title_suffix}", color='#111111', fontsize=11, pad=6)
+        ax.set_xlabel("z", color='#374151', fontsize=9)
+        ax.set_ylabel(ylabel, color='#374151', fontsize=9)
+        ax.set_xlim(-6, 6)
+        ax.set_ylim(*ylim)
+        ax.tick_params(colors='#374151', labelsize=8)
+        for spine in ax.spines.values():
+            spine.set_edgecolor('#d1d5db')
 
-    # derivative
-    ax2 = fig.add_subplot(gs[row, 1])
-    ax2.set_facecolor('#2d2d2d')
-    ax2.plot(z, df, color=color, linewidth=2, linestyle='--')
-    ax2.axhline(0, color='#666', linewidth=0.8, linestyle='--')
-    ax2.axvline(0, color='#666', linewidth=0.8, linestyle='--')
-    ax2.set_title(f"{name}  —  f'(z)", color='white', fontsize=11, pad=6)
-    ax2.set_xlabel("z", color='#aaa', fontsize=9)
-    ax2.set_ylabel("f'(z)", color='#aaa', fontsize=9)
-    ax2.set_xlim(-6, 6)
-    ax2.set_ylim(*ylim_df)
-    ax2.tick_params(colors='#aaa', labelsize=8)
-    for spine in ax2.spines.values():
-        spine.set_edgecolor('#555')
-
-fig.suptitle("Activation Functions and Their Derivatives", color='white', fontsize=13, y=0.995)
+fig.suptitle("Activation Functions and Their Derivatives",
+             color='#111111', fontsize=13, y=0.995)
 
 out = os.path.join(os.path.dirname(__file__), '..', 'images', 'activation_functions.png')
-plt.savefig(out, dpi=150, bbox_inches='tight', facecolor=fig.get_facecolor())
+plt.savefig(out, dpi=150, bbox_inches='tight', facecolor='white', edgecolor='none')
 plt.close()
 print("Saved activation_functions.png")
