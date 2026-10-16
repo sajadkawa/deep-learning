@@ -96,9 +96,9 @@ Where η (eta) is the **learning rate** — a small positive scalar that control
 
 ### Visualising Gradient Descent
 
-The left panel below shows one step of gradient descent on a simple parabolic loss surface. The red dot is the current position, the green dot is the position after one update. The middle panel shows what happens when η is too large — the update overshoots the minimum and the loss bounces back and forth. The right panel compares η too small (slow convergence) with η just right (efficient convergence).
+The three panels below illustrate the effect of the learning rate. The left panel shows gradient descent with a well-chosen η — the steps (green dots, w0 through w5) converge smoothly toward the minimum. The middle panel shows η too large — the update overshoots the minimum and bounces back and forth across it. The right panel shows η too small — after 20 steps the parameter has barely moved from its starting position.
 
-![Gradient descent — one step, η too large, η too small vs just right](images/gradient_descent.png)
+![Gradient descent — good convergence, η too large, η too small](images/gradient_descent.png)
 
 ### The Learning Rate
 
