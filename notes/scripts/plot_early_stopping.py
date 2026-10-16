@@ -3,28 +3,32 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 epochs = np.arange(1, 61)
-
-train = 0.9 * np.exp(-epochs / 18) + 0.05
-val   = 0.9 * np.exp(-epochs / 40) + 0.05 + np.maximum(0, (epochs - 20) * 0.012)
+train  = 0.9 * np.exp(-epochs / 18) + 0.05
+val    = 0.9 * np.exp(-epochs / 40) + 0.05 + np.maximum(0, (epochs - 20) * 0.012)
 
 best_epoch = epochs[np.argmin(val)]
 
-fig, ax = plt.subplots(figsize=(7, 4))
+fig, ax = plt.subplots(figsize=(6, 3.5))
+fig.patch.set_facecolor('white')
+ax.set_facecolor('white')
 
-ax.plot(epochs, train, color="#2196F3", linewidth=2, label="Training loss")
-ax.plot(epochs, val,   color="#F44336", linewidth=2, linestyle="--", label="Validation loss")
-ax.axvline(best_epoch, color="gray", linewidth=1.5, linestyle=":")
-ax.text(best_epoch + 0.8, 0.72, "Stop here\n(best validation loss)", fontsize=9, color="gray")
+ax.plot(epochs, train, color='#2563eb', linewidth=2, label='Training loss')
+ax.plot(epochs, val,   color='#dc2626', linewidth=2, linestyle='--', label='Validation loss')
+ax.axvline(best_epoch, color='#9ca3af', linewidth=1.5, linestyle=':')
+ax.text(best_epoch + 0.8, 0.72, 'Stop here\n(best validation loss)',
+        fontsize=9, color='#6b7280')
 
-ax.set_xlabel("Epochs")
-ax.set_ylabel("Loss")
+ax.set_xlabel('Epochs', color='#374151')
+ax.set_ylabel('Loss', color='#374151')
 ax.set_ylim(0, 0.9)
-ax.legend(fontsize=10)
-ax.spines["top"].set_visible(False)
-ax.spines["right"].set_visible(False)
+ax.tick_params(colors='#374151')
+for spine in ax.spines.values():
+    spine.set_edgecolor('#d1d5db')
+ax.spines['top'].set_visible(False)
+ax.spines['right'].set_visible(False)
+ax.legend(fontsize=9, facecolor='white', edgecolor='#d1d5db', labelcolor='#111111')
 
 plt.tight_layout()
-
-out = os.path.join(os.path.dirname(__file__), "..", "images", "early_stopping.png")
-plt.savefig(out, dpi=150, bbox_inches="tight")
-print("saved:", os.path.abspath(out))
+out = os.path.join(os.path.dirname(__file__), '..', 'images', 'early_stopping.png')
+plt.savefig(out, dpi=150, bbox_inches='tight', facecolor='white', edgecolor='none')
+print('saved:', os.path.abspath(out))
