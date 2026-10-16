@@ -1,11 +1,14 @@
 import matplotlib.pyplot as plt
 import os
 
-fig, ax = plt.subplots(figsize=(11, 6))
+fig, ax = plt.subplots(figsize=(9, 5))
+fig.patch.set_facecolor('white')
+ax.set_facecolor('white')
 ax.set_xlim(0, 11)
 ax.set_ylim(0, 6)
 ax.axis('off')
-ax.set_title("MLP Forward Pass — XOR input x=[0,1], expected output=1", fontsize=12, fontweight='bold')
+ax.set_title("MLP Forward Pass — XOR input x=[0,1], expected output=1",
+             fontsize=12, fontweight='bold', color='#111111')
 
 # ── Neuron positions ──────────────────────────────────────────────────────────
 input_neurons  = [(2, 4.0), (2, 2.0)]
@@ -15,14 +18,14 @@ output_neuron  = [(9, 3.0)]
 layer_colors = {'input': '#d1ecf1', 'hidden': '#fff3cd', 'output': '#d4edda'}
 
 def draw_neuron(ax, x, y, top_label, bottom_label, color):
-    circle = plt.Circle((x, y), 0.5, color=color, ec='gray', linewidth=1.5, zorder=3)
+    circle = plt.Circle((x, y), 0.5, color=color, ec='#9ca3af', linewidth=1.5, zorder=3)
     ax.add_patch(circle)
-    ax.text(x, y + 0.15, top_label,    ha='center', va='center', fontsize=9,  fontweight='bold', zorder=4)
-    ax.text(x, y - 0.18, bottom_label, ha='center', va='center', fontsize=8,  color='dimgray',   zorder=4)
+    ax.text(x, y + 0.15, top_label,    ha='center', va='center', fontsize=9,  fontweight='bold', color='#111111', zorder=4)
+    ax.text(x, y - 0.18, bottom_label, ha='center', va='center', fontsize=8,  color='#6b7280',   zorder=4)
 
-def draw_arrow(ax, x1, y1, x2, y2, label, label_color='dimgray'):
+def draw_arrow(ax, x1, y1, x2, y2, label, label_color='#6b7280'):
     ax.annotate("", xy=(x2 - 0.5, y2), xytext=(x1 + 0.5, y1),
-                arrowprops=dict(arrowstyle='->', color='gray', lw=1.2))
+                arrowprops=dict(arrowstyle='->', color='#9ca3af', lw=1.2))
     mx, my = (x1 + x2) / 2, (y1 + y2) / 2
     ax.text(mx, my + 0.18, label, ha='center', fontsize=8, color=label_color, style='italic')
 
@@ -51,31 +54,31 @@ draw_arrow(ax, *hidden_neurons[1], *output_neuron[0], 'w=1, h=1 → 1')
 # ── Input arrows ──────────────────────────────────────────────────────────────
 for x, y in input_neurons:
     ax.annotate("", xy=(x - 0.5, y), xytext=(x - 1.3, y),
-                arrowprops=dict(arrowstyle='->', color='gray', lw=1.2))
+                arrowprops=dict(arrowstyle='->', color='#9ca3af', lw=1.2))
 
 # ── Output arrow ──────────────────────────────────────────────────────────────
 ox, oy = output_neuron[0]
 ax.annotate("", xy=(ox + 1.3, oy), xytext=(ox + 0.5, oy),
-            arrowprops=dict(arrowstyle='->', color='gray', lw=1.2))
-ax.text(ox + 1.5, oy, '1 ✓', fontsize=12, fontweight='bold', color='seagreen', va='center')
+            arrowprops=dict(arrowstyle='->', color='#9ca3af', lw=1.2))
+ax.text(ox + 1.5, oy, '1 ✓', fontsize=12, fontweight='bold', color='#15803d', va='center')
 
 # ── Layer labels ──────────────────────────────────────────────────────────────
-ax.text(2,   5.3, "Input",             ha='center', fontsize=10, color='steelblue', fontweight='bold')
-ax.text(5.5, 5.3, "Layer 1 — Hidden",  ha='center', fontsize=10, color='goldenrod', fontweight='bold')
-ax.text(9,   5.3, "Layer 2 — Output",  ha='center', fontsize=10, color='seagreen',  fontweight='bold')
+ax.text(2,   5.3, "Input",             ha='center', fontsize=10, color='#2563eb', fontweight='bold')
+ax.text(5.5, 5.3, "Layer 1 — Hidden",  ha='center', fontsize=10, color='#b45309', fontweight='bold')
+ax.text(9,   5.3, "Layer 2 — Output",  ha='center', fontsize=10, color='#15803d', fontweight='bold')
 
 # ── Bias annotations ─────────────────────────────────────────────────────────
-ax.text(5.5, 5.0, "b₁=-0.5   b₂=+1.5", ha='center', fontsize=8, color='gray', style='italic')
-ax.text(9,   2.3, "b=-1.5",             ha='center', fontsize=8, color='gray', style='italic')
+ax.text(5.5, 5.0, "b₁=-0.5   b₂=+1.5", ha='center', fontsize=8, color='#6b7280', style='italic')
+ax.text(9,   2.3, "b=-1.5",             ha='center', fontsize=8, color='#6b7280', style='italic')
 
 # ── Computation box ───────────────────────────────────────────────────────────
 ax.text(5.5, 0.35,
         "h₁: z = 1(0)+1(1)−0.5 = 0.5 → 1     h₂: z = −1(0)−1(1)+1.5 = 0.5 → 1     out: z = 1(1)+1(1)−1.5 = 0.5 → 1",
         ha='center', fontsize=8.5,
-        bbox=dict(boxstyle='round', facecolor='lightyellow', alpha=0.8))
+        bbox=dict(boxstyle='round', facecolor='#fef9c3', edgecolor='#ca8a04', linewidth=0.8, alpha=0.8))
 
 plt.tight_layout()
 output_path = os.path.join(os.path.dirname(__file__), '..', 'images', 'mlp_forward_pass.png')
-plt.savefig(output_path, dpi=150, bbox_inches='tight')
+plt.savefig(output_path, dpi=150, bbox_inches='tight', facecolor='white', edgecolor='none')
 print(f"Saved to {os.path.abspath(output_path)}")
 
