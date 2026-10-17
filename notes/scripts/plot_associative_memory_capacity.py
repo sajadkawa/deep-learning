@@ -46,32 +46,31 @@ P_values = list(range(1, 31))
 pn_ratios = [p / N for p in P_values]
 success_rates = simulate_capacity(N, P_values)
 
-fig, ax = plt.subplots(figsize=(8, 5))
-fig.patch.set_facecolor('#f8f8f8')
-ax.set_facecolor('#f8f8f8')
+fig, ax = plt.subplots(figsize=(6, 3.5))
+fig.patch.set_facecolor('white')
+ax.set_facecolor('white')
 
-ax.plot(pn_ratios, success_rates, color='#2c7bb6', linewidth=2.5, marker='o', markersize=5, label='Retrieval success rate')
+ax.plot(pn_ratios, success_rates, color='#2563eb', linewidth=2.5, marker='o', markersize=5, label='Retrieval success rate')
 
-# Shade reliable region
-ax.axvspan(0, 0.138, alpha=0.12, color='#1a9641', label='Reliable region (P/N < 0.14)')
-ax.axvspan(0.138, max(pn_ratios), alpha=0.10, color='#d7191c', label='Degraded region (P/N > 0.14)')
+ax.axvspan(0, 0.138, alpha=0.12, color='#15803d', label='Reliable region (P/N < 0.14)')
+ax.axvspan(0.138, max(pn_ratios), alpha=0.10, color='#dc2626', label='Degraded region (P/N > 0.14)')
+ax.axvline(x=0.138, color='#dc2626', linewidth=1.8, linestyle='--', label='Capacity limit P/N = 0.14')
 
-# Capacity line
-ax.axvline(x=0.138, color='#d7191c', linewidth=1.8, linestyle='--', label='Capacity limit P/N = 0.14')
-
-ax.set_xlabel('P / N  (patterns stored per neuron)', fontsize=11)
-ax.set_ylabel('Retrieval success rate', fontsize=11)
-ax.set_title('Hopfield Network Storage Capacity\n(N = 100 neurons, 200 trials per point)', fontsize=11, fontweight='bold')
+ax.set_xlabel('P / N  (patterns stored per neuron)', fontsize=11, color='#374151')
+ax.set_ylabel('Retrieval success rate', fontsize=11, color='#374151')
+ax.set_title('Hopfield Network Storage Capacity\n(N = 100 neurons, 200 trials per point)', fontsize=11, fontweight='bold', color='#111111')
 ax.set_xlim(0, max(pn_ratios))
 ax.set_ylim(-0.05, 1.1)
-ax.legend(fontsize=9, loc='upper right')
-ax.grid(True, alpha=0.3, linestyle='--')
+ax.legend(fontsize=9, loc='upper right', facecolor='white', edgecolor='#d1d5db', labelcolor='#111111')
+ax.grid(True, alpha=0.3, linestyle='--', color='#d1d5db')
+ax.tick_params(colors='#374151')
 
 for spine in ax.spines.values():
-    spine.set_edgecolor('#cccccc')
+    spine.set_edgecolor('#d1d5db')
 
 plt.tight_layout()
 out_dir = os.path.join(os.path.dirname(__file__), '..', 'images')
-plt.savefig(os.path.join(out_dir, 'associative_memory_capacity.png'), dpi=150, bbox_inches='tight')
+plt.savefig(os.path.join(out_dir, 'associative_memory_capacity.png'), dpi=150, bbox_inches='tight',
+            facecolor='white', edgecolor='none')
 plt.close()
 print("Saved associative_memory_capacity.png")
