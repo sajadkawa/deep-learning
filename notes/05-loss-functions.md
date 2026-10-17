@@ -69,6 +69,55 @@ What you build:            ŷ = F(x ; θ)
                            — a parametric approximation of f*
 ```
 
+### Why f* is Unknown
+
+f* is unknown for a fundamental reason: it is not a formula someone wrote down. It is the actual process — physical, biological, perceptual, or statistical — that generated the labels. We can observe its outputs but we cannot inspect its internals.
+
+Three concrete reasons f* is inaccessible:
+
+```
+1. It is a physical or biological process
+   Example: f* maps a protein's amino acid sequence → its 3D folded structure.
+   The folding is governed by thermodynamics and molecular forces.
+   No one has written down a closed-form rule — we only observe the outcomes.
+
+2. It is a human judgment that is consistent but not articulable
+   Example: f* maps an image → "cat" or "not cat".
+   Humans agree on the answer reliably, but no one can write down the rule
+   that distinguishes a cat from everything else in pixel space.
+
+3. It is a statistical regularity too complex to express analytically
+   Example: f* maps a sentence prefix → the most likely next word.
+   The rule depends on grammar, world knowledge, context, and style —
+   no formula captures it, but the pattern exists in large amounts of text.
+```
+
+In all three cases, the only access we have to f* is through examples — pairs (x, y) where y = f*(x) (possibly with noise). The network must infer the rule from those examples alone.
+
+### Concrete Examples of f*
+
+```
+Task                          x (input)                    y = f*(x) (output)
+────────────────────────────  ───────────────────────────  ──────────────────────────────
+Tumour diagnosis              Clinical measurements        Malignant / benign
+                              (size, shape, density)       The true biological state —
+                                                           observed via biopsy, not formula
+
+Image classification          Raw pixel values             Object category
+                              (28×28 = 784 numbers)        The true perceptual label —
+                                                           observed via human annotation
+
+House price prediction        Location, size, age,         Market price
+                              number of rooms              The true market value —
+                                                           observed via sale records
+
+Next-word prediction          Sequence of words            Most probable next word
+                              "The cat sat on the..."      The true language distribution —
+                                                           observed via large text corpora
+```
+
+In every case, f* is the real-world process. The training data is a finite, possibly noisy window into that process. The network approximates f* from that window.
+
 This is the framing Goodfellow et al. use in *Deep Learning* (2016, Section 5.1). They describe supervised learning as: given examples of f*, recover an approximation that generalises beyond those examples. The network F(x ; θ) is a **function approximator** — it defines a family of functions indexed by θ, and training selects the member of that family that best matches the observed samples from f*.
 
 This framing makes three things precise that are otherwise left vague:
