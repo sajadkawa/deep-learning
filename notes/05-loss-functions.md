@@ -298,6 +298,8 @@ The following plot shows how BCE behaves for y = 1 (left) and y = 0 (right):
 
 ![Binary cross-entropy loss curves](images/bce_loss.png)
 
+The log is what gives BCE its key property: as ŷ → 0 when y = 1, −log(ŷ) → ∞. A confidently wrong prediction is not just penalised — it is penalised without bound. MSE caps the penalty at 1 for a binary output; BCE has no ceiling.
+
 For a single sample:
 
 | True label | Prediction ŷ | Loss L | Interpretation |
