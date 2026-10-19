@@ -282,25 +282,90 @@ This is exactly the formula from Note 03's credit assignment section. Three thin
 
 ### Forward Pass and Backward Pass
 
-Training consists of two passes. The diagram below shows both: the forward pass computes and stores intermediate values left to right; the backward pass reuses those values to propagate gradients right to left.
+Training consists of two passes. The forward pass computes predictions and stores intermediate values left to right.
 
-![Forward and Backward Pass](images/forward_backward_pass.png)
+![Forward Pass — compute and store intermediate values](images/forward_pass.png)
 
-The quantity ∂L/∂z at each layer is called the **error signal** (often written δ) for that layer. It is computed once and reused to get both the weight gradient and the error signal for the layer below:
+The backward pass reuses those stored values to propagate gradients right to left.
+
+![Backward Pass — reuse stored values, two jobs per layer](images/backward_pass.png)
+
+### Delta and the Two Jobs of Each Layer
+
+Before tracing the backward pass, two terms need precise definitions because they are used throughout the rest of this note and the course.
+
+**Delta (δ⁽ˡ⁾)** is the derivative of the loss with respect to the pre-activation z⁽ˡ⁾ of layer l:
 
 ```
-δ⁻²⁾ = ∂L/∂z⁻²⁾ = ∂L/∂ŷ · f'(z⁻²⁾)          ← error signal at output layer
-
-∂L/∂W⁻²⁾ = δ⁻²⁾ · hᵀ                          ← weight gradient (outer product)
-∂L/∂b⁻²⁾ = δ⁻²⁾                               ← bias gradient
-
-δ⁻¹⁾ = ∂L/∂z⁻¹⁾ = (W⁻²⁾ · δ⁻²⁾) · f'(z⁻¹⁾)   ← error signal propagated back
-
-∂L/∂W⁻¹⁾ = δ⁻¹⁾ · xᵀ                          ← weight gradient
-∂L/∂b⁻¹⁾ = δ⁻¹⁾                               ← bias gradient
+δ⁽ˡ⁾ = ∂L/∂z⁽ˡ⁾
 ```
 
-This pattern — compute δ for a layer, use it to get weight gradients, propagate δ to the layer below — repeats for every layer in the network, no matter how deep.
+It is not the gradient of the weights. It is an intermediate quantity — the error signal at the pre-activation of layer l. It lives at z, not at W or b.
+
+**Gradient** is the derivative of the loss with respect to a learnable parameter:
+
+```
+∂L/∂W⁽ˡ⁾   — gradient with respect to the weight matrix
+∂L/∂b⁽ˡ⁾   — gradient with respect to the bias vector
+```
+
+Gradients are what gradient descent actually uses to update parameters. Delta is the stepping stone to get there — you cannot compute the weight gradients without first computing δ.
+
+> δ⁽ˡ⁾ = ∂L/∂z⁽ˡ⁾ lives at the pre-activation. The weight gradient ∂L/∂W⁽ˡ⁾ lives at the parameters. Delta is computed first and used to produce both.
+
+Once a layer has its δ, it does exactly two jobs:
+
+**Job 1 — Update its own parameters (stays local):**
+
+```
+∂L/∂W⁽ˡ⁾ = δ⁽ˡ⁾ · (input to layer l)ᵀ     ← weight gradient
+∂L/∂b⁽ˡ⁾ = δ⁽ˡ⁾                            ← bias gradient
+```
+
+The input to layer 2 is h; the input to layer 1 is x. These gradients are used immediately to update W⁽ˡ⁾ and b⁽ˡ⁾. They go nowhere else.
+
+**Job 2 — Produce the backward signal for the layer below:**
+
+```
+∂L/∂(input to layer l) = (W⁽ˡ⁾)ᵀ · δ⁽ˡ⁾
+```
+
+This tells the layer below how much each of its activations contributed to the loss. The layer below then multiplies this by its own activation derivative to get its own δ:
+
+```
+δ⁽ˡ⁻¹⁾ = ∂L/∂h⁽ˡ⁻¹⁾ ⊙ f'(z⁽ˡ⁻¹⁾)
+        = (W⁽ˡ⁾)ᵀ · δ⁽ˡ⁾ ⊙ f'(z⁽ˡ⁻¹⁾)
+```
+
+The boundary between layers is ∂L/∂h — the gradient with respect to the hidden activations. Delta δ⁽ˡ⁾ is always local to its own layer; what crosses the boundary is ∂L/∂h.
+
+Written out for the full 2-layer network, showing both the δ shorthand and the full ∂L/∂z form:
+
+```
+── Layer 2 ───────────────────────────────────────────────────────────────────
+
+δ⁽²⁾  =  ∂L/∂z⁽²⁾  =  ∂L/∂ŷ · f'(z⁽²⁾)           ← compute delta first
+
+Job 1 (stays local):
+  ∂L/∂W⁽²⁾  =  δ⁽²⁾ · hᵀ        =  ∂L/∂z⁽²⁾ · hᵀ        ← weight gradient
+  ∂L/∂b⁽²⁾  =  δ⁽²⁾             =  ∂L/∂z⁽²⁾              ← bias gradient
+
+Job 2 (crosses boundary to Layer 1):
+  ∂L/∂h     =  (W⁽²⁾)ᵀ · δ⁽²⁾  =  (W⁽²⁾)ᵀ · ∂L/∂z⁽²⁾   ← backward signal
+
+── Layer 1 ───────────────────────────────────────────────────────────────────
+
+δ⁽¹⁾  =  ∂L/∂z⁽¹⁾  =  ∂L/∂h ⊙ f'(z⁽¹⁾)            ← convert incoming signal to delta
+
+Job 1 (stays local):
+  ∂L/∂W⁽¹⁾  =  δ⁽¹⁾ · xᵀ        =  ∂L/∂z⁽¹⁾ · xᵀ        ← weight gradient
+  ∂L/∂b⁽¹⁾  =  δ⁽¹⁾             =  ∂L/∂z⁽¹⁾              ← bias gradient
+
+Job 2 (chain stops — x has no parameters):
+  ∂L/∂x     =  (W⁽¹⁾)ᵀ · δ⁽¹⁾  =  (W⁽¹⁾)ᵀ · ∂L/∂z⁽¹⁾   ← never used
+```
+
+This pattern — compute δ for a layer, use it for Job 1 and Job 2, pass ∂L/∂a to the layer below which converts it to its own δ — repeats for every layer in the network, no matter how deep.
 
 > Backpropagation is not a separate algorithm from the chain rule — it is the chain rule applied in the right order, reusing intermediate results so that each value is computed exactly once. This is what makes it O(P) rather than O(P²).
 
