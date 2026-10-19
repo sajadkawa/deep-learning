@@ -109,10 +109,6 @@ Without parameter sharing:   9 weights × 50,000 positions = 450,000 weights
 With parameter sharing:      9 weights total (same filter everywhere)
 ```
 
-The diagram below makes this concrete: on the left, a fully connected layer uses a different weight for every pixel; on the right, a convolutional layer uses the same filter weights at every position.
-
-![Parameter sharing — same filter weights reused at every position](images/cnn_parameter_sharing.png)
-
 > Parameter sharing is the mechanism that makes CNNs tractable on images. The same filter is applied everywhere because the same types of features — edges, corners, textures — can appear anywhere in an image. There is no reason to learn a separate edge detector for the top-left corner and another for the bottom-right.
 
 ---
@@ -132,10 +128,6 @@ Translation invariance (after pooling):
   After max pooling, the exact position of the feature is discarded.
   Only the presence of the feature is retained.
 ```
-
-The diagram below shows a vertical edge filter applied to two images: one with the edge on the left, one with the edge on the right. The same filter produces a strong response at the edge location in both cases — the feature is detected regardless of where it appears.
-
-![Translation invariance — same filter detects the same feature at different positions](images/cnn_translation_invariance.png)
 
 This is the right inductive bias for object recognition. A cat is a cat whether it is in the top-left or bottom-right of the image. A network that must relearn "cat in top-left" and "cat in bottom-right" as separate concepts is wasting capacity. A CNN with parameter sharing learns "cat" once and detects it anywhere.
 
@@ -165,10 +157,6 @@ Output:    detects whole objects
 ```
 
 No human specifies what each layer should detect. The hierarchy emerges from training — the network discovers that representing images as compositions of edges, then shapes, then parts, then objects is the most efficient way to minimise the loss.
-
-The diagram below shows this hierarchy: from raw pixels through increasingly abstract representations to the final object-level prediction.
-
-![Hierarchical feature learning — edges to shapes to parts to objects](images/cnn_feature_hierarchy.png)
 
 This is the same representational hierarchy argument made for deep feedforward networks in **Note 09** — but now it is grounded in the specific structure of visual data. The hierarchy is not just theoretically efficient; it matches how the visual cortex in the brain processes images, and it is empirically what trained CNNs learn.
 
