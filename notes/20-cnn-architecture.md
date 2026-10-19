@@ -153,9 +153,7 @@ After Pool (2×2, stride=2):
   Output:  112 × 112 × 64   (spatial halved, depth unchanged)
 ```
 
-As the network deepens: spatial dimensions shrink (pooling), depth grows (more filters). The volume flow diagram below shows this transformation through a small CNN.
-
-![Volume flow through a CNN — spatial dimensions shrink, depth grows](images/cnn_volume_flow.png)
+As the network deepens: spatial dimensions shrink (pooling), depth grows (more filters).
 
 ---
 
@@ -320,10 +318,6 @@ FC: 4 inputs → 2 outputs                    →   2×1
     ↓
 Softmax                                      →   2×1 (probabilities)
 ```
-
-The diagram below shows the full architecture with the dimensions at each stage.
-
-![Full CNN forward pass — architecture with dimensions and values](images/cnn_full_forward_pass.png)
 
 ### Step 1 — Convolution
 
