@@ -3,14 +3,14 @@ import numpy as np
 import os
 
 fig, axes = plt.subplots(2, 2, figsize=(14, 12))
-fig.patch.set_facecolor('#f8f8f8')
+fig.patch.set_facecolor('white')
 fig.suptitle('Effect of Stride and Padding on Output Size\n(3×3 filter applied to 5×5 input)',
              fontsize=13, fontweight='bold', color='#222', y=0.98)
 
 cell = 0.7
 
 def draw_panel(ax, inp_size, pad, stride, filter_size=3, title='', formula=''):
-    ax.set_facecolor('#f8f8f8')
+    ax.set_facecolor('white')
     ax.axis('off')
     ax.set_title(title, fontsize=11, fontweight='bold', color='#222', pad=10)
 
@@ -25,7 +25,7 @@ def draw_panel(ax, inp_size, pad, stride, filter_size=3, title='', formula=''):
     for r in range(total):
         for c in range(total):
             is_pad = (r < pad or r >= inp_size + pad or c < pad or c >= inp_size + pad)
-            color = '#ccd4ff' if is_pad else '#e8e8e8'
+            color = '#ccd4ff' if is_pad else '#f3f4f6'
             edge = '#7788cc' if is_pad else '#aaa'
             lw = 1.2 if is_pad else 0.8
             rect = plt.Rectangle((x0 + c * cell, y0 - r * cell), cell, cell,
@@ -84,17 +84,17 @@ def draw_panel(ax, inp_size, pad, stride, filter_size=3, title='', formula=''):
     for r in range(out_size):
         for c in range(out_size):
             rect = plt.Rectangle((ox0 + c * cell, oy0 - r * cell), cell, cell,
-                                  facecolor='#c8f5d8', edgecolor='#27ae60', linewidth=1.5, zorder=2)
+                                  facecolor='#dcfce7', edgecolor='#15803d', linewidth=1.5, zorder=2)
             ax.add_patch(rect)
 
     ax.text(ox0 + out_size * cell / 2, oy0 + 0.45,
             f'Output {out_size}×{out_size}',
-            ha='center', fontsize=9.5, fontweight='bold', color='#1a7a1a')
+            ha='center', fontsize=9.5, fontweight='bold', color='#15803d')
 
     # --- Formula box at bottom ---
     mid_x = (x0 + total * cell / 2 + ox0 + out_size * cell / 2) / 2
     ax.text(mid_x, 0.5, formula, ha='center', fontsize=9.5, color='#333',
-            bbox=dict(boxstyle='round,pad=0.4', facecolor='#f5f5f5', edgecolor='#888', linewidth=1.2))
+            bbox=dict(boxstyle='round,pad=0.4', facecolor='#fef9c3', edgecolor='#ca8a04', linewidth=1.2))
 
     # Set axis limits with enough room
     ax.set_xlim(-0.2, ox0 + out_size * cell + 0.8)
@@ -111,6 +111,7 @@ draw_panel(axes[1, 1], 5, 1, 2, title='Stride = 2,  Padding = 1',
 
 plt.tight_layout(pad=2.5, rect=[0, 0, 1, 0.96])
 out_dir = os.path.join(os.path.dirname(__file__), '..', 'images')
-plt.savefig(os.path.join(out_dir, 'cnn_stride_padding.png'), dpi=150, bbox_inches='tight')
+plt.savefig(os.path.join(out_dir, 'cnn_stride_padding.png'), dpi=150, bbox_inches='tight',
+            facecolor='white', edgecolor='none')
 plt.close()
 print("Saved cnn_stride_padding.png")
