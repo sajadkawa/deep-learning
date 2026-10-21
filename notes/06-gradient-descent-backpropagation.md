@@ -245,40 +245,52 @@ dy/dx = (dy/df₄) × (df₄/df₃) × (df₃/df₂) × (df₂/df₁) × (df₁/
 
 ### The General Form for a Hidden Weight
 
-Before computing any numbers, it is worth seeing the symbolic form of the gradient for a hidden weight. For a 2-layer network with hidden weight w⁽¹⁾ connecting input xᵢ to hidden neuron j, the chain rule gives:
+Before computing any numbers, it is worth seeing the full chain of dependencies for each weight in the 2-layer MLP.
+
+**Output layer weight** — the path from loss to w⁽²⁾ⱼ passes through three nodes:
 
 ```
+L → ŷ → z⁽²⁾ → w⁽²⁾ⱼ
+
+∂L/∂w⁽²⁾ⱼ = ∂L/∂ŷ × dŷ/dz⁽²⁾ × ∂z⁽²⁾/∂w⁽²⁾ⱼ
+
+∂L/∂ŷ          =  −y/ŷ + (1−y)/(1−ŷ)          (from the loss function)
+dŷ/dz⁽²⁾       =  ŷ(1−ŷ)                         (output activation derivative)
+∂z⁽²⁾/∂w⁽²⁾ⱼ  =  hⱼ                               (the hidden activation that fed this weight)
+```
+
+**Hidden layer weight** — the path from loss to w⁽¹⁾ᵢⱼ passes through five nodes:
+
+```
+L → ŷ → z⁽²⁾ → hⱼ → z⁽¹⁾ⱼ → w⁽¹⁾ᵢⱼ
+
 ∂L/∂w⁽¹⁾ᵢⱼ = ∂L/∂ŷ × dŷ/dz⁽²⁾ × ∂z⁽²⁾/∂hⱼ × dhⱼ/dz⁽¹⁾ⱼ × ∂z⁽¹⁾ⱼ/∂w⁽¹⁾ᵢⱼ
+
+∂L/∂ŷ           =  −y/ŷ + (1−y)/(1−ŷ)          (from the loss function)
+dŷ/dz⁽²⁾        =  ŷ(1−ŷ)                         (output activation derivative)
+∂z⁽²⁾/∂hⱼ      =  w⁽²⁾ⱼ                            (output layer weight)
+dhⱼ/dz⁽¹⁾ⱼ     =  hⱼ(1−hⱼ)                        (hidden activation derivative)
+∂z⁽¹⁾ⱼ/∂w⁽¹⁾ᵢⱼ =  xᵢ                               (the input that fed this weight)
 ```
 
-Evaluating each factor:
+Now look at the two expressions side by side. For the output layer, every weight w⁽²⁾ⱼ shares the same first two factors — `∂L/∂ŷ × dŷ/dz⁽²⁾` — and only the last factor hⱼ differs. For the hidden layer, every weight w⁽¹⁾ᵢⱼ in neuron j shares the same first four factors, and only the last factor xᵢ differs.
+
+This shared prefix is computed once and reused for every weight in that layer. That shared quantity is **delta**:
 
 ```
-∂L/∂ŷ          =  loss gradient at output          (from the loss function)
-dŷ/dz⁽²⁾       =  f'(z⁽²⁾)                         (output activation derivative)
-∂z⁽²⁾/∂hⱼ     =  w⁽²⁾ⱼ                            (output layer weight)
-dhⱼ/dz⁽¹⁾ⱼ    =  f'(z⁽¹⁾ⱼ)                        (hidden activation derivative)
-∂z⁽¹⁾ⱼ/∂w⁽¹⁾ᵢⱼ =  xᵢ                              (the input that fed this weight)
+δ⁽²⁾ = ∂L/∂ŷ × dŷ/dz⁽²⁾ = ∂L/∂z⁽²⁾     ← same for all weights in layer 2
+
+δ⁽¹⁾ⱼ = ∂L/∂ŷ × dŷ/dz⁽²⁾ × ∂z⁽²⁾/∂hⱼ × dhⱼ/dz⁽¹⁾ⱼ = ∂L/∂z⁽¹⁾ⱼ     ← same for all weights feeding neuron j in layer 1
 ```
 
-So the full expression is:
+With delta defined, the weight gradients reduce to a single multiplication:
 
 ```
-∂L/∂w⁽¹⁾ᵢⱼ = ∂L/∂ŷ × f'(z⁽²⁾) × w⁽²⁾ⱼ × f'(z⁽¹⁾ⱼ) × xᵢ
+∂L/∂w⁽²⁾ⱼ   = δ⁽²⁾  × hⱼ
+∂L/∂w⁽¹⁾ᵢⱼ  = δ⁽¹⁾ⱼ × xᵢ
 ```
 
-This is exactly the formula from Note 03's credit assignment section. Three things are immediately visible:
-
-```
-1. Every factor comes from the forward pass — f'(z⁽²⁾), w⁽²⁾ⱼ, f'(z⁽¹⁾ⱼ), xᵢ are all
-   computed or stored during the forward pass. Nothing new needs to be computed.
-
-2. The gradient flows backward through the same path the signal took forward —
-   output → output weight → hidden activation → hidden weight → input.
-
-3. If xᵢ = 0, the entire product is zero — a weight connected to a zero input
-   receives no gradient from that sample, regardless of the error at the output.
-```
+> Delta is not an arbitrary definition — it is the part of the chain rule that does not change across weights in the same layer. Computing it once and reusing it is exactly what makes backpropagation efficient.
 
 ### Forward Pass and Backward Pass
 
@@ -333,8 +345,8 @@ The input to layer 2 is h; the input to layer 1 is x. These gradients are used i
 This tells the layer below how much each of its activations contributed to the loss. The layer below then multiplies this by its own activation derivative to get its own δ:
 
 ```
-δ⁽ˡ⁻¹⁾ = ∂L/∂h⁽ˡ⁻¹⁾ ⊙ f'(z⁽ˡ⁻¹⁾)
-        = (W⁽ˡ⁾)ᵀ · δ⁽ˡ⁾ ⊙ f'(z⁽ˡ⁻¹⁾)
+δ⁽ˡ⁻¹⁾ = ∂L/∂h⁽ˡ⁻¹⁾ × h⁽ˡ⁻¹⁾(1−h⁽ˡ⁻¹⁾)          (element-wise)
+        = (W⁽ˡ⁾)ᵀ · δ⁽ˡ⁾ × h⁽ˡ⁻¹⁾(1−h⁽ˡ⁻¹⁾)      (element-wise)
 ```
 
 The boundary between layers is ∂L/∂h — the gradient with respect to the hidden activations. Delta δ⁽ˡ⁾ is always local to its own layer; what crosses the boundary is ∂L/∂h.
@@ -344,7 +356,7 @@ Written out for the full 2-layer network, showing both the δ shorthand and the 
 ```
 ── Layer 2 ───────────────────────────────────────────────────────────────────
 
-δ⁽²⁾  =  ∂L/∂z⁽²⁾  =  ∂L/∂ŷ · f'(z⁽²⁾)           ← compute delta first
+δ⁽²⁾  =  ∂L/∂z⁽²⁾  =  ∂L/∂ŷ × ŷ(1−ŷ)              ← compute delta first
 
 Job 1 (stays local):
   ∂L/∂W⁽²⁾  =  δ⁽²⁾ · hᵀ        =  ∂L/∂z⁽²⁾ · hᵀ        ← weight gradient
@@ -355,7 +367,7 @@ Job 2 (crosses boundary to Layer 1):
 
 ── Layer 1 ───────────────────────────────────────────────────────────────────
 
-δ⁽¹⁾  =  ∂L/∂z⁽¹⁾  =  ∂L/∂h ⊙ f'(z⁽¹⁾)            ← convert incoming signal to delta
+δ⁽¹⁾  =  ∂L/∂z⁽¹⁾  =  ∂L/∂h × h(1−h)   (element-wise)   ← convert incoming signal to delta
 
 Job 1 (stays local):
   ∂L/∂W⁽¹⁾  =  δ⁽¹⁾ · xᵀ        =  ∂L/∂z⁽¹⁾ · xᵀ        ← weight gradient
@@ -365,7 +377,7 @@ Job 2 (chain stops — x has no parameters):
   ∂L/∂x     =  (W⁽¹⁾)ᵀ · δ⁽¹⁾  =  (W⁽¹⁾)ᵀ · ∂L/∂z⁽¹⁾   ← never used
 ```
 
-This pattern — compute δ for a layer, use it for Job 1 and Job 2, pass ∂L/∂a to the layer below which converts it to its own δ — repeats for every layer in the network, no matter how deep.
+This pattern — compute δ for a layer, use it for Job 1 and Job 2, pass ∂L/∂h to the layer below which converts it to its own δ — repeats for every layer in the network, no matter how deep.
 
 > Backpropagation is not a separate algorithm from the chain rule — it is the chain rule applied in the right order, reusing intermediate results so that each value is computed exactly once. This is what makes it O(P) rather than O(P²).
 
@@ -380,10 +392,10 @@ We use the exact network from **Note 03**. This connects the forward pass you al
 ```
 Architecture: 2 inputs → 2 hidden neurons → 1 output
 Activation: sigmoid σ(z) = 1/(1+e⁻ᶻ) in all layers
-Loss: MSE  L = (y − ŷ)²
+Loss: BCE  L = −[y·log(ŷ) + (1−y)·log(1−ŷ)]
 ```
 
-We use sigmoid here (not step function) because backpropagation requires a differentiable activation. MSE is used for simplicity of the worked example — in practice, BCE would be used for classification.
+We use sigmoid here (not step function) because backpropagation requires a differentiable activation. BCE is the correct loss for binary classification — XOR is a binary classification problem.
 
 ### Parameters (initialised for this example)
 
@@ -444,66 +456,73 @@ z⁽²⁾ = w⁽²⁾₁₁·h₁ + w⁽²⁾₂₁·h₂ + b⁽²⁾
 **Loss:**
 
 ```
-L = (y − ŷ)² = (1 − 0.4365)² = (0.5635)² = 0.3175
+L = −[y·log(ŷ) + (1−y)·log(1−ŷ)]
+  = −[1·log(0.4365) + 0·log(0.5635)]
+  = −log(0.4365)
+  = 0.8297
 ```
 
 ---
 
 ### Step 2: Backward Pass
 
-We compute gradients from output to input, applying the chain rule at each step.
+We compute gradients from output to input. For each layer we compute δ first, then use it for the weight gradients.
 
-**Gradient of loss with respect to output:**
+**Output layer delta — BCE + sigmoid simplification:**
 
-```
-∂L/∂ŷ = −2(y − ŷ) = −2(1 − 0.4365) = −1.127
-```
-
-**Gradient through output sigmoid:**
+When BCE loss is paired with a sigmoid output, the chain rule produces a clean cancellation:
 
 ```
-dσ/dz at z⁽²⁾ = σ(z⁽²⁾)(1 − σ(z⁽²⁾)) = ŷ(1 − ŷ) = 0.4365 × 0.5635 = 0.2460
-
-∂L/∂z⁽²⁾ = ∂L/∂ŷ × dσ/dz = −1.127 × 0.2460 = −0.2773
+δ⁽²⁾ = ∂L/∂z⁽²⁾ = ∂L/∂ŷ × dŷ/dz⁽²⁾
+      = (−y/ŷ + (1−y)/(1−ŷ)) × ŷ(1−ŷ)
+      = (−1/ŷ) × ŷ(1−ŷ)
+      = −(1−ŷ)
+      = ŷ − y
+      = 0.4365 − 1
+      = −0.5635
 ```
 
-This is the error signal at the output layer. We now use it to compute gradients for the output layer weights.
+> BCE paired with sigmoid output always gives δ⁽²⁾ = ŷ − y. The sigmoid derivative cancels with the BCE denominator — the output delta is simply the prediction error.
 
-**Gradients for output layer weights:**
-
-```
-∂L/∂w⁽²⁾₁₁ = ∂L/∂z⁽²⁾ × h₁ = −0.2773 × 0.6225 = −0.1726
-∂L/∂w⁽²⁾₂₁ = ∂L/∂z⁽²⁾ × h₂ = −0.2773 × 0.6225 = −0.1726
-∂L/∂b⁽²⁾   = ∂L/∂z⁽²⁾ × 1  = −0.2773
-```
-
-**Propagate error back to hidden layer:**
+**Output layer weight gradients:**
 
 ```
-∂L/∂h₁ = ∂L/∂z⁽²⁾ × w⁽²⁾₁₁ = −0.2773 × 1 = −0.2773
-∂L/∂h₂ = ∂L/∂z⁽²⁾ × w⁽²⁾₂₁ = −0.2773 × 1 = −0.2773
+∂L/∂w⁽²⁾₁₁ = δ⁽²⁾ × h₁ = −0.5635 × 0.6225 = −0.3508
+∂L/∂w⁽²⁾₂₁ = δ⁽²⁾ × h₂ = −0.5635 × 0.6225 = −0.3508
+∂L/∂b⁽²⁾   = δ⁽²⁾ × 1  = −0.5635
 ```
 
-**Gradient through hidden sigmoid:**
+**Propagate backward signal to hidden layer:**
 
 ```
-dσ/dz at z₁⁽¹⁾ = h₁(1 − h₁) = 0.6225 × 0.3775 = 0.2350
-dσ/dz at z₂⁽¹⁾ = h₂(1 − h₂) = 0.6225 × 0.3775 = 0.2350
-
-∂L/∂z₁⁽¹⁾ = ∂L/∂h₁ × dσ/dz = −0.2773 × 0.2350 = −0.0652
-∂L/∂z₂⁽¹⁾ = ∂L/∂h₂ × dσ/dz = −0.2773 × 0.2350 = −0.0652
+∂L/∂h₁ = δ⁽²⁾ × w⁽²⁾₁₁ = −0.5635 × 1 = −0.5635
+∂L/∂h₂ = δ⁽²⁾ × w⁽²⁾₂₁ = −0.5635 × 1 = −0.5635
 ```
 
-**Gradients for hidden layer weights:**
+**Hidden layer delta:**
 
 ```
-∂L/∂w⁽¹⁾₁₁ = ∂L/∂z₁⁽¹⁾ × x₁ = −0.0652 × 0 = 0
-∂L/∂w⁽¹⁾₂₁ = ∂L/∂z₁⁽¹⁾ × x₂ = −0.0652 × 1 = −0.0652
-∂L/∂b₁⁽¹⁾  = ∂L/∂z₁⁽¹⁾ × 1  = −0.0652
+δ⁽¹⁾₁ = ∂L/∂z₁⁽¹⁾ = ∂L/∂h₁ × dh₁/dz₁⁽¹⁾
+       = ∂L/∂h₁ × h₁(1−h₁)
+       = −0.5635 × 0.6225 × 0.3775
+       = −0.5635 × 0.2350
+       = −0.1324
 
-∂L/∂w⁽¹⁾₁₂ = ∂L/∂z₂⁽¹⁾ × x₁ = −0.0652 × 0 = 0
-∂L/∂w⁽¹⁾₂₂ = ∂L/∂z₂⁽¹⁾ × x₂ = −0.0652 × 1 = −0.0652
-∂L/∂b₂⁽¹⁾  = ∂L/∂z₂⁽¹⁾ × 1  = −0.0652
+δ⁽¹⁾₂ = ∂L/∂z₂⁽¹⁾ = ∂L/∂h₂ × dh₂/dz₂⁽¹⁾
+       = −0.5635 × 0.2350
+       = −0.1324
+```
+
+**Hidden layer weight gradients:**
+
+```
+∂L/∂w⁽¹⁾₁₁ = δ⁽¹⁾₁ × x₁ = −0.1324 × 0 = 0
+∂L/∂w⁽¹⁾₂₁ = δ⁽¹⁾₁ × x₂ = −0.1324 × 1 = −0.1324
+∂L/∂b₁⁽¹⁾  = δ⁽¹⁾₁ × 1  = −0.1324
+
+∂L/∂w⁽¹⁾₁₂ = δ⁽¹⁾₂ × x₁ = −0.1324 × 0 = 0
+∂L/∂w⁽¹⁾₂₂ = δ⁽¹⁾₂ × x₂ = −0.1324 × 1 = −0.1324
+∂L/∂b₂⁽¹⁾  = δ⁽¹⁾₂ × 1  = −0.1324
 ```
 
 ---
@@ -519,21 +538,21 @@ w ← w − η × ∂L/∂w
 **Output layer:**
 
 ```
-w⁽²⁾₁₁ ← 1 − 0.5 × (−0.1726) = 1 + 0.0863 = 1.0863
-w⁽²⁾₂₁ ← 1 − 0.5 × (−0.1726) = 1.0863
-b⁽²⁾   ← −1.5 − 0.5 × (−0.2773) = −1.5 + 0.1387 = −1.3613
+w⁽²⁾₁₁ ← 1 − 0.5 × (−0.3508) = 1 + 0.1754 = 1.1754
+w⁽²⁾₂₁ ← 1 − 0.5 × (−0.3508) = 1.1754
+b⁽²⁾   ← −1.5 − 0.5 × (−0.5635) = −1.5 + 0.2818 = −1.2182
 ```
 
 **Hidden layer:**
 
 ```
 w⁽¹⁾₁₁ ← 1 − 0.5 × 0 = 1.0
-w⁽¹⁾₂₁ ← 1 − 0.5 × (−0.0652) = 1 + 0.0326 = 1.0326
-b₁⁽¹⁾  ← −0.5 − 0.5 × (−0.0652) = −0.5 + 0.0326 = −0.4674
+w⁽¹⁾₂₁ ← 1 − 0.5 × (−0.1324) = 1 + 0.0662 = 1.0662
+b₁⁽¹⁾  ← −0.5 − 0.5 × (−0.1324) = −0.5 + 0.0662 = −0.4338
 
 w⁽¹⁾₁₂ ← −1 − 0.5 × 0 = −1.0
-w⁽¹⁾₂₂ ← −1 − 0.5 × (−0.0652) = −1 + 0.0326 = −0.9674
-b₂⁽¹⁾  ← 1.5 − 0.5 × (−0.0652) = 1.5 + 0.0326 = 1.5326
+w⁽¹⁾₂₂ ← −1 − 0.5 × (−0.1324) = −1 + 0.0662 = −0.9338
+b₂⁽¹⁾  ← 1.5 − 0.5 × (−0.1324) = 1.5 + 0.0662 = 1.5662
 ```
 
 After this single update, the network's prediction on x = [0,1] would be slightly closer to y = 1. Training repeats this process over all samples, for many epochs, until the loss converges.
@@ -543,10 +562,11 @@ After this single update, the network's prediction on x = [0,1] would be slightl
 ```
 1. The forward pass computes predictions and stores intermediate values
 2. The backward pass propagates the error signal from output to input
-3. Each weight's gradient measures its contribution to the final error
-4. Weights connected to inputs that were zero (x₁ = 0) receive zero gradient
+3. BCE + sigmoid output gives δ⁽²⁾ = ŷ − y — the simplest possible output delta
+4. Each weight's gradient measures its contribution to the final error
+5. Weights connected to inputs that were zero (x₁ = 0) receive zero gradient
    — they cannot be updated from this sample
-5. The chain rule links every weight to the final loss through the computation graph
+6. The chain rule links every weight to the final loss through the computation graph
 ```
 
 ---

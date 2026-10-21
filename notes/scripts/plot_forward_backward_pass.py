@@ -22,7 +22,7 @@ def arr(ax, x0, y0, x1, y1, color='#9ca3af', label='', above=True, fontsize=8.5)
 
 # ── FORWARD PASS ──────────────────────────────────────────────────────────────
 
-fig, ax = plt.subplots(figsize=(13, 4.0))
+fig, ax = plt.subplots(figsize=(9, 3.2))
 fig.patch.set_facecolor('white')
 ax.set_facecolor('white')
 
@@ -34,7 +34,7 @@ colors_ec = ['#2563eb', '#6b7280', '#15803d', '#6b7280', '#2563eb', '#dc2626']
 for x, lbl, fc, ec in zip(xs, labels, colors_fc, colors_ec):
     node(ax, x, 2.5, lbl, fc, ec)
 
-edge_labels = ['', 'W⁽¹⁾ᵀx + b⁽¹⁾', 'σ(z⁽¹⁾)', 'W⁽²⁾ᵀh + b⁽²⁾', 'σ(z⁽²⁾)', 'MSE']
+edge_labels = ['', 'W⁽¹⁾ᵀx + b⁽¹⁾', 'σ(z⁽¹⁾)', 'W⁽²⁾ᵀh + b⁽²⁾', 'σ(z⁽²⁾)', 'BCE']
 for i in range(len(xs) - 1):
     arr(ax, xs[i] + 0.42, 2.5, xs[i+1] - 0.42, 2.5, '#15803d', edge_labels[i+1])
 
@@ -58,7 +58,7 @@ plt.close()
 
 # ── BACKWARD PASS ─────────────────────────────────────────────────────────────
 
-fig, ax = plt.subplots(figsize=(13, 5.2))
+fig, ax = plt.subplots(figsize=(9, 4.2))
 fig.patch.set_facecolor('white')
 ax.set_facecolor('white')
 
