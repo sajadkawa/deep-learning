@@ -37,21 +37,22 @@ def hue_jitter(img, shift=0.15):
 src = make_image()
 
 fig, axes = plt.subplots(1, 5, figsize=(14, 3.5))
-fig.suptitle('Colour Augmentation', fontsize=13, fontweight='bold', y=1.02)
+fig.patch.set_facecolor('white')
+fig.suptitle('Colour Augmentation', fontsize=13, fontweight='bold', color='#111111', y=1.02)
 
 titles = ['Original', 'Brightness\n(factor=1.6)', 'Contrast\n(factor=2.0)', 'Saturation\n(factor=0.2)', 'Hue\nJitter']
 imgs = [src, brightness(src), contrast(src), saturation(src), hue_jitter(src)]
 
 for ax, img, title in zip(axes, imgs, titles):
     ax.imshow(img)
-    ax.set_title(title, fontsize=10, fontweight='bold')
+    ax.set_title(title, fontsize=10, fontweight='bold', color='#111111')
     ax.axis('off')
     for spine in ax.spines.values():
         spine.set_visible(True)
         spine.set_linewidth(1.5)
-        spine.set_edgecolor('#455A64')
+        spine.set_edgecolor('#9ca3af')
 
 plt.tight_layout()
 out = os.path.join(os.path.dirname(__file__), '..', 'images', 'augmentation_colour.png')
-plt.savefig(out, dpi=150, bbox_inches='tight')
+plt.savefig(out, dpi=150, bbox_inches='tight', facecolor='white', edgecolor='none')
 print('Saved augmentation_colour.png')
