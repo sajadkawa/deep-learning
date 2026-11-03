@@ -39,20 +39,17 @@ recalls    = np.array(recalls)
 
 # AUC (trapezoidal)
 roc_auc = -np.trapezoid(tprs, fprs)
-pr_auc  = -np.trapezoid(precisions, recalls)
 
-fig, axes = plt.subplots(1, 2, figsize=(12, 5))
+fig, ax = plt.subplots(figsize=(6, 5))
 fig.patch.set_facecolor('white')
-
-# ROC curve
-ax = axes[0]
 ax.set_facecolor('white')
+
 ax.plot(fprs, tprs, color='#2563eb', lw=2.5, label=f'Classifier  (AUC = {roc_auc:.2f})')
 ax.plot([0, 1], [0, 1], color='#9ca3af', lw=1.2, linestyle='--', label='Random  (AUC = 0.50)')
 ax.fill_between(fprs, tprs, alpha=0.08, color='#2563eb')
-ax.set_xlabel('False Positive Rate (FPR)', color='#374151', fontsize=9)
-ax.set_ylabel('True Positive Rate (TPR = Recall)', color='#374151', fontsize=9)
-ax.set_title('ROC Curve', color='#111111', fontsize=11, pad=8)
+ax.set_xlabel('False Positive Rate (FPR)', color='#374151', fontsize=10)
+ax.set_ylabel('True Positive Rate (TPR = Recall)', color='#374151', fontsize=10)
+ax.set_title('ROC Curve and AUC', color='#111111', fontsize=12, pad=10)
 ax.tick_params(colors='#374151')
 for spine in ax.spines.values():
     spine.set_edgecolor('#d1d5db')
@@ -60,28 +57,6 @@ ax.legend(facecolor='white', edgecolor='#d1d5db', labelcolor='#111111', fontsize
 ax.set_xlim(0, 1)
 ax.set_ylim(0, 1)
 
-# PR curve
-ax = axes[1]
-ax.set_facecolor('white')
-baseline = n_pos / (n_pos + n_neg)
-sort_idx = np.argsort(recalls)
-ax.plot(recalls[sort_idx], precisions[sort_idx], color='#15803d', lw=2.5,
-        label=f'Classifier  (AP = {pr_auc:.2f})')
-ax.axhline(baseline, color='#9ca3af', lw=1.2, linestyle='--',
-           label=f'Random  (AP = {baseline:.2f})')
-ax.fill_between(recalls[sort_idx], precisions[sort_idx], alpha=0.08, color='#15803d')
-ax.set_xlabel('Recall', color='#374151', fontsize=9)
-ax.set_ylabel('Precision', color='#374151', fontsize=9)
-ax.set_title('Precision-Recall Curve', color='#111111', fontsize=11, pad=8)
-ax.tick_params(colors='#374151')
-for spine in ax.spines.values():
-    spine.set_edgecolor('#d1d5db')
-ax.legend(facecolor='white', edgecolor='#d1d5db', labelcolor='#111111', fontsize=9)
-ax.set_xlim(0, 1)
-ax.set_ylim(0, 1)
-
-fig.suptitle('ROC Curve and Precision-Recall Curve — Same Classifier',
-             color='#111111', fontsize=12, y=1.02)
 plt.tight_layout()
 out = os.path.join(os.path.dirname(__file__), '..', 'images', 'roc_pr_curves.png')
 plt.savefig(out, dpi=150, bbox_inches='tight', facecolor='white', edgecolor='none')

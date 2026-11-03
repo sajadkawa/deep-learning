@@ -246,6 +246,36 @@ False Positive Rate (FPR) = FP / (FP + TN)
 
 The ROC curve plots TPR (y-axis) against FPR (x-axis) as the threshold varies from 1 down to 0.
 
+To see how the curve is built, consider a classifier evaluated on 5 positives and 5 negatives, with scores sorted from highest to lowest:
+
+```
+Sample   True label   Score
+A        positive     0.95
+B        positive     0.85
+C        negative     0.75
+D        positive     0.65
+E        negative     0.55
+F        positive     0.45
+G        negative     0.35
+H        negative     0.25
+I        positive     0.15
+J        negative     0.05
+```
+
+At each threshold, count TP, FP, FN, TN and compute TPR and FPR:
+
+```
+Threshold   Predicted +         TP   FP   FN   TN   TPR    FPR
+─────────   ─────────────────   ──   ──   ──   ──   ────   ────
+> 0.90      A                    1    0    4    5    0.20   0.00
+> 0.70      A, B, C              2    1    3    4    0.40   0.20
+> 0.50      A, B, C, D, E        3    2    2    3    0.60   0.40
+> 0.30      A–G                  4    3    1    2    0.80   0.60
+> 0.00      all                  5    5    0    0    1.00   1.00
+```
+
+Each row is one point on the ROC curve. Plotting these points and connecting them traces the curve from (0, 0) to (1, 1).
+
 ```
 Threshold = 1:   nothing predicted positive → TP=0, FP=0 → TPR=0, FPR=0  (bottom-left)
 Threshold = 0:   everything predicted positive → all positives found, all negatives flagged
@@ -273,9 +303,26 @@ The last interpretation is exact: AUC equals the probability that the classifier
 
 ### The Precision-Recall Curve
 
-The ROC curve can be misleadingly optimistic when classes are heavily imbalanced. Because FPR has TN in the denominator, a large number of true negatives keeps FPR small even when many false positives are produced — making the curve look better than it is.
+The ROC curve can be misleadingly optimistic when classes are heavily imbalanced. The reason is in the FPR formula:
 
-The **precision-recall curve** plots precision (y-axis) against recall (x-axis) as the threshold varies. It does not involve TN at all, so it is not affected by class imbalance.
+```
+FPR = FP / (FP + TN)
+```
+
+When the negative class is large, TN is huge. This keeps FPR small even when many false positives are produced — making the ROC curve look better than it is. Consider:
+
+```
+Dataset: 10 positives, 990 negatives
+
+Classifier flags 50 negatives as positive (FP = 50)
+
+FPR = 50 / (50 + 940) = 50 / 990 = 0.05   ← looks tiny on the ROC curve
+
+But precision = TP / (TP + FP) — if TP = 8:
+Precision = 8 / (8 + 50) = 0.13   ← only 13% of positive predictions are correct
+```
+
+The 990 true negatives dilute FPR and make the ROC curve look good. Precision-recall exposes the real problem because TN never appears in either formula — it is completely unaffected by the size of the negative class.
 
 ```
 ROC curve:              use when classes are roughly balanced
@@ -285,9 +332,9 @@ Precision-recall curve: use when the positive class is rare
 
 A random classifier on an imbalanced dataset (1% positive) has AUC ≈ 0.5 on the ROC curve but average precision ≈ 0.01 on the precision-recall curve — correctly reflecting that random predictions are nearly useless for finding the rare class.
 
-The diagram below shows both curves for the same classifier — the ROC curve on the left and the precision-recall curve on the right.
+The diagram below shows the ROC curve for a binary classifier. The shaded area is the AUC — the closer the curve hugs the top-left corner, the higher the AUC.
 
-![ROC curve and precision-recall curve for a binary classifier](images/roc_pr_curves.png)
+![ROC curve and AUC for a binary classifier](images/roc_pr_curves.png)
 
 ---
 
