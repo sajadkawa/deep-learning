@@ -258,11 +258,21 @@ Update: w ← w − η × (∂L_original/∂w + 2λw)
            = w(1 − 2ηλ) − η × ∂L_original/∂w
 ```
 
-The factor `(1 − 2ηλ)` shrinks the weight at every step provided `ηλ < 0.5`, which holds for any reasonable learning rate and regularisation strength — this is why L2 is called **weight decay**. Large weights are penalised more than small weights, pushing the model toward solutions with small, distributed weights.
+The factor `(1 − 2ηλ)` shrinks the weight at every step. For this to work correctly, it must stay positive — if it went negative, the weight would flip sign every step and diverge. This requires `2ηλ < 1`, or equivalently `ηλ < 0.5`, which holds for any reasonable learning rate and regularisation strength. This is why L2 is called **weight decay** — the weight is multiplied by a factor slightly less than 1 at every update, regardless of the gradient.
 
-**Why this reduces overfitting:**
+**Intuition:**
 
-Large weights allow the model to make sharp, complex decision boundaries that fit noise. Penalising large weights forces the model toward smoother functions that generalise better.
+Think of L2 as a spring attached to every weight, pulling it back toward zero. The stronger the spring (λ), the harder it pulls. The data gradient pulls the weight toward a good fit; the spring pulls it back toward zero. The model settles where these two forces balance.
+
+Large weights allow the model to make sharp, complex decision boundaries that fit noise. Penalising large weights forces the model toward smoother functions. Crucially, L2 penalises large weights much more than small ones — a weight of 10 contributes 100 to the penalty, a weight of 1 contributes only 1. So large weights are aggressively shrunk while small weights are barely affected. The result is a model with many small, distributed weights rather than a few large ones.
+
+```
+Weight = 10:   L2 penalty contribution = 100   ← aggressively shrunk
+Weight =  1:   L2 penalty contribution =   1   ← barely affected
+Weight =  0:   L2 penalty contribution =   0   ← no pull at all
+```
+
+L2 never drives weights exactly to zero — the pull weakens as the weight approaches zero, so it only asymptotically approaches it.
 
 ### L1 Regularisation (Lasso)
 
@@ -272,16 +282,42 @@ Add a penalty proportional to the sum of absolute weight values:
 L_total = L_original + λ × Σ |wᵢ|
 ```
 
-**Key difference from L2:**
+**Effect on gradient descent:**
 
-L1 produces **sparse** solutions — many weights are driven exactly to zero. This is because the L1 penalty has a constant gradient (±λ) regardless of weight magnitude, which pushes small weights all the way to zero.
+The derivative of |w| is +1 for w > 0 and −1 for w < 0 — a constant magnitude regardless of how large or small w is:
 
 ```
-L2:   penalises large weights more → shrinks all weights, none exactly zero
-L1:   constant penalty → drives small weights to exactly zero → sparse model
+∂L_total/∂w = ∂L_original/∂w + λ × sign(w)
+
+Update: w ← w − η × (∂L_original/∂w + λ × sign(w))
+```
+
+At every step, a fixed amount ηλ is subtracted from the weight (toward zero), regardless of the weight's current size.
+
+**Intuition:**
+
+Think of L1 as a constant-force magnet pulling every weight toward zero. Unlike L2's spring (which weakens as the weight gets smaller), L1's pull is the same strength whether the weight is 10 or 0.001. This means small weights get pulled to exactly zero — the constant force eventually overcomes any small data gradient keeping them alive.
+
+```
+Weight = 10:   L1 subtracts ηλ each step   ← slowly shrinks
+Weight =  1:   L1 subtracts ηλ each step   ← same force, reaches zero faster
+Weight =  0:   L1 stops (sign undefined)    ← stays at zero
+```
+
+Large weights survive because the data gradient is strong enough to resist the constant pull. Small weights — those that contribute little to reducing the loss — cannot resist and are driven to exactly zero. This is automatic feature selection: irrelevant weights are zeroed out, leaving a sparse model.
+
+**Key difference from L2:**
+
+```
+L2:   spring force — weakens as weight shrinks → shrinks all weights, none exactly zero
+L1:   constant force — same regardless of size → drives small weights to exactly zero
 ```
 
 L1 is useful when you believe many features are irrelevant — it performs automatic feature selection by zeroing out unimportant weights.
+
+The two panels below make this concrete. The left panel shows the constraint region in 2D weight space — the loss contours (dashed) reach the L2 circle at a smooth point where both weights are non-zero, but reach the L1 diamond at a corner where one weight is exactly zero. The right panel shows the penalty shape — L2's gradient grows with weight magnitude while L1's gradient is constant, which is why L1 drives small weights all the way to zero.
+
+![L1 vs L2 regularisation — constraint regions and penalty shapes](images/l1_l2_regularisation.png)
 
 ### Dropout
 
@@ -307,6 +343,38 @@ At test time, dropout is disabled and all neurons are active. To keep the expect
 **Dropout as ensemble learning:**
 
 With n neurons and dropout rate 0.5, there are 2ⁿ possible sub-networks. Training with dropout is approximately equivalent to training an ensemble of 2ⁿ networks that share weights. At test time, the full network approximates the average prediction of this ensemble.
+
+**Where to apply dropout:**
+
+Dropout is most effective in fully connected layers, where neurons can co-adapt freely. In convolutional layers, adjacent activations are spatially correlated — dropping individual values has little effect because the network reconstructs them from neighbours. Dropout is rarely used in convolutional layers and never applied to the output layer.
+
+```
+Fully connected layers:   standard dropout — drop individual neurons
+Convolutional layers:     not recommended — spatial correlation makes it ineffective
+Output layer:             never — the prediction layer must always be intact
+```
+
+**Dropout rates in practice:**
+
+```
+Layer type              Typical dropout rate
+──────────────────────  ────────────────────
+Large fully connected   0.5  (drop half the neurons)
+Smaller FC layers       0.2 – 0.3
+```
+
+A rate of 0.5 is the standard starting point for large fully connected layers. Lower rates are used when the layer is already small or when the model is underfitting.
+
+**Training vs inference mode:**
+
+Dropout is active only during training. At inference, all neurons are active and no masking occurs. Frameworks like PyTorch require explicitly switching between these modes:
+
+```
+model.train()   ← dropout active, neurons randomly masked
+model.eval()    ← dropout disabled, full network used
+```
+
+Forgetting to call `model.eval()` at inference means the model is still randomly dropping neurons, producing different outputs on every forward pass and degrading performance.
 
 ### Early Stopping
 
@@ -348,5 +416,5 @@ Key takeaways:
 - Learning curves (training vs validation loss over epochs) are the primary diagnostic tool for underfitting and overfitting
 - L2 regularisation penalises large weights (weight decay), pushing toward smooth solutions
 - L1 regularisation drives weights to zero, performing implicit feature selection
-- Dropout randomly deactivates neurons during training, forcing distributed representations — equivalent to ensemble learning
+- Dropout randomly deactivates neurons during training, forcing distributed representations — equivalent to ensemble learning; applied to fully connected layers only, never the output layer; requires `model.eval()` at inference to disable masking
 - Early stopping monitors validation loss and halts training before overfitting — computationally free and highly effective

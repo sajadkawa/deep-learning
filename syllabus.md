@@ -70,7 +70,8 @@ Postgraduate level course.
 - Bias-variance tradeoff — complexity reduces bias but increases variance
 - Training, validation, test sets — roles and why all three are needed
 - Learning curves — diagnosing fit from training vs validation loss
-- Regularization: L1, L2, dropout, early stopping
+- Regularization: L1, L2, early stopping
+- Dropout — placement, rates, training vs inference mode
 
 ### 08 — Learning Mechanisms: Hebbian, Competitive, Boltzmann
 - Hebbian learning — neurons that fire together wire together
@@ -100,13 +101,11 @@ Postgraduate level course.
 - He initialization — variance scaled for ReLU networks
 - Effect of bad initialization on vanishing and exploding gradients
 
-### 11 — Batch Normalization and Dropout
+### 11 — Batch Normalization
 - Internal covariate shift — why layer inputs shift during training
 - Batch normalization — normalize, scale, shift per mini-batch
-- Where to place batch norm — before or after activation
-- Batch norm at inference — running mean and variance
-- Dropout revisited — inverted dropout, effect on generalization
-- Batch norm vs dropout — what each regularizes and when to combine them
+- Learnable γ and β — restoring representational freedom after normalization
+- Batch norm at inference — running mean and variance, model.eval()
 
 ### 12 — Optimization Algorithms: SGD, Adam, RMSProp
 - Limitations of vanilla gradient descent — saddle points, ravines, slow convergence

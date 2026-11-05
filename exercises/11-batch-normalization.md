@@ -1,4 +1,4 @@
-# Exercise 11 — Batch Normalization and Dropout
+# Exercise 11 — Batch Normalization
 
 ---
 
@@ -31,21 +31,21 @@
 
 &nbsp;
 
-**4.** A network uses batch normalization throughout and large fully connected layers. You add dropout with rate 0.5 after the batch norm layers. What problem is most likely to occur?
+**4.** A network is evaluated with `model.train()` still active instead of `model.eval()`. What is the consequence for batch normalization?
 
-- a) The network will underfit because too many neurons are removed
-- b) Gradient descent will diverge because dropout interferes with backpropagation
-- c) Variance shift — the running statistics accumulated during training will not match the inference distribution
-- d) The learnable parameters γ and β will be driven to zero
+- a) The running statistics are reset to zero
+- b) γ and β are ignored and the output is always zero-mean unit-variance
+- c) Batch statistics are computed from single examples, producing incorrect and non-deterministic outputs
+- d) The network falls back to using running statistics automatically
 
 &nbsp;
 
-**5.** Where should dropout never be applied?
+**5.** After the normalization step in batch norm, every feature has mean 0 and variance 1. Why is this insufficient on its own without γ and β?
 
-- a) After the first hidden layer
-- b) In fully connected layers with more than 512 neurons
-- c) In the output layer
-- d) In layers that use ReLU activation
+- a) Mean 0 and variance 1 causes vanishing gradients in all activation functions
+- b) It removes the network's freedom to represent any other distribution — the optimal distribution for a layer may not be zero-mean unit-variance
+- c) It makes the batch norm layer non-differentiable
+- d) It causes the running statistics to diverge during training
 
 &nbsp;
 
@@ -65,7 +65,7 @@
 
 &nbsp;
 
-**2.** The original batch normalization paper places batch norm before the activation function. Explain the reasoning behind this placement for sigmoid and tanh activations.
+**2.** A network is trained with batch normalization and achieves good training performance. At deployment, predictions are inconsistent — the same input produces different outputs on different calls. What is the most likely cause and how is it fixed?
 
 &nbsp;
 
@@ -77,7 +77,7 @@
 
 &nbsp;
 
-**3.** Dropout was described in Note 07 as equivalent to training an ensemble of 2ⁿ sub-networks. Why does this ensemble interpretation break down when dropout is combined with batch normalization?
+**3.** Explain why batch normalization reduces sensitivity to weight initialization. Use what you know about how bad initialization causes vanishing or exploding activations (Note 10).
 
 &nbsp;
 
@@ -89,7 +89,7 @@
 
 &nbsp;
 
-**4.** A network is trained with batch normalization and evaluated with `model.train()` still active instead of `model.eval()`. Describe what goes wrong and why the outputs are non-deterministic.
+**4.** The running mean is updated as: μ_run ← α · μ_run + (1 − α) · μ_B, with α = 0.9. What happens to the running mean if α is set to 1.0? What if it is set to 0.0?
 
 &nbsp;
 
@@ -165,7 +165,7 @@ The learnable parameters are γ = 3.0 and β = −1.0. Use ε = 0.
 
 ## Section D — Critical Thinking
 
-**1.** Batch normalization is said to reduce the network's sensitivity to weight initialization. Using what you know about how bad initialization causes vanishing or exploding activations (Note 10), explain the mechanism by which batch normalization provides this protection — and identify one situation where it would not be sufficient.
+**1.** Batch normalization is described as solving internal covariate shift by stabilising each layer's input distribution. A student argues: "If we use a very small learning rate, weights change slowly, so the distributions barely shift — batch norm is unnecessary." Identify the flaw in this argument and explain why batch normalization provides value beyond what a small learning rate achieves.
 
 &nbsp;
 
@@ -177,7 +177,7 @@ The learnable parameters are γ = 3.0 and β = −1.0. Use ε = 0.
 
 &nbsp;
 
-**2.** A colleague argues: "Batch normalization already regularizes the network through mini-batch noise, so dropout is redundant and should never be used alongside it." Construct a specific scenario where this argument fails — where using dropout alongside batch normalization is justified despite the variance shift problem.
+**2.** Batch normalization computes statistics over a mini-batch during training. Consider what happens when the batch size is 1. Explain why batch normalization breaks down completely in this case, and what this implies about the relationship between batch size and the effectiveness of batch norm.
 
 &nbsp;
 
