@@ -168,6 +168,32 @@ wᵢⱼ ~ Uniform(−√(6 / (nₗ₋₁ + nₗ)),  +√(6 / (nₗ₋₁ + nₗ)
 
 Where nₗ₋₁ is the **fan-in** (number of inputs to the layer) and nₗ is the **fan-out** (number of outputs).
 
+### Worked Example
+
+A hidden layer has nₗ₋₁ = 4 inputs and nₗ = 2 outputs.
+
+```
+Var(w) = 2 / (nₗ₋₁ + nₗ)
+       = 2 / (4 + 2)
+       = 2 / 6
+       = 0.333
+
+σ = √0.333 = 0.577
+```
+
+Weights are drawn from N(0, 0.333), so most weights fall within ±0.577.
+
+For the uniform equivalent:
+
+```
+limit = √(6 / (nₗ₋₁ + nₗ))
+      = √(6 / 6)
+      = √1
+      = 1.0
+```
+
+Weights are drawn from Uniform(−1.0, +1.0).
+
 ### When to Use Xavier
 
 Xavier initialization was derived assuming a **linear activation** (or one that behaves approximately linearly near zero, such as tanh or sigmoid in their linear region). It works well for:
@@ -211,6 +237,29 @@ wᵢⱼ ~ N(0,  2 / nₗ₋₁)
 ```
 
 The only difference from Xavier (fan-in only version) is the factor of 2 in the numerator — exactly compensating for ReLU's halving of variance.
+
+### Worked Example
+
+The same layer: nₗ₋₁ = 4 inputs.
+
+```
+Var(w) = 2 / nₗ₋₁
+       = 2 / 4
+       = 0.5
+
+σ = √0.5 = 0.707
+```
+
+Weights are drawn from N(0, 0.5), so most weights fall within ±0.707.
+
+Compare directly with Xavier on the same layer:
+
+```
+Xavier:  Var(w) = 2 / (4 + 2) = 0.333   σ = 0.577
+He:      Var(w) = 2 / 4       = 0.500   σ = 0.707
+```
+
+He uses larger weights than Xavier on the same layer — the extra spread compensates for the variance that ReLU will discard.
 
 ### When to Use He
 
