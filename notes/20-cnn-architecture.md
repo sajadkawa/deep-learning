@@ -8,21 +8,21 @@
 
 ### The Operation
 
-A convolutional layer takes an input volume and produces an output volume. For a single-channel input of size H×W, a single filter of size F×F, stride S, and padding P, the output at position (i, j) is:
+A convolutional layer takes an input volume and produces an output volume. For a single-channel input of size H×W, a single filter of size F×F, and stride S=1 with no padding, the output at position (i, j) is:
 
 $$
-\text{output}[i,j] = b + \sum_{r=0}^{F-1} \sum_{c=0}^{F-1} \text{input}[i \cdot S + r - P,\; j \cdot S + c - P] \cdot \text{filter}[r,c]
+\text{output}[i,j] = b + \sum_{r=0}^{F-1} \sum_{c=0}^{F-1} \text{input}[i + r,\; j + c] \cdot \text{filter}[r,c]
 $$
 
-The double sum computes an element-wise multiply of the filter with the local patch centred at position (i·S, j·S), then sums all F² products and adds a bias b. One scalar output per position.
+The double sum computes an element-wise multiply of the filter with the local patch starting at position (i, j), then sums all F² products and adds a bias b. One scalar output per position.
 
 ### Output Size Formula
 
 How many positions can the filter be placed? The filter of size F can start at position 0 and must end at position F−1. With padding P added on each side, the padded input has size W+2P. The last valid starting position is W+2P−F. With stride S, the number of steps is:
 
-```
-output_size = floor((W + 2P - F) / S) + 1
-```
+$$
+\text{output\_size} = \left\lfloor \frac{W + 2P - F}{S} \right\rfloor + 1
+$$
 
 This formula applies to both height and width independently.
 
@@ -44,6 +44,12 @@ Without padding, the filter can only be placed where it fits entirely within the
 
 **Zero padding** adds rows and columns of zeros around the input before applying the filter. With P=1 and F=3, S=1, the output has the same spatial size as the input. This is called **"same" padding** — it preserves spatial dimensions through the layer.
 
+With stride S and padding P, the general form of the convolution operation is:
+
+$$
+\text{output}[i,j] = b + \sum_{r=0}^{F-1} \sum_{c=0}^{F-1} \text{input}[i \cdot S + r - P,\; j \cdot S + c - P] \cdot \text{filter}[r,c]
+$$
+
 The diagram below shows all four combinations of stride and padding on a 5×5 input with a 3×3 filter, with the output size for each.
 
 ![Stride and padding — four combinations and their output sizes](images/cnn_stride_padding.png)
@@ -52,10 +58,13 @@ The diagram below shows all four combinations of stride and padding on a 5×5 in
 
 Each filter has one learnable bias — a scalar added to every output position of that filter's feature map. After adding the bias, an activation function (typically ReLU) is applied element-wise:
 
-```
-z[i, j] = bias + sum of (patch × filter)
-a[i, j] = ReLU(z[i, j]) = max(0, z[i, j])
-```
+$$
+z[i,j] = b + \sum_{r=0}^{F-1} \sum_{c=0}^{F-1} \text{input}[i+r,\; j+c] \cdot \text{filter}[r,c]
+$$
+
+$$
+a[i,j] = \text{ReLU}(z[i,j]) = \max(0,\; z[i,j])
+$$
 
 ### Worked Example — Single Filter
 
@@ -115,17 +124,21 @@ All values are positive, so ReLU leaves them unchanged.
 
 A single filter detects one type of pattern. A convolutional layer uses **K filters** simultaneously, each learning to detect a different pattern. Each filter produces its own feature map. The K feature maps are stacked along a new dimension — the **depth** or **channel** dimension.
 
-```
-Input:    H × W × C_in    (height × width × input channels)
-K filters: F × F × C_in   (each filter spans all input channels)
-Output:   H' × W' × K     (one feature map per filter)
-```
+$$
+\text{Input:} \quad H \times W \times C_{\text{in}}
+$$
+$$
+\text{K filters:} \quad F \times F \times C_{\text{in}}
+$$
+$$
+\text{Output:} \quad H' \times W' \times K
+$$
 
 Each filter has shape F×F×C_in — it spans the full depth of the input. The dot product at each position is computed across all input channels simultaneously:
 
-```
-output[i, j, k] = b_k + Σ_{d=0}^{C_in-1} Σ_{r=0}^{F-1} Σ_{c=0}^{F-1}  input[i·S+r, j·S+c, d] · filter_k[r, c, d]
-```
+$$
+\text{output}[i,j,k] = b_k + \sum_{d=0}^{C_{\text{in}}-1} \sum_{r=0}^{F-1} \sum_{c=0}^{F-1} \text{input}[i \cdot S+r,\; j \cdot S+c,\; d] \cdot \text{filter}_k[r,c,d]
+$$
 
 where d indexes the input channel and k indexes the filter. The triple sum collapses the entire F×F×C_in patch into one scalar per output position per filter.
 
@@ -159,14 +172,11 @@ As the network deepens: spatial dimensions shrink (pooling), depth grows (more f
 
 The parameter count for a convolutional layer is:
 
-```
-Parameters = (F × F × C_in + 1) × K
+$$
+\text{Parameters} = (F \times F \times C_{\text{in}} + 1) \times K
+$$
 
-where:
-  F × F × C_in   = weights per filter (filter size × input channels)
-  + 1            = one bias per filter
-  × K            = number of filters
-```
+where $F \times F \times C_{\text{in}}$ is the number of weights per filter, $+1$ is one bias per filter, and $K$ is the number of filters.
 
 The critical insight: this does not depend on the input spatial size H or W. The same 3×3 filter applied to a 32×32 image or a 224×224 image has exactly the same number of parameters.
 
@@ -252,12 +262,17 @@ The diagram below shows both types applied to the 4×4 feature map from Part 1.
 
 The same formula as convolution applies, with no learnable parameters:
 
-```
-output_size = floor((W - F) / S) + 1
+$$
+\text{output\_size} = \left\lfloor \frac{W - F}{S} \right\rfloor + 1
+$$
 
-2×2 max pool, stride=2:   (4 - 2) / 2 + 1 = 2
-2×2 max pool, stride=2:   (6 - 2) / 2 + 1 = 3
-```
+$$
+2\times2 \text{ max pool, stride=2, } W=4: \quad \left\lfloor \frac{4-2}{2} \right\rfloor + 1 = 2
+$$
+
+$$
+2\times2 \text{ max pool, stride=2, } W=6: \quad \left\lfloor \frac{6-2}{2} \right\rfloor + 1 = 3
+$$
 
 Pooling has **zero learnable parameters** — it is a fixed operation with no weights.
 
@@ -280,10 +295,13 @@ Volume:   7 × 7 × 512 →   Flat vector: length 25,088
 
 The fully connected layer after flattening is identical to the FC layers in **Note 09** — a matrix multiplication plus bias plus activation. Its role is to combine the spatial features extracted by the convolutional layers into a final prediction.
 
-```
+$$
 z = W^T a + b
-output = softmax(z)   (for classification)
-```
+$$
+
+$$
+\text{output} = \text{softmax}(z) \quad \text{(for classification)}
+$$
 
 ### When to Use FC Layers
 
@@ -376,24 +394,36 @@ W = [ 0.5  -0.5 ]     b = [0, 0]
     [ 0.5   0.5 ]
     [-0.5   0.5 ]
     [ 0.5   0.5 ]
-
-z = W^T × [6, 7, 5, 6] + b
-
-z[0] = 0.5(6) + 0.5(7) + (-0.5)(5) + 0.5(6) = 3.0 + 3.5 − 2.5 + 3.0 = 7.0
-z[1] = (-0.5)(6) + 0.5(7) + 0.5(5) + 0.5(6) = −3.0 + 3.5 + 2.5 + 3.0 = 6.0
 ```
+
+$$
+z = W^T \times [6,\; 7,\; 5,\; 6]^T + b
+$$
+
+$$
+z_0 = 0.5(6) + 0.5(7) + (-0.5)(5) + 0.5(6) = 3.0 + 3.5 - 2.5 + 3.0 = 7.0
+$$
+
+$$
+z_1 = (-0.5)(6) + 0.5(7) + 0.5(5) + 0.5(6) = -3.0 + 3.5 + 2.5 + 3.0 = 6.0
+$$
 
 ### Step 6 — Softmax
 
 ```
 exp(7.0) = 1096.6
 exp(6.0) =  403.4
-
-softmax[0] = 1096.6 / (1096.6 + 403.4) = 1096.6 / 1500.0 = 0.731
-softmax[1] =  403.4 / (1096.6 + 403.4) =  403.4 / 1500.0 = 0.269
-
-Output: [0.731, 0.269]   (class 0 predicted with 73.1% confidence)
 ```
+
+$$
+\text{softmax}_0 = \frac{1096.6}{1096.6 + 403.4} = \frac{1096.6}{1500.0} = 0.731
+$$
+
+$$
+\text{softmax}_1 = \frac{403.4}{1096.6 + 403.4} = \frac{403.4}{1500.0} = 0.269
+$$
+
+Output: [0.731, 0.269] — class 0 predicted with 73.1% confidence.
 
 ---
 
@@ -405,11 +435,15 @@ The **receptive field** of a neuron is the region of the original input that inf
 
 For a single convolutional layer with filter size F and stride S=1:
 
-```
-Receptive field after layer 1:   RF₁ = F
-Receptive field after layer 2:   RF₂ = RF₁ + (F − 1)
-Receptive field after layer L:   RF_L = 1 + L × (F − 1)
-```
+$$
+RF_1 = F
+$$
+$$
+RF_2 = RF_1 + (F - 1)
+$$
+$$
+RF_L = 1 + L \times (F - 1)
+$$
 
 For 3×3 filters (F=3):
 

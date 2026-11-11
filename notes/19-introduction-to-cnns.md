@@ -88,11 +88,9 @@ The operation of sliding a filter over an image and computing dot products at ea
 
 At each position (i, j), the output value is:
 
-```
-output[i, j] = sum over r, c of:  input[i+r, j+c] × filter[r, c]
-
-where r, c index the filter rows and columns (0 to k−1)
-```
+$$
+\text{output}[i,j] = \sum_{r=0}^{k-1} \sum_{c=0}^{k-1} \text{input}[i+r,\; j+c] \cdot \text{filter}[r,c]
+$$
 
 This is an element-wise multiply of the filter with the local patch, followed by a sum. One scalar output per position.
 
