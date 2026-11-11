@@ -21,7 +21,7 @@ The double sum computes an element-wise multiply of the filter with the local pa
 How many positions can the filter be placed? The filter of size F can start at position 0 and must end at position F−1. With padding P added on each side, the padded input has size W+2P. The last valid starting position is W+2P−F. With stride S, the number of steps is:
 
 $$
-\text{output\_size} = \left\lfloor \frac{W + 2P - F}{S} \right\rfloor + 1
+\text{output size} = \left\lfloor \frac{W + 2P - F}{S} \right\rfloor + 1
 $$
 
 This formula applies to both height and width independently.
@@ -263,7 +263,7 @@ The diagram below shows both types applied to the 4×4 feature map from Part 1.
 The same formula as convolution applies, with no learnable parameters:
 
 $$
-\text{output\_size} = \left\lfloor \frac{W - F}{S} \right\rfloor + 1
+\text{output size} = \left\lfloor \frac{W - F}{S} \right\rfloor + 1
 $$
 
 $$
