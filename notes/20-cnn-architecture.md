@@ -8,14 +8,13 @@
 
 ### The Operation
 
-A convolutional layer takes an input volume and produces an output volume. For a single-channel input of size H×W, a single filter of size F×F, stride S, and padding P:
+A convolutional layer takes an input volume and produces an output volume. For a single-channel input of size H×W, a single filter of size F×F, stride S, and padding P, the output at position (i, j) is:
 
-```
-output[i, j] = bias + sum over r=0..F-1, c=0..F-1 of:
-               input[i*S + r - P, j*S + c - P] × filter[r, c]
-```
+$$
+\text{output}[i,j] = b + \sum_{r=0}^{F-1} \sum_{c=0}^{F-1} \text{input}[i \cdot S + r - P,\; j \cdot S + c - P] \cdot \text{filter}[r,c]
+$$
 
-This is an element-wise multiply of the filter with the local patch centred at position (i*S, j*S), followed by a sum, plus a bias. One scalar output per position.
+The double sum computes an element-wise multiply of the filter with the local patch centred at position (i·S, j·S), then sums all F² products and adds a bias b. One scalar output per position.
 
 ### Output Size Formula
 
@@ -125,11 +124,10 @@ Output:   H' × W' × K     (one feature map per filter)
 Each filter has shape F×F×C_in — it spans the full depth of the input. The dot product at each position is computed across all input channels simultaneously:
 
 ```
-output[i, j, k] = bias_k + sum over r, c, d of:
-                  input[i*S+r, j*S+c, d] × filter_k[r, c, d]
+output[i, j, k] = b_k + Σ_{d=0}^{C_in-1} Σ_{r=0}^{F-1} Σ_{c=0}^{F-1}  input[i·S+r, j·S+c, d] · filter_k[r, c, d]
 ```
 
-where d indexes the input channel and k indexes the filter.
+where d indexes the input channel and k indexes the filter. The triple sum collapses the entire F×F×C_in patch into one scalar per output position per filter.
 
 The diagram below shows K filters each producing one feature map, and the resulting output volume.
 
