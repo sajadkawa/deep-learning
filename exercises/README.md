@@ -29,3 +29,4 @@ Practice problems per topic. Added as the course progresses.
 | 23 | Case Studies: Image Classification and Object Detection | [23-case-studies.md](23-case-studies.md) |
 | 24 | Recurrent Neural Networks | [24-recurrent-neural-networks.md](24-recurrent-neural-networks.md) |
 | 25 | LSTM and GRU | [25-lstm-gru.md](25-lstm-gru.md) |
+| 26 | Encoder-Decoder Architectures | [26-encoder-decoder.md](26-encoder-decoder.md) |
