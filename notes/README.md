@@ -28,3 +28,4 @@ Lecture notes in order. Each note includes formulas, diagrams, and worked exampl
 | 22 | Data Augmentation | [22-data-augmentation.md](22-data-augmentation.md) |
 | 23 | Case Studies: Image Classification and Object Detection | [23-case-studies.md](23-case-studies.md) |
 | 24 | Recurrent Neural Networks | [24-recurrent-neural-networks.md](24-recurrent-neural-networks.md) |
+| 25 | LSTM and GRU | [25-lstm-gru.md](25-lstm-gru.md) |
