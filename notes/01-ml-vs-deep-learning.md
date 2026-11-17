@@ -229,13 +229,11 @@ How a model learns depends on what kind of data it is given.
 
 The training data contains both inputs and correct outputs (labels). The model learns to map inputs to outputs.
 
-```
-Training data:
-  (x₁, y₁), (x₂, y₂), ..., (xₙ, yₙ)
-   input  label
+Training data: $(x_1, y_1),\ (x_2, y_2),\ \ldots,\ (x_n, y_n)$
 
-Goal: learn f such that f(x) ≈ y
-```
+Goal:
+
+$$f(x) \approx y$$
 
 Examples:
 
@@ -792,9 +790,7 @@ Deep networks have millions of parameters. They need large amounts of data to le
 
 Training a deep network requires the same operation repeated billions of times:
 
-```
-w = w - learning_rate × gradient
-```
+$$w = w - \alpha \cdot \nabla L$$
 
 GPUs were originally designed for graphics (parallel pixel processing), but that same parallelism maps perfectly onto neural network matrix operations:
 
@@ -857,14 +853,9 @@ Input
 
 Each layer is made of **neurons**. A single neuron does something very simple:
 
-```
-Inputs:   x₁, x₂, x₃
-Weights:  w₁, w₂, w₃
+$$z = w_1 x_1 + w_2 x_2 + w_3 x_3 + b$$
 
-Neuron computes:
-  z = (w₁·x₁) + (w₂·x₂) + (w₃·x₃) + bias
-  output = activation_function(z)
-```
+$$\text{output} = f(z)$$
 
 The **weights** are what the network learns during training — they are adjusted to reduce prediction error.
 

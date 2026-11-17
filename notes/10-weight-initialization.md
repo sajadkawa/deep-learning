@@ -34,33 +34,27 @@ The most obvious starting point is to set all weights to zero. It is simple, rep
 
 ### The Symmetry Problem
 
-Consider a network with one hidden layer containing two neurons h₁ and h₂. If all weights are initialised to zero:
+Consider a network with one hidden layer containing two neurons $h_1$ and $h_2$. If all weights are initialised to zero:
 
-```
-z₁⁽¹⁾ = w⁽¹⁾₁₁·x₁ + w⁽¹⁾₂₁·x₂ + b₁⁽¹⁾ = 0·x₁ + 0·x₂ + 0 = 0
-z₂⁽¹⁾ = w⁽¹⁾₁₂·x₁ + w⁽¹⁾₂₂·x₂ + b₂⁽¹⁾ = 0·x₁ + 0·x₂ + 0 = 0
-```
+$$z_1^{(1)} = w_{11}^{(1)} x_1 + w_{21}^{(1)} x_2 + b_1^{(1)} = 0$$
+
+$$z_2^{(1)} = w_{12}^{(1)} x_1 + w_{22}^{(1)} x_2 + b_2^{(1)} = 0$$
 
 Both neurons compute the same pre-activation. Both produce the same activation. The output layer receives identical inputs from both hidden neurons.
 
-Now compute the gradients. The gradient of the loss with respect to w⁽¹⁾₁₁ depends on the error signal propagated back through w⁽²⁾₁₁ — the weight connecting h₁ to the output. The gradient with respect to w⁽¹⁾₁₂ depends on w⁽²⁾₂₁ — the weight connecting h₂ to the output. If both output weights are also zero, both gradients are identical.
+Now compute the gradients. The gradient of the loss with respect to $w_{11}^{(1)}$ depends on the error signal propagated back through $w_{11}^{(2)}$ — the weight connecting $h_1$ to the output. The gradient with respect to $w_{12}^{(1)}$ depends on $w_{21}^{(2)}$ — the weight connecting $h_2$ to the output. If both output weights are also zero, both gradients are identical.
 
-```
-∂L/∂w⁽¹⁾₁₁ = δ⁽²⁾ · w⁽²⁾₁₁ · f'(z₁⁽¹⁾) · x₁
-∂L/∂w⁽¹⁾₁₂ = δ⁽²⁾ · w⁽²⁾₂₁ · f'(z₂⁽¹⁾) · x₁
+$$\frac{\partial L}{\partial w_{11}^{(1)}} = \delta^{(2)} \cdot w_{11}^{(2)} \cdot f'\!\left(z_1^{(1)}\right) \cdot x_1$$
 
-If w⁽²⁾₁₁ = w⁽²⁾₂₁ and z₁⁽¹⁾ = z₂⁽¹⁾:
+$$\frac{\partial L}{\partial w_{12}^{(1)}} = \delta^{(2)} \cdot w_{21}^{(2)} \cdot f'\!\left(z_2^{(1)}\right) \cdot x_1$$
 
-∂L/∂w⁽¹⁾₁₁ = ∂L/∂w⁽¹⁾₁₂   ← identical gradients
-```
+If $w_{11}^{(2)} = w_{21}^{(2)}$ and $z_1^{(1)} = z_2^{(1)}$, then:
+
+$$\frac{\partial L}{\partial w_{11}^{(1)}} = \frac{\partial L}{\partial w_{12}^{(1)}} \qquad \text{(identical gradients)}$$
 
 Identical gradients produce identical updates. After the update, the weights are still identical — just shifted by the same amount. This repeats every epoch. The two neurons remain permanently identical.
 
-```
-After epoch 1:   w⁽¹⁾₁₁ = w⁽¹⁾₁₂ = Δ
-After epoch 2:   w⁽¹⁾₁₁ = w⁽¹⁾₁₂ = 2Δ
-After epoch k:   w⁽¹⁾₁₁ = w⁽¹⁾₁₂ = kΔ
-```
+$$\text{After epoch } k: \quad w_{11}^{(1)} = w_{12}^{(1)} = k\Delta$$
 
 A hidden layer of n neurons behaves as a single neuron. The network has lost all the representational capacity that width was supposed to provide. This is the **symmetry problem** — and it applies to any constant initialization, not just zero.
 
@@ -76,36 +70,23 @@ The fix for symmetry is randomness: draw each weight independently from a random
 
 The standard choice is a zero-mean Gaussian or uniform distribution:
 
-```
-wᵢⱼ ~ N(0, σ²)    or    wᵢⱼ ~ Uniform(−a, a)
-```
+$$w_{ij} \sim \mathcal{N}(0,\, \sigma^2) \qquad \text{or} \qquad w_{ij} \sim \text{Uniform}(-a,\, a)$$
 
-Symmetry is broken. But a new problem appears immediately: **what should σ (or a) be?**
+Symmetry is broken. But a new problem appears immediately: **what should $\sigma$ (or $a$) be?**
 
 ### Too Small — Vanishing Activations
 
-If σ is very small (e.g. 0.01), the weighted sums z⁽ˡ⁾ = W⁽ˡ⁾ᵀ a⁽ˡ⁻¹⁾ + b⁽ˡ⁾ are tiny at every layer. Activations shrink toward zero as the signal passes through each layer.
-
-```
-Layer 1:  a⁽¹⁾ ≈ small
-Layer 2:  a⁽²⁾ = f(W⁽²⁾ᵀ a⁽¹⁾) ≈ f(small × small) ≈ even smaller
-Layer 3:  a⁽³⁾ ≈ even smaller still
-...
-Layer L:  a⁽ᴸ⁾ ≈ 0
-```
-
-The output is near zero regardless of the input. The loss gradient ∂L/∂ŷ is computed from this near-zero output. When backpropagation multiplies this gradient by the tiny weights layer by layer, the gradient reaching the early layers is effectively zero. Early layers learn nothing.
+If $\sigma$ is very small (e.g. 0.01), the weighted sums $z^{(l)} = W^{(l)\top} a^{(l-1)} + b^{(l)}$ are tiny at every layer. Activations shrink toward zero as the signal passes through each layer. The output is near zero regardless of the input. The loss gradient $\partial L / \partial \hat{y}$ is computed from this near-zero output. When backpropagation multiplies this gradient by the tiny weights layer by layer, the gradient reaching the early layers is effectively zero. Early layers learn nothing.
 
 ### Too Large — Saturated Activations
 
-If σ is large (e.g. 1.0 with many inputs), the weighted sums are large. For sigmoid or tanh activations, large inputs push the neuron into the flat saturation region where f'(z) ≈ 0.
+If $\sigma$ is large (e.g. 1.0 with many inputs), the weighted sums are large. For sigmoid or tanh activations, large inputs push the neuron into the flat saturation region where $f'(z) \approx 0$:
 
-```
-σ(z) for large |z|:   output ≈ 0 or 1,   derivative ≈ 0
-tanh(z) for large |z|: output ≈ −1 or 1,  derivative ≈ 0
-```
+$$\sigma(z) \text{ for large } |z|: \quad \text{output} \approx 0 \text{ or } 1, \quad f'(z) \approx 0$$
 
-Gradients through saturated neurons are near zero. Backpropagation multiplies by f'(z) at every layer — if every layer is saturated, the gradient vanishes before reaching the early layers. The network is stuck.
+$$\tanh(z) \text{ for large } |z|: \quad \text{output} \approx -1 \text{ or } 1, \quad f'(z) \approx 0$$
+
+Gradients through saturated neurons are near zero. Backpropagation multiplies by $f'(z)$ at every layer — if every layer is saturated, the gradient vanishes before reaching the early layers. The network is stuck.
 
 For ReLU, large weights cause a different problem: activations explode rather than saturate, and gradients grow exponentially through the backward pass.
 
@@ -123,76 +104,51 @@ Xavier Glorot and Yoshua Bengio (2010) derived an initialization scheme by askin
 
 ### The Derivation
 
-Consider layer l with nₗ₋₁ inputs. The pre-activation is:
+Consider layer $l$ with $n_{l-1}$ inputs. The pre-activation is:
 
-```
-z⁽ˡ⁾ = Σᵢ wᵢ · aᵢ⁽ˡ⁻¹⁾
-```
+$$z^{(l)} = \sum_i w_i \cdot a_i^{(l-1)}$$
 
-Assuming the weights and activations are independent and zero-mean, the variance of z⁽ˡ⁾ is:
+Assuming the weights and activations are independent and zero-mean, the variance of $z^{(l)}$ is:
 
-```
-Var(z⁽ˡ⁾) = Σᵢ Var(wᵢ) · Var(aᵢ⁽ˡ⁻¹⁾)
-           = nₗ₋₁ · Var(w) · Var(a⁽ˡ⁻¹⁾)
-```
+$$\text{Var}\!\left(z^{(l)}\right) = \sum_i \text{Var}(w_i) \cdot \text{Var}\!\left(a_i^{(l-1)}\right) = n_{l-1} \cdot \text{Var}(w) \cdot \text{Var}\!\left(a^{(l-1)}\right)$$
 
-For the variance to be preserved — Var(z⁽ˡ⁾) = Var(a⁽ˡ⁻¹⁾) — we need:
+For the variance to be preserved — $\text{Var}(z^{(l)}) = \text{Var}(a^{(l-1)})$ — we need:
 
-```
-nₗ₋₁ · Var(w) = 1
+$$n_{l-1} \cdot \text{Var}(w) = 1 \quad \Rightarrow \quad \text{Var}(w) = \frac{1}{n_{l-1}}$$
 
-→  Var(w) = 1 / nₗ₋₁
-```
+The same argument applied to the backward pass (where gradients flow through $n_l$ outputs) gives:
 
-The same argument applied to the backward pass (where gradients flow through nₗ outputs) gives:
+$$\text{Var}(w) = \frac{1}{n_l}$$
 
-```
-Var(w) = 1 / nₗ
-```
+These two conditions cannot both be satisfied simultaneously unless $n_{l-1} = n_l$. Glorot and Bengio proposed a compromise — average the two:
 
-These two conditions cannot both be satisfied simultaneously unless nₗ₋₁ = nₗ. Glorot and Bengio proposed a compromise — average the two:
-
-```
-Var(w) = 2 / (nₗ₋₁ + nₗ)
-```
+$$\text{Var}(w) = \frac{2}{n_{l-1} + n_l}$$
 
 This is **Xavier initialization** (also called Glorot initialization):
 
-```
-wᵢⱼ ~ N(0,  2 / (nₗ₋₁ + nₗ))
+$$w_{ij} \sim \mathcal{N}\!\left(0,\; \frac{2}{n_{l-1} + n_l}\right)$$
 
 or equivalently:
 
-wᵢⱼ ~ Uniform(−√(6 / (nₗ₋₁ + nₗ)),  +√(6 / (nₗ₋₁ + nₗ)))
-```
+$$w_{ij} \sim \text{Uniform}\!\left(-\sqrt{\frac{6}{n_{l-1} + n_l}},\; +\sqrt{\frac{6}{n_{l-1} + n_l}}\right)$$
 
-Where nₗ₋₁ is the **fan-in** (number of inputs to the layer) and nₗ is the **fan-out** (number of outputs).
+Where $n_{l-1}$ is the **fan-in** (number of inputs to the layer) and $n_l$ is the **fan-out** (number of outputs).
 
 ### Worked Example
 
-A hidden layer has nₗ₋₁ = 4 inputs and nₗ = 2 outputs.
+A hidden layer has $n_{l-1} = 4$ inputs and $n_l = 2$ outputs.
 
-```
-Var(w) = 2 / (nₗ₋₁ + nₗ)
-       = 2 / (4 + 2)
-       = 2 / 6
-       = 0.333
+$$\text{Var}(w) = \frac{2}{n_{l-1} + n_l} = \frac{2}{4 + 2} = \frac{2}{6} = 0.333$$
 
-σ = √0.333 = 0.577
-```
+$$\sigma = \sqrt{0.333} = 0.577$$
 
-Weights are drawn from N(0, 0.333), so most weights fall within ±0.577.
+Weights are drawn from $\mathcal{N}(0,\, 0.333)$, so most weights fall within $\pm 0.577$.
 
 For the uniform equivalent:
 
-```
-limit = √(6 / (nₗ₋₁ + nₗ))
-      = √(6 / 6)
-      = √1
-      = 1.0
-```
+$$\text{limit} = \sqrt{\frac{6}{n_{l-1} + n_l}} = \sqrt{\frac{6}{6}} = \sqrt{1} = 1.0$$
 
-Weights are drawn from Uniform(−1.0, +1.0).
+Weights are drawn from $\text{Uniform}(-1.0,\, +1.0)$.
 
 ### When to Use Xavier
 
@@ -214,69 +170,52 @@ Kaiming He et al. (2015) derived an initialization specifically for ReLU network
 
 ### The Derivation
 
-The same variance analysis as Xavier, but now the activation function is ReLU. ReLU passes positive values unchanged and zeros out negative values. If the input to ReLU has zero mean and variance Var(z), the relevant quantity for the forward pass is the **second moment** E[a²] — the expected squared activation — not the variance.
+The same variance analysis as Xavier, but now the activation function is ReLU. ReLU passes positive values unchanged and zeros out negative values. If the input to ReLU has zero mean and variance $\text{Var}(z)$, the relevant quantity for the forward pass is the **second moment** $\mathbb{E}[a^2]$ — the expected squared activation — not the variance.
 
-For z ~ N(0, σ²), ReLU passes exactly the positive half of the distribution unchanged and zeros the rest. The second moment of the output is:
+For $z \sim \mathcal{N}(0, \sigma^2)$, ReLU passes exactly the positive half of the distribution unchanged and zeros the rest. The second moment of the output is:
 
-```
-E[ReLU(z)²] = E[z²] / 2 = Var(z) / 2
-```
+$$\mathbb{E}[\text{ReLU}(z)^2] = \frac{\mathbb{E}[z^2]}{2} = \frac{\text{Var}(z)}{2}$$
 
-The factor of 1/2 comes from the fact that ReLU zeroes out half the distribution — only the positive half contributes to E[a²]. To preserve the second moment across layers, this halving must be compensated:
+The factor of $\frac{1}{2}$ comes from the fact that ReLU zeroes out half the distribution — only the positive half contributes to $\mathbb{E}[a^2]$. To preserve the second moment across layers, this halving must be compensated:
 
-```
-nₗ₋₁ · Var(w) · (1/2) = 1
-
-→  Var(w) = 2 / nₗ₋₁
-```
+$$n_{l-1} \cdot \text{Var}(w) \cdot \frac{1}{2} = 1 \quad \Rightarrow \quad \text{Var}(w) = \frac{2}{n_{l-1}}$$
 
 This is **He initialization** (also called Kaiming initialization):
 
-```
-wᵢⱼ ~ N(0,  2 / nₗ₋₁)
-```
+$$w_{ij} \sim \mathcal{N}\!\left(0,\; \frac{2}{n_{l-1}}\right)$$
 
 The only difference from Xavier (fan-in only version) is the factor of 2 in the numerator — exactly compensating for ReLU's halving of variance.
 
 ### Worked Example
 
-The same layer: nₗ₋₁ = 4 inputs.
+The same layer: $n_{l-1} = 4$ inputs.
 
-```
-Var(w) = 2 / nₗ₋₁
-       = 2 / 4
-       = 0.5
+$$\text{Var}(w) = \frac{2}{n_{l-1}} = \frac{2}{4} = 0.5$$
 
-σ = √0.5 = 0.707
-```
+$$\sigma = \sqrt{0.5} = 0.707$$
 
-Weights are drawn from N(0, 0.5), so most weights fall within ±0.707.
+Weights are drawn from $\mathcal{N}(0,\, 0.5)$, so most weights fall within $\pm 0.707$.
 
 Compare directly with Xavier on the same layer:
 
-```
-Xavier:  Var(w) = 2 / (4 + 2) = 0.333   σ = 0.577
-He:      Var(w) = 2 / 4       = 0.500   σ = 0.707
-```
+$$\text{Xavier: } \text{Var}(w) = \frac{2}{4+2} = 0.333, \quad \sigma = 0.577$$
+
+$$\text{He: } \text{Var}(w) = \frac{2}{4} = 0.500, \quad \sigma = 0.707$$
 
 He uses larger weights than Xavier on the same layer — the extra spread compensates for the variance that ReLU will discard.
 
 ### When to Use He
 
-```
-✓ ReLU
-✓ Leaky ReLU  (use 2 / (1 + α²) / nₗ₋₁  where α is the negative slope)
-✗ Tanh / Sigmoid  (use Xavier instead)
-```
+- ReLU: use He initialization
+- Leaky ReLU: use $\text{Var}(w) = \dfrac{2}{(1+\alpha^2)\,n_{l-1}}$ where $\alpha$ is the negative slope
+- Tanh / Sigmoid: use Xavier instead
 
 ### Summary of Initialization Formulas
 
-```
-Method       Activation    Variance formula
-───────────  ────────────  ────────────────────────
-Xavier       Tanh/Sigmoid  2 / (nₗ₋₁ + nₗ)
-He           ReLU          2 / nₗ₋₁
-```
+| Method | Activation | Variance formula |
+|---|---|---|
+| Xavier | Tanh / Sigmoid | $\dfrac{2}{n_{l-1} + n_l}$ |
+| He | ReLU | $\dfrac{2}{n_{l-1}}$ |
 
 The numerator is always 2 — the difference is whether fan-out is included in the denominator. Xavier includes it (compromise between forward and backward pass). He drops it (forward pass only, but doubles the numerator to compensate for ReLU). Xavier also applies to linear output layers.
 
@@ -339,7 +278,7 @@ Key takeaways:
 - Initialization must satisfy two requirements simultaneously: symmetry breaking (neurons must start differently) and variance preservation (activations and gradients must remain stable across layers)
 - Zero initialization permanently destroys network capacity — all neurons in a layer remain identical forever because they receive identical gradients at every step. Biases are safe to initialize to zero; weights are not
 - Random initialization breaks symmetry but scale matters critically — too small causes vanishing activations and gradients, too large causes saturation or explosion
-- Xavier initialization sets Var(w) = 2 / (nₗ₋₁ + nₗ) — a compromise between preserving variance in the forward and backward pass. Designed for tanh and sigmoid
-- He initialization sets Var(w) = 2 / nₗ₋₁ — accounts for ReLU zeroing half its inputs, which halves the second moment E[a²] at each layer; doubling the weight variance compensates. The standard choice for ReLU networks
+- Xavier initialization sets $\text{Var}(w) = \dfrac{2}{n_{l-1} + n_l}$ — a compromise between preserving variance in the forward and backward pass. Designed for tanh and sigmoid
+- He initialization sets $\text{Var}(w) = \dfrac{2}{n_{l-1}}$ — accounts for ReLU zeroing half its inputs, which halves the second moment $\mathbb{E}[a^2]$ at each layer; doubling the weight variance compensates. The standard choice for ReLU networks
 - Bad initialization is a root cause of vanishing and exploding gradients, compounding the effect of activation function choice. Both axes multiply through the chain rule
 - Batch normalization (Note 11) reduces sensitivity to initialization but does not eliminate the need for it

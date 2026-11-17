@@ -140,20 +140,15 @@ Centre format (normalised):
 
 The network predicts bounding box coordinates as continuous values — this is a regression problem, not a classification problem. The loss for box coordinates is typically smooth L1 loss (also called Huber loss):
 
-```
-smooth_L1(x) = 0.5 x²          if |x| < 1
-               |x| − 0.5       otherwise
-```
+$$\text{smooth\_L1}(x) = \begin{cases} 0.5x^2 & \text{if } |x| < 1 \\ |x| - 0.5 & \text{otherwise} \end{cases}$$
 
 Smooth L1 is less sensitive to outliers than MSE — a single badly predicted box does not dominate the gradient.
 
 The total detection loss combines the box regression loss and the classification loss:
 
-```
-L_total = L_classification + λ × L_box
+$$\mathcal{L}_{\text{total}} = \mathcal{L}_{\text{classification}} + \lambda \cdot \mathcal{L}_{\text{box}}$$
 
-where λ balances the two terms (typically λ = 1 or 5)
-```
+where $\lambda$ balances the two terms (typically $\lambda = 1$ or $5$).
 
 > Bounding box prediction is regression, not classification. The network outputs four continuous numbers per box. This means detection requires solving two different loss functions simultaneously — one for the class, one for the coordinates.
 
@@ -264,11 +259,11 @@ Two-stage detectors are accurate but slow because they run the detection head on
 
 ### The Grid Cell Idea
 
-YOLO divides the image into an S×S grid. Each grid cell is responsible for detecting objects whose **centre falls within that cell**.
+YOLO divides the image into an $S \times S$ grid. Each grid cell is responsible for detecting objects whose **centre falls within that cell**.
 
 Each cell predicts:
-- B bounding boxes, each with 5 values: (cx, cy, w, h, confidence)
-- C class probability scores (shared across all B boxes in the cell)
+- $B$ bounding boxes, each with 5 values: $(c_x, c_y, w, h, \text{confidence})$
+- $C$ class probability scores (shared across all $B$ boxes in the cell)
 
 ```
 Output tensor shape:   S × S × (B × 5 + C)
@@ -285,32 +280,23 @@ The diagram below shows the S×S grid, the responsible cell for a detected objec
 
 The confidence score for each predicted box combines two things:
 
-```
-confidence = P(object) × IoU(predicted box, ground truth box)
+$$\text{confidence} = P(\text{object}) \times \text{IoU}(\text{predicted box},\ \text{ground truth box})$$
 
-P(object):   1 if an object centre falls in this cell, 0 otherwise
-IoU:         overlap between predicted box and ground truth box
-             (Intersection over Union — ranges from 0 to 1)
-```
+where $P(\text{object}) = 1$ if an object centre falls in this cell, 0 otherwise, and IoU is the overlap between predicted box and ground truth box (Intersection over Union — ranges from 0 to 1).
 
 At test time, the final class-specific confidence for each box is:
 
-```
-class confidence = class score × box confidence
-                 = P(class | object) × P(object) × IoU
-```
+$$\text{class confidence} = P(\text{class} \mid \text{object}) \times P(\text{object}) \times \text{IoU}$$
 
 ### IoU — Intersection over Union
 
 IoU measures how well a predicted box matches a ground truth box:
 
-```
-IoU = area of intersection / area of union
+$$\text{IoU} = \frac{\text{area of intersection}}{\text{area of union}}$$
 
-IoU = 1.0:   perfect overlap
-IoU = 0.5:   standard detection threshold (box is "correct" if IoU ≥ 0.5)
-IoU = 0.0:   no overlap
-```
+- $\text{IoU} = 1.0$: perfect overlap
+- $\text{IoU} = 0.5$: standard detection threshold (box is "correct" if $\text{IoU} \geq 0.5$)
+- $\text{IoU} = 0.0$: no overlap
 
 ### Non-Maximum Suppression
 
@@ -346,11 +332,11 @@ YOLO trades some accuracy for a large speed gain. Later versions (YOLOv3, YOLOv5
 Key takeaways:
 
 - The image classification pipeline has two stages: a convolutional feature extractor (conv blocks → feature volume) and a classifier (flatten → FC → softmax → argmax); the feature extractor is reusable across tasks, the classifier is task-specific
-- Object detection extends classification by adding localisation — the network must output a bounding box (cx, cy, w, h) for each detected object in addition to its class label; this makes detection a simultaneous regression and classification problem
+- Object detection extends classification by adding localisation — the network must output a bounding box $(c_x, c_y, w, h)$ for each detected object in addition to its class label; this makes detection a simultaneous regression and classification problem
 - Bounding box coordinates are regression targets, not class labels — the loss is smooth L1 (Huber loss), and coordinates are typically normalised to [0, 1] relative to image dimensions
 - Sliding window detection is exhaustive and correct in principle but computationally prohibitive — it requires thousands of forward passes per image at multiple scales
 - Region proposal networks (Faster R-CNN) reduce the search space by generating ~300 candidate regions from the feature map using anchor boxes, then classifying only those regions — two-stage detection is more accurate but slower
 - Anchor boxes define a fixed set of candidate shapes (different scales and aspect ratios) at each feature map position; the network predicts objectness scores and coordinate offsets relative to each anchor
-- YOLO divides the image into an S×S grid and predicts all bounding boxes and class scores in a single forward pass — one-stage detection is faster but historically less accurate on small objects
-- IoU (Intersection over Union) measures box quality: IoU = intersection area / union area; a predicted box is considered correct if IoU ≥ 0.5 with the ground truth box
+- YOLO divides the image into an $S \times S$ grid and predicts all bounding boxes and class scores in a single forward pass — one-stage detection is faster but historically less accurate on small objects
+- IoU (Intersection over Union) measures box quality: $\text{IoU} = \text{intersection area} / \text{union area}$; a predicted box is considered correct if $\text{IoU} \geq 0.5$ with the ground truth box
 - Non-maximum suppression removes duplicate detections by keeping the highest-confidence box and discarding overlapping boxes above an IoU threshold

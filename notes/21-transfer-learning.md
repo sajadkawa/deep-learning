@@ -20,7 +20,7 @@ With only 1,000 labelled examples, a deep CNN trained from scratch will overfit 
 
 ### The Compute Problem
 
-Training a large CNN from scratch on ImageNet takes days to weeks on multiple GPUs. VGG16 was trained for 2–3 weeks on 4 GPUs. ResNet-50 requires roughly 10^18 floating-point operations for a single training run. For most practitioners, this compute budget is not available.
+Training a large CNN from scratch on ImageNet takes days to weeks on multiple GPUs. VGG16 was trained for 2–3 weeks on 4 GPUs. ResNet-50 requires roughly $10^{18}$ floating-point operations for a single training run. For most practitioners, this compute budget is not available.
 
 > The combination of data scarcity and compute cost makes training from scratch impractical for most real-world tasks. Transfer learning is the standard solution.
 
@@ -147,7 +147,7 @@ New head (unfrozen):      always trained
 
 ## Part 5: VGG16
 
-**VGG16** (Simonyan & Zisserman, 2014) was one of the first architectures to demonstrate that depth — not architectural complexity — is the key driver of performance. The design principle is extreme uniformity: use only 3×3 filters throughout, double the number of filters after each pooling layer.
+**VGG16** (Simonyan & Zisserman, 2014) was one of the first architectures to demonstrate that depth — not architectural complexity — is the key driver of performance. The design principle is extreme uniformity: use only $3 \times 3$ filters throughout, double the number of filters after each pooling layer.
 
 ### Architecture
 
@@ -216,15 +216,13 @@ This is the degradation problem: adding more layers should never hurt — a deep
 
 ### The Residual Block
 
-**ResNet** (He et al., 2015) solves this with a simple structural change: the **residual connection** (also called a skip connection). Instead of learning a mapping H(x) directly, the layer learns the residual F(x) = H(x) − x, and the output is:
+**ResNet** (He et al., 2015) solves this with a simple structural change: the **residual connection** (also called a skip connection). Instead of learning a mapping $H(x)$ directly, the layer learns the residual $F(x) = H(x) - x$, and the output is:
 
-```
-output = F(x) + x
-```
+$$\text{output} = F(x) + x$$
 
-where x is the input passed directly through a shortcut connection, bypassing the weight layers.
+where $x$ is the input passed directly through a shortcut connection, bypassing the weight layers.
 
-The basic residual block (used in ResNet-18 and ResNet-34) contains two 3×3 conv layers with batch normalisation:
+The basic residual block (used in ResNet-18 and ResNet-34) contains two $3 \times 3$ conv layers with batch normalisation:
 
 ```
 Input x
@@ -249,17 +247,13 @@ The diagram below shows the basic residual block with the shortcut connection.
 
 ### Why Residual Connections Work
 
-If the optimal transformation for a block is close to the identity, the weight layers only need to learn F(x) ≈ 0 — a small correction. This is much easier to optimise than learning the identity mapping from scratch through two conv layers.
+If the optimal transformation for a block is close to the identity, the weight layers only need to learn $F(x) \approx 0$ — a small correction. This is much easier to optimise than learning the identity mapping from scratch through two conv layers.
 
 More importantly, the shortcut provides a **gradient highway**: during backpropagation, gradients flow directly through the shortcut without passing through the weight layers. This means gradients reach the early layers intact, even in very deep networks.
 
-```
-Gradient flow without skip:   ∂L/∂x = ∂L/∂output × ∂F/∂x
-                               (multiplied through weight layers — can vanish)
+$$\frac{\partial L}{\partial x} = \frac{\partial L}{\partial \text{output}} \cdot \frac{\partial F}{\partial x} \quad \text{(multiplied through weight layers — can vanish)}$$
 
-Gradient flow with skip:      ∂L/∂x = ∂L/∂output × (∂F/∂x + 1)
-                               (the +1 term ensures gradient never vanishes completely)
-```
+$$\frac{\partial L}{\partial x} = \frac{\partial L}{\partial \text{output}} \cdot \left(\frac{\partial F}{\partial x} + 1\right) \quad \text{(the +1 term ensures gradient never vanishes completely)}$$
 
 ### ResNet-18 Architecture
 
@@ -346,6 +340,6 @@ Key takeaways:
 - Feature extraction freezes the entire pre-trained backbone and trains only a new classification head — the right strategy when the target dataset is small
 - Fine-tuning unfreezes the top layers of the backbone and continues training at a very low learning rate — the right strategy when the target dataset is medium to large or the domain differs from ImageNet
 - VGG16 has 138M parameters, 89% of which are in three FC layers; the 5 conv blocks (14.7M parameters) are the reusable feature extractor
-- ResNet introduced residual connections: output = F(x) + x, where the shortcut bypasses the weight layers; this provides a gradient highway that prevents vanishing gradients in very deep networks
+- ResNet introduced residual connections: $\text{output} = F(x) + x$, where the shortcut bypasses the weight layers; this provides a gradient highway that prevents vanishing gradients in very deep networks
 - ResNet-18 has 11.7M parameters — 8× fewer than VGG16 — and achieves better performance through depth enabled by residual connections
 - The transfer learning decision depends on dataset size and domain similarity: small + similar → feature extraction; large + different → fine-tune all or train from scratch

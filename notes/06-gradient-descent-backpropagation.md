@@ -38,32 +38,23 @@ These three terms are used throughout this note and the rest of the course. They
 
 **Derivative** — the rate of change of a function of a single variable:
 
-```
-L = f(w)      (loss as a function of one weight)
-
-dL/dw = rate of change of L as w changes
-      = slope of L at the current value of w
-```
+$$
+\frac{dL}{dw} = \text{rate of change of } L \text{ as } w \text{ changes}
+$$
 
 **Partial derivative** — the rate of change with respect to one variable while all others are held fixed:
 
-```
-L = f(w₁, w₂, w₃, ...)      (loss as a function of many weights)
-
-∂L/∂w₁ = rate of change of L as w₁ changes, with w₂, w₃, ... fixed
-∂L/∂w₂ = rate of change of L as w₂ changes, with w₁, w₃, ... fixed
-```
+$$
+\frac{\partial L}{\partial w_1} = \text{rate of change of } L \text{ as } w_1 \text{ changes, with } w_2, w_3, \ldots \text{ fixed}
+$$
 
 The ∂ symbol (not d) signals that other variables exist and are being held constant.
 
 **Gradient** — the vector that collects all partial derivatives together:
 
-```
-∇_W L = ⎡∂L/∂w₁⎤
-        ⎢∂L/∂w₂⎥
-        ⎢  ...  ⎥
-        ⎣∂L/∂wₙ⎦
-```
+$$
+\nabla_W L = \begin{bmatrix} \partial L / \partial w_1 \\ \partial L / \partial w_2 \\ \vdots \\ \partial L / \partial w_n \end{bmatrix}
+$$
 
 The gradient is not a new operation — it is the partial derivative applied to every parameter and assembled into a vector. It points in the direction of **steepest ascent** of the loss surface at the current weight configuration. Its negative points in the direction of steepest descent.
 
@@ -80,17 +71,15 @@ Many weights:  ∇_W L   — a vector, tells you the slope in every direction si
 
 The gradient of the loss with respect to a weight tells us how the loss changes when that weight changes:
 
-```
-∂L/∂w > 0:   increasing w increases loss → decrease w
-∂L/∂w < 0:   increasing w decreases loss → increase w
-∂L/∂w = 0:   loss is flat with respect to w → no update needed
-```
+- $\partial L / \partial w > 0$: increasing $w$ increases loss — decrease $w$
+- $\partial L / \partial w < 0$: increasing $w$ decreases loss — increase $w$
+- $\partial L / \partial w = 0$: loss is flat with respect to $w$ — no update needed
 
 The update rule moves each weight in the direction that reduces the loss:
 
-```
-w ← w − η × ∂L/∂w
-```
+$$
+w \leftarrow w - \eta \times \frac{\partial L}{\partial w}
+$$
 
 Where η (eta) is the **learning rate** — a small positive scalar that controls the step size.
 
@@ -114,15 +103,18 @@ There is no universal correct value for η. Typical starting values are in the r
 
 ### For All Parameters Simultaneously
 
-In a network with P parameters, gradient descent updates all weights simultaneously:
+In a network with $P$ parameters, gradient descent updates all weights simultaneously:
 
 ```
 For each weight wᵢ:
   wᵢ ← wᵢ − η × ∂L/∂wᵢ
+```
 
 In matrix form:
-  W ← W − η × ∇_W L
-```
+
+$$
+W \leftarrow W - \eta \times \nabla_W L
+$$
 
 The gradient ∇_W L is a matrix of the same shape as W, containing the partial derivative of the loss with respect to every weight. Computing this gradient for all weights in all layers is the job of backpropagation.
 
@@ -229,19 +221,21 @@ Backpropagation solves this by computing all gradients in a single backward pass
 
 If y = f(u) and u = g(x), then:
 
-```
-dy/dx = dy/du × du/dx
-```
+$$
+\frac{dy}{dx} = \frac{dy}{du} \times \frac{du}{dx}
+$$
 
 > The derivative of a composed function is the product of the derivatives of its components. A neural network is exactly a chain of composed functions — backpropagation applies this rule systematically from output to input.
 
 This extends to any chain of composed functions:
 
-```
-y = f₄(f₃(f₂(f₁(x))))
+$$
+y = f_4(f_3(f_2(f_1(x))))
+$$
 
-dy/dx = (dy/df₄) × (df₄/df₃) × (df₃/df₂) × (df₂/df₁) × (df₁/dx)
-```
+$$
+\frac{dy}{dx} = \frac{dy}{df_4} \times \frac{df_4}{df_3} \times \frac{df_3}{df_2} \times \frac{df_2}{df_1} \times \frac{df_1}{dx}
+$$
 
 ### The General Form for a Hidden Weight
 
@@ -249,46 +243,71 @@ Before computing any numbers, it is worth seeing the full chain of dependencies 
 
 **Output layer weight** — the path from loss to w⁽²⁾ⱼ passes through three nodes:
 
-```
-L → ŷ → z⁽²⁾ → w⁽²⁾ⱼ
+$$
+L \rightarrow \hat{y} \rightarrow z^{(2)} \rightarrow w^{(2)}_j
+$$
 
-∂L/∂w⁽²⁾ⱼ = ∂L/∂ŷ × dŷ/dz⁽²⁾ × ∂z⁽²⁾/∂w⁽²⁾ⱼ
+$$
+\frac{\partial L}{\partial w^{(2)}_j} = \frac{\partial L}{\partial \hat{y}} \times \frac{d\hat{y}}{dz^{(2)}} \times \frac{\partial z^{(2)}}{\partial w^{(2)}_j}
+$$
 
-∂L/∂ŷ          =  −y/ŷ + (1−y)/(1−ŷ)          (from the loss function)
-dŷ/dz⁽²⁾       =  ŷ(1−ŷ)                         (output activation derivative)
-∂z⁽²⁾/∂w⁽²⁾ⱼ  =  hⱼ                               (the hidden activation that fed this weight)
-```
+$$
+\frac{\partial L}{\partial \hat{y}} = -\frac{y}{\hat{y}} + \frac{1-y}{1-\hat{y}} \qquad \text{(from the loss function)}
+$$
+$$
+\frac{d\hat{y}}{dz^{(2)}} = \hat{y}(1-\hat{y}) \qquad \text{(output activation derivative)}
+$$
+$$
+\frac{\partial z^{(2)}}{\partial w^{(2)}_j} = h_j \qquad \text{(the hidden activation that fed this weight)}
+$$
 
 **Hidden layer weight** — the path from loss to w⁽¹⁾ᵢⱼ passes through five nodes:
 
-```
-L → ŷ → z⁽²⁾ → hⱼ → z⁽¹⁾ⱼ → w⁽¹⁾ᵢⱼ
+$$
+L \rightarrow \hat{y} \rightarrow z^{(2)} \rightarrow h_j \rightarrow z^{(1)}_j \rightarrow w^{(1)}_{ij}
+$$
 
-∂L/∂w⁽¹⁾ᵢⱼ = ∂L/∂ŷ × dŷ/dz⁽²⁾ × ∂z⁽²⁾/∂hⱼ × dhⱼ/dz⁽¹⁾ⱼ × ∂z⁽¹⁾ⱼ/∂w⁽¹⁾ᵢⱼ
+$$
+\frac{\partial L}{\partial w^{(1)}_{ij}} = \frac{\partial L}{\partial \hat{y}} \times \frac{d\hat{y}}{dz^{(2)}} \times \frac{\partial z^{(2)}}{\partial h_j} \times \frac{dh_j}{dz^{(1)}_j} \times \frac{\partial z^{(1)}_j}{\partial w^{(1)}_{ij}}
+$$
 
-∂L/∂ŷ           =  −y/ŷ + (1−y)/(1−ŷ)          (from the loss function)
-dŷ/dz⁽²⁾        =  ŷ(1−ŷ)                         (output activation derivative)
-∂z⁽²⁾/∂hⱼ      =  w⁽²⁾ⱼ                            (output layer weight)
-dhⱼ/dz⁽¹⁾ⱼ     =  hⱼ(1−hⱼ)                        (hidden activation derivative)
-∂z⁽¹⁾ⱼ/∂w⁽¹⁾ᵢⱼ =  xᵢ                               (the input that fed this weight)
-```
+$$
+\frac{\partial L}{\partial \hat{y}} = -\frac{y}{\hat{y}} + \frac{1-y}{1-\hat{y}} \qquad \text{(from the loss function)}
+$$
+$$
+\frac{d\hat{y}}{dz^{(2)}} = \hat{y}(1-\hat{y}) \qquad \text{(output activation derivative)}
+$$
+$$
+\frac{\partial z^{(2)}}{\partial h_j} = w^{(2)}_j \qquad \text{(output layer weight)}
+$$
+$$
+\frac{dh_j}{dz^{(1)}_j} = h_j(1-h_j) \qquad \text{(hidden activation derivative)}
+$$
+$$
+\frac{\partial z^{(1)}_j}{\partial w^{(1)}_{ij}} = x_i \qquad \text{(the input that fed this weight)}
+$$
 
 Now look at the two expressions side by side. For the output layer, every weight w⁽²⁾ⱼ shares the same first two factors — `∂L/∂ŷ × dŷ/dz⁽²⁾` — and only the last factor hⱼ differs. For the hidden layer, every weight w⁽¹⁾ᵢⱼ in neuron j shares the same first four factors, and only the last factor xᵢ differs.
 
 This shared prefix is computed once and reused for every weight in that layer. That shared quantity is **delta**:
 
-```
-δ⁽²⁾ = ∂L/∂ŷ × dŷ/dz⁽²⁾ = ∂L/∂z⁽²⁾     ← same for all weights in layer 2
+$$
+\delta^{(2)} = \frac{\partial L}{\partial \hat{y}} \times \frac{d\hat{y}}{dz^{(2)}} = \frac{\partial L}{\partial z^{(2)}} \qquad \text{(same for all weights in layer 2)}
+$$
 
-δ⁽¹⁾ⱼ = ∂L/∂ŷ × dŷ/dz⁽²⁾ × ∂z⁽²⁾/∂hⱼ × dhⱼ/dz⁽¹⁾ⱼ = ∂L/∂z⁽¹⁾ⱼ     ← same for all weights feeding neuron j in layer 1
-```
+$$
+\delta^{(1)}_j = \frac{\partial L}{\partial \hat{y}} \times \frac{d\hat{y}}{dz^{(2)}} \times \frac{\partial z^{(2)}}{\partial h_j} \times \frac{dh_j}{dz^{(1)}_j} = \frac{\partial L}{\partial z^{(1)}_j} \qquad \text{(same for all weights feeding neuron } j \text{)}
+$$
 
 With delta defined, the weight gradients reduce to a single multiplication:
 
-```
-∂L/∂w⁽²⁾ⱼ   = δ⁽²⁾  × hⱼ
-∂L/∂w⁽¹⁾ᵢⱼ  = δ⁽¹⁾ⱼ × xᵢ
-```
+$$
+\frac{\partial L}{\partial w^{(2)}_j} = \delta^{(2)} \times h_j
+$$
+
+$$
+\frac{\partial L}{\partial w^{(1)}_{ij}} = \delta^{(1)}_j \times x_i
+$$
 
 > Delta is not an arbitrary definition — it is the part of the chain rule that does not change across weights in the same layer. Computing it once and reusing it is exactly what makes backpropagation efficient.
 
@@ -308,18 +327,17 @@ Before tracing the backward pass, two terms need precise definitions because the
 
 **Delta (δ⁽ˡ⁾)** is the derivative of the loss with respect to the pre-activation z⁽ˡ⁾ of layer l:
 
-```
-δ⁽ˡ⁾ = ∂L/∂z⁽ˡ⁾
-```
+$$
+\delta^{(l)} = \frac{\partial L}{\partial z^{(l)}}
+$$
 
 It is not the gradient of the weights. It is an intermediate quantity — the error signal at the pre-activation of layer l. It lives at z, not at W or b.
 
 **Gradient** is the derivative of the loss with respect to a learnable parameter:
 
-```
-∂L/∂W⁽ˡ⁾   — gradient with respect to the weight matrix
-∂L/∂b⁽ˡ⁾   — gradient with respect to the bias vector
-```
+$$
+\frac{\partial L}{\partial W^{(l)}} \quad \text{and} \quad \frac{\partial L}{\partial b^{(l)}}
+$$
 
 Gradients are what gradient descent actually uses to update parameters. Delta is the stepping stone to get there — you cannot compute the weight gradients without first computing δ.
 
@@ -329,25 +347,27 @@ Once a layer has its δ, it does exactly two jobs:
 
 **Job 1 — Update its own parameters (stays local):**
 
-```
-∂L/∂W⁽ˡ⁾ = δ⁽ˡ⁾ · (input to layer l)ᵀ     ← weight gradient
-∂L/∂b⁽ˡ⁾ = δ⁽ˡ⁾                            ← bias gradient
-```
+$$
+\frac{\partial L}{\partial W^{(l)}} = \delta^{(l)} \cdot (\text{input to layer } l)^T
+$$
+
+$$
+\frac{\partial L}{\partial b^{(l)}} = \delta^{(l)}
+$$
 
 The input to layer 2 is h; the input to layer 1 is x. These gradients are used immediately to update W⁽ˡ⁾ and b⁽ˡ⁾. They go nowhere else.
 
 **Job 2 — Produce the backward signal for the layer below:**
 
-```
-∂L/∂(input to layer l) = (W⁽ˡ⁾)ᵀ · δ⁽ˡ⁾
-```
+$$
+\frac{\partial L}{\partial (\text{input to layer } l)} = (W^{(l)})^T \cdot \delta^{(l)}
+$$
 
 This tells the layer below how much each of its activations contributed to the loss. The layer below then multiplies this by its own activation derivative to get its own δ:
 
-```
-δ⁽ˡ⁻¹⁾ = ∂L/∂h⁽ˡ⁻¹⁾ × h⁽ˡ⁻¹⁾(1−h⁽ˡ⁻¹⁾)          (element-wise)
-        = (W⁽ˡ⁾)ᵀ · δ⁽ˡ⁾ × h⁽ˡ⁻¹⁾(1−h⁽ˡ⁻¹⁾)      (element-wise)
-```
+$$
+\delta^{(l-1)} = (W^{(l)})^T \cdot \delta^{(l)} \times h^{(l-1)}(1 - h^{(l-1)})
+$$
 
 The boundary between layers is ∂L/∂h — the gradient with respect to the hidden activations. Delta δ⁽ˡ⁾ is always local to its own layer; what crosses the boundary is ∂L/∂h.
 
@@ -392,8 +412,11 @@ We use the exact network from **Note 03**. This connects the forward pass you al
 ```
 Architecture: 2 inputs → 2 hidden neurons → 1 output
 Activation: sigmoid σ(z) = 1/(1+e⁻ᶻ) in all layers
-Loss: BCE  L = −[y·log(ŷ) + (1−y)·log(1−ŷ)]
 ```
+
+$$
+L = -\left[ y \cdot \log(\hat{y}) + (1-y) \cdot \log(1-\hat{y}) \right]
+$$
 
 We use sigmoid here (not step function) because backpropagation requires a differentiable activation. BCE is the correct loss for binary classification — XOR is a binary classification problem.
 
@@ -472,15 +495,9 @@ We compute gradients from output to input. For each layer we compute δ first, t
 
 When BCE loss is paired with a sigmoid output, the chain rule produces a clean cancellation:
 
-```
-δ⁽²⁾ = ∂L/∂z⁽²⁾ = ∂L/∂ŷ × dŷ/dz⁽²⁾
-      = (−y/ŷ + (1−y)/(1−ŷ)) × ŷ(1−ŷ)
-      = (−1/ŷ) × ŷ(1−ŷ)
-      = −(1−ŷ)
-      = ŷ − y
-      = 0.4365 − 1
-      = −0.5635
-```
+$$
+\delta^{(2)} = \frac{\partial L}{\partial z^{(2)}} = \frac{\partial L}{\partial \hat{y}} \times \frac{d\hat{y}}{dz^{(2)}} = \hat{y} - y = 0.4365 - 1 = -0.5635
+$$
 
 > BCE paired with sigmoid output always gives δ⁽²⁾ = ŷ − y. The sigmoid derivative cancels with the BCE denominator — the output delta is simply the prediction error.
 
@@ -531,9 +548,9 @@ When BCE loss is paired with a sigmoid output, the chain rule produces a clean c
 
 Apply gradient descent with η = 0.5:
 
-```
-w ← w − η × ∂L/∂w
-```
+$$
+w \leftarrow w - \eta \times \frac{\partial L}{\partial w}
+$$
 
 **Output layer:**
 
@@ -577,15 +594,15 @@ After this single update, the network's prediction on x = [0,1] would be slightl
 
 Backpropagation multiplies gradients layer by layer. If each layer contributes a factor less than 1 to the gradient, the signal shrinks exponentially as it travels backward.
 
-```
-Gradient at layer l = δ_output × ∏ (dσ/dz at each layer between l and output)
-```
+$$
+\text{Gradient at layer } l = \delta_{\text{output}} \times \prod_{k=l}^{L} \frac{d\sigma}{dz_k}
+$$
 
-For sigmoid: dσ/dz ≤ 0.25. For a 10-layer sigmoid network:
+For sigmoid: $d\sigma/dz \leq 0.25$. For a 10-layer sigmoid network:
 
-```
-Gradient at layer 1 ≈ δ_output × 0.25¹⁰ ≈ δ_output × 10⁻⁶
-```
+$$
+\text{Gradient at layer 1} \approx \delta_{\text{output}} \times 0.25^{10} \approx \delta_{\text{output}} \times 10^{-6}
+$$
 
 The gradient has shrunk by a factor of a million. Early layers receive almost no signal and their weights barely move. The network effectively only trains its last few layers.
 
@@ -619,10 +636,9 @@ Exploding gradients are most common in:
 
 **Gradient clipping** is the standard fix: if the gradient norm exceeds a threshold, rescale it:
 
-```
-if ||∇L|| > threshold:
-    ∇L ← ∇L × (threshold / ||∇L||)
-```
+$$
+\text{if } \|\nabla L\| > \text{threshold}: \quad \nabla L \leftarrow \nabla L \times \frac{\text{threshold}}{\|\nabla L\|}
+$$
 
 This caps the magnitude of the update without changing its direction.
 
@@ -643,7 +659,7 @@ Key takeaways:
 
 - The loss surface is the landscape defined by the loss function over all possible weight values — training is the problem of finding the minimum
 - A partial derivative ∂L/∂w measures how the loss changes with respect to one weight; the gradient ∇_W L is the vector of all partial derivatives — it points in the direction of steepest ascent
-- Gradient descent updates each weight in the direction that reduces the loss: `w ← w − η × ∂L/∂w`
+- Gradient descent updates each weight in the direction that reduces the loss: $w \leftarrow w - \eta \times \partial L / \partial w$
 - The learning rate η controls step size — too large overshoots, too small converges slowly; adaptive optimisers (**Note 12**) address this systematically
 - Batch GD uses all data per update (exact but slow), SGD uses one sample (fast but noisy), mini-batch GD uses B samples (the standard in practice)
 - Backpropagation computes all gradients in a single backward pass using the chain rule — it is the algorithm that makes training deep networks computationally feasible

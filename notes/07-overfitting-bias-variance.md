@@ -89,9 +89,7 @@ The model has memorised the training set. It has not learned the pattern.
 
 The expected prediction error of a model can be decomposed into three components:
 
-```
-Expected Error = Bias² + Variance + Irreducible Noise
-```
+$$\text{Expected Error} = \text{Bias}^2 + \text{Variance} + \text{Irreducible Noise}$$
 
 Understanding each component explains why underfitting and overfitting occur and why they cannot both be eliminated simultaneously.
 
@@ -243,22 +241,17 @@ Regularisation refers to any technique that reduces overfitting by constraining 
 
 Add a penalty term to the loss function proportional to the sum of squared weights:
 
-```
-L_total = L_original + λ × Σ wᵢ²
-```
+$$L_{\text{total}} = L_{\text{original}} + \lambda \sum_i w_i^2$$
 
-Where λ (lambda) is the regularisation strength — a hyperparameter controlling how much the penalty matters.
+Where $\lambda$ (lambda) is the regularisation strength — a hyperparameter controlling how much the penalty matters.
 
 **Effect on gradient descent:**
 
-```
-∂L_total/∂w = ∂L_original/∂w + 2λw
+$$\frac{\partial L_{\text{total}}}{\partial w} = \frac{\partial L_{\text{original}}}{\partial w} + 2\lambda w$$
 
-Update: w ← w − η × (∂L_original/∂w + 2λw)
-           = w(1 − 2ηλ) − η × ∂L_original/∂w
-```
+$$w \leftarrow w - \eta \left(\frac{\partial L_{\text{original}}}{\partial w} + 2\lambda w\right) = w(1 - 2\eta\lambda) - \eta \frac{\partial L_{\text{original}}}{\partial w}$$
 
-The factor `(1 − 2ηλ)` shrinks the weight at every step. For this to work correctly, it must stay positive — if it went negative, the weight would flip sign every step and diverge. This requires `2ηλ < 1`, or equivalently `ηλ < 0.5`, which holds for any reasonable learning rate and regularisation strength. This is why L2 is called **weight decay** — the weight is multiplied by a factor slightly less than 1 at every update, regardless of the gradient.
+The factor $(1 - 2\eta\lambda)$ shrinks the weight at every step. For this to work correctly, it must stay positive — if it went negative, the weight would flip sign every step and diverge. This requires $2\eta\lambda < 1$, or equivalently $\eta\lambda < 0.5$, which holds for any reasonable learning rate and regularisation strength. This is why L2 is called **weight decay** — the weight is multiplied by a factor slightly less than 1 at every update, regardless of the gradient.
 
 **Intuition:**
 
@@ -278,21 +271,17 @@ L2 never drives weights exactly to zero — the pull weakens as the weight appro
 
 Add a penalty proportional to the sum of absolute weight values:
 
-```
-L_total = L_original + λ × Σ |wᵢ|
-```
+$$L_{\text{total}} = L_{\text{original}} + \lambda \sum_i |w_i|$$
 
 **Effect on gradient descent:**
 
-The derivative of |w| is +1 for w > 0 and −1 for w < 0 — a constant magnitude regardless of how large or small w is:
+The derivative of $|w|$ is $+1$ for $w > 0$ and $-1$ for $w < 0$ — a constant magnitude regardless of how large or small $w$ is:
 
-```
-∂L_total/∂w = ∂L_original/∂w + λ × sign(w)
+$$\frac{\partial L_{\text{total}}}{\partial w} = \frac{\partial L_{\text{original}}}{\partial w} + \lambda \cdot \text{sign}(w)$$
 
-Update: w ← w − η × (∂L_original/∂w + λ × sign(w))
-```
+$$w \leftarrow w - \eta \left(\frac{\partial L_{\text{original}}}{\partial w} + \lambda \cdot \text{sign}(w)\right)$$
 
-At every step, a fixed amount ηλ is subtracted from the weight (toward zero), regardless of the weight's current size.
+At every step, a fixed amount $\eta\lambda$ is subtracted from the weight (toward zero), regardless of the weight's current size.
 
 **Intuition:**
 
@@ -338,7 +327,7 @@ Next training step:
 
 Each training step uses a different random subset of neurons. The network cannot rely on any single neuron or co-adapt groups of neurons to memorise specific training examples. It must learn redundant, distributed representations.
 
-At test time, dropout is disabled and all neurons are active. To keep the expected output magnitude consistent with training, the activations must be rescaled. Modern frameworks (PyTorch, TensorFlow) use **inverted dropout**: during training, each surviving neuron's output is scaled up by `1/(1 − p)`, so no rescaling is needed at test time. The effect is the same — expected activation magnitude is preserved — but the test-time forward pass is unchanged.
+At test time, dropout is disabled and all neurons are active. To keep the expected output magnitude consistent with training, the activations must be rescaled. Modern frameworks (PyTorch, TensorFlow) use **inverted dropout**: during training, each surviving neuron's output is scaled up by $\frac{1}{1-p}$, so no rescaling is needed at test time. The effect is the same — expected activation magnitude is preserved — but the test-time forward pass is unchanged.
 
 **Dropout as ensemble learning:**
 

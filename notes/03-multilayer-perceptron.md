@@ -6,9 +6,7 @@
 
 Note 02 ended with an algebraic and geometric proof: no single straight line can separate the XOR function. A single perceptron is fundamentally constrained to linear decision boundaries:
 
-```
-ŷ = f(w₁x₁ + w₂x₂ + b)
-```
+$$\hat{y} = f(w_1 x_1 + w_2 x_2 + b)$$
 
 The question is: what if we use **more than one line**?
 
@@ -89,9 +87,9 @@ Only layers that perform mathematical transformations are counted as computation
 
 | Layer | Computational Role | Learnable Parameters |
 |---|---|---|
-| **Input Layer** | Transmits the raw feature vector x. Performs no computation. | None |
-| **Layer 1 — Hidden** | Computes intermediate activations h = f(W⁽¹⁾ᵀx + b⁽¹⁾). Learns new representations. | W⁽¹⁾, b⁽¹⁾ |
-| **Layer 2 — Output** | Computes the final prediction ŷ = f(W⁽²⁾ᵀh + b⁽²⁾). | W⁽²⁾, b⁽²⁾ |
+| **Input Layer** | Transmits the raw feature vector $x$. Performs no computation. | None |
+| **Layer 1 — Hidden** | Computes intermediate activations $h = f(W^{(1)\top} x + b^{(1)})$. Learns new representations. | $W^{(1)}, b^{(1)}$ |
+| **Layer 2 — Output** | Computes the final prediction $\hat{y} = f(W^{(2)\top} h + b^{(2)})$. | $W^{(2)}, b^{(2)}$ |
 
 > **Layer Counting Convention:** This architecture is designated a **2-layer network** (1 hidden layer + 1 output layer). The input is not counted because it has no weights or activation function. Superscripts W⁽¹⁾ and W⁽²⁾ index the computational layers.
 >
@@ -103,9 +101,7 @@ Only layers that perform mathematical transformations are counted as computation
 
 To avoid ambiguity, we establish a consistent indexing convention across all notes:
 
-```
-w⁽ˡ⁾ᵢⱼ  =  weight in layer l, from neuron i (layer l-1) to neuron j (layer l)
-```
+$$w^{(l)}_{ij} = \text{weight in layer } l \text{, from neuron } i \text{ (layer } l-1 \text{) to neuron } j \text{ (layer } l \text{)}$$
 
 For our network with 2 inputs, 2 hidden neurons, and 1 output neuron:
 
@@ -118,16 +114,13 @@ Layer 1 Weights (Input → Hidden):         Layer 2 Weights (Hidden → Output):
   x₂ → h₂ :  w⁽¹⁾₂₂
 ```
 
-Each neuron computes a scalar pre-activation z (weighted sum plus bias), followed by an activation f(z):
+Each neuron computes a scalar pre-activation $z$ (weighted sum plus bias), followed by an activation $f(z)$:
 
-```
-Hidden Layer:
-  z₁⁽¹⁾ = w⁽¹⁾₁₁·x₁ + w⁽¹⁾₂₁·x₂ + b₁⁽¹⁾   →   h₁ = f(z₁⁽¹⁾)
-  z₂⁽¹⁾ = w⁽¹⁾₁₂·x₁ + w⁽¹⁾₂₂·x₂ + b₂⁽¹⁾   →   h₂ = f(z₂⁽¹⁾)
+$$z_1^{(1)} = w^{(1)}_{11} x_1 + w^{(1)}_{21} x_2 + b_1^{(1)} \quad \Rightarrow \quad h_1 = f(z_1^{(1)})$$
 
-Output Layer:
-  z⁽²⁾  = w⁽²⁾₁₁·h₁ + w⁽²⁾₂₁·h₂ + b⁽²⁾    →   ŷ  = f(z⁽²⁾)
-```
+$$z_2^{(1)} = w^{(1)}_{12} x_1 + w^{(1)}_{22} x_2 + b_2^{(1)} \quad \Rightarrow \quad h_2 = f(z_2^{(1)})$$
+
+$$z^{(2)} = w^{(2)}_{11} h_1 + w^{(2)}_{21} h_2 + b^{(2)} \quad \Rightarrow \quad \hat{y} = f(z^{(2)})$$
 
 ---
 
@@ -197,18 +190,18 @@ The forward pass computes layer by layer — each layer calculates a weighted su
 ### Forward Pass Equations
 
 Hidden Layer (Layer 1):
-```
-z⁽¹⁾ = W⁽¹⁾ᵀx + b⁽¹⁾       ← weighted sum for all hidden neurons
-h    = f(z⁽¹⁾)              ← activation applied element-wise
-```
+
+$$z^{(1)} = W^{(1)\top} x + b^{(1)}$$
+
+$$h = f(z^{(1)})$$
 
 Output Layer (Layer 2):
-```
-z⁽²⁾ = W⁽²⁾ᵀh + b⁽²⁾       ← weighted sum for output neuron
-ŷ    = f(z⁽²⁾)              ← activation produces final prediction
-```
 
-In deeper networks, this exact two-step pattern repeats layer by layer: each layer computes `z = Wᵀ(input) + b` followed by `f(z)`, passing its activations forward until the output layer is reached.
+$$z^{(2)} = W^{(2)\top} h + b^{(2)}$$
+
+$$\hat{y} = f(z^{(2)})$$
+
+In deeper networks, this exact two-step pattern repeats layer by layer: each layer computes $z = W^\top(	ext{input}) + b$ followed by $f(z)$, passing its activations forward until the output layer is reached.
 
 
 ---
@@ -355,33 +348,23 @@ In real-world deep learning, we cannot hand-craft millions of weights. They must
 
 Recall the Perceptron Learning Rule from Note 02:
 
-```
-wᵢ ← wᵢ + η × (y - ŷ) × xᵢ
-```
+$$w_i \leftarrow w_i + \eta \cdot (y - \hat{y}) \cdot x_i$$
 
 This rule works for a single perceptron because the error `(y - ŷ)` is directly and linearly coupled to weight `wᵢ`. If the output is wrong, we know exactly how much each weight contributed to the discrepancy.
 
-In an MLP, this direct link is severed. To see why, write out what it would mean to apply the perceptron rule to a hidden weight — say `w⁽¹⁾₁₁`, the weight from input x₁ to hidden neuron h₁:
+In an MLP, this direct link is severed. To see why, write out what it would mean to apply the perceptron rule to a hidden weight — say $w^{(1)}_{11}$, the weight from input $x_1$ to hidden neuron $h_1$:
 
-```
-Forward pass (2-2-1 network):
+$$z_1^{(1)} = w^{(1)}_{11} x_1 + w^{(1)}_{21} x_2 + b_1^{(1)}, \quad h_1 = f(z_1^{(1)})$$
 
-  z₁⁽¹⁾ = w⁽¹⁾₁₁·x₁ + w⁽¹⁾₂₁·x₂ + b₁⁽¹⁾
-  h₁    = f(z₁⁽¹⁾)
-  z⁽²⁾  = w⁽²⁾₁₁·h₁ + w⁽²⁾₂₁·h₂ + b⁽²⁾
-  ŷ     = f(z⁽²⁾)
-```
+$$z^{(2)} = w^{(2)}_{11} h_1 + w^{(2)}_{21} h_2 + b^{(2)}, \quad \hat{y} = f(z^{(2)})$$
 
-The loss L depends on ŷ, which depends on z⁽²⁾, which depends on h₁, which depends on z₁⁽¹⁾, which depends on w⁽¹⁾₁₁. By the chain rule:
+The loss $L$ depends on $\hat{y}$, which depends on $z^{(2)}$, which depends on $h_1$, which depends on $z_1^{(1)}$, which depends on $w^{(1)}_{11}$. By the chain rule:
 
-```
-∂L/∂w⁽¹⁾₁₁ = dL/dŷ · ∂ŷ/∂z⁽²⁾ · ∂z⁽²⁾/∂h₁ · ∂h₁/∂z₁⁽¹⁾ · ∂z₁⁽¹⁾/∂w⁽¹⁾₁₁
-            = dL/dŷ · f'(z⁽²⁾) · w⁽²⁾₁₁ · f'(z₁⁽¹⁾) · x₁
-```
+$$\frac{\partial L}{\partial w^{(1)}_{11}} = \frac{dL}{d\hat{y}} \cdot \frac{\partial \hat{y}}{\partial z^{(2)}} \cdot \frac{\partial z^{(2)}}{\partial h_1} \cdot \frac{\partial h_1}{\partial z_1^{(1)}} \cdot \frac{\partial z_1^{(1)}}{\partial w^{(1)}_{11}} = \frac{dL}{d\hat{y}} \cdot f'(z^{(2)}) \cdot w^{(2)}_{11} \cdot f'(z_1^{(1)}) \cdot x_1$$
 
 ![Why the perceptron rule cannot train hidden weights](images/credit_assignment.png)
 
-The perceptron rule has no access to any of these terms. It only knows `(y - ŷ)` and `xᵢ`. It cannot compute `f'(z⁽²⁾)` — the derivative of the output activation. It cannot compute `w⁽²⁾₁₁` — the weight in the layer above. It cannot compute `f'(z₁⁽¹⁾)` — the derivative of the hidden activation. The rule is structurally blind to everything between the hidden weight and the output error.
+The perceptron rule has no access to any of these terms. It only knows $(y - \hat{y})$ and $x_i$. It cannot compute $f'(z^{(2)})$ — the derivative of the output activation. It cannot compute $w^{(2)}_{11}$ — the weight in the layer above. It cannot compute $f'(z_1^{(1)})$ — the derivative of the hidden activation. The rule is structurally blind to everything between the hidden weight and the output error.
 
 This is not a fixable limitation of the perceptron rule — it is a fundamental consequence of the network having intermediate layers. The error signal at the output must be **propagated backwards** through every layer to reach the hidden weights, accounting for each layer's contribution along the way.
 
@@ -426,19 +409,21 @@ To solve the credit assignment problem, three mathematical components must work 
 
 **Pillar 1 — Continuous Loss Function** `→ Note 05`
 
-Replace discrete 0/1 misclassification with a smooth, differentiable scalar L(y, ŷ) that measures prediction error as a real number. This gives backpropagation a starting gradient ∂L/∂ŷ at the output layer.
+Replace discrete 0/1 misclassification with a smooth, differentiable scalar $L(y, \hat{y})$ that measures prediction error as a real number. This gives backpropagation a starting gradient $\partial L / \partial \hat{y}$ at the output layer.
 
 > Without it: no gradient exists at the output — backpropagation has no signal to start from. Nothing propagates backwards.
 
 **Pillar 2 — Differentiable Activation Functions** `→ Note 04`
 
-Replace the Heaviside step function (derivative = 0 everywhere) with smooth non-linearities — Sigmoid, Tanh, ReLU — that have informative f'(z) at every point. This allows the chain rule to pass gradients through each hidden layer.
+Replace the Heaviside step function (derivative = 0 everywhere) with smooth non-linearities — Sigmoid, Tanh, ReLU — that have informative $f'(z)$ at every point. This allows the chain rule to pass gradients through each hidden layer.
 
 > Without it: the chain rule multiplies by zero at every hidden layer — gradients vanish immediately and no hidden weight ever receives an update.
 
 **Pillar 3 — Backpropagation & Gradient Descent** `→ Note 06`
 
-Apply the chain rule backwards from output to input, computing ∂L/∂W for every parameter in one efficient pass. Then update every weight: W ← W − η(∂L/∂W).
+Apply the chain rule backwards from output to input, computing $\partial L / \partial W$ for every parameter in one efficient pass. Then update every weight:
+
+$$W \leftarrow W - \eta \frac{\partial L}{\partial W}$$
 
 > Without it: even with a good loss and smooth activations, there is no algorithm to compute how each hidden weight should change.
 
@@ -454,13 +439,17 @@ The diagram below shows the four steps that repeat every epoch until convergence
 
 ![Universal Neural Network Training Loop](images/training_loop.png)
 
-**Step 1 — Forward Pass:** The input is fed through the network layer by layer. Each layer computes `z = Wᵀ(input) + b` then `h = f(z)`, passing activations forward. The final layer produces the prediction ŷ. All intermediate values z and h are stored — they will be needed in the backward pass.
+**Step 1 — Forward Pass:** The input is fed through the network layer by layer. Each layer computes $z = W^\top(\text{input}) + b$ then $h = f(z)$, passing activations forward. The final layer produces the prediction $\hat{y}$. All intermediate values $z$ and $h$ are stored — they will be needed in the backward pass.
 
-**Step 2 — Compute Loss:** The prediction ŷ is compared to the true label y using the loss function. This produces a single scalar L — the height of the loss surface at the current weight configuration. A lower L means the network is closer to correct.
+**Step 2 — Compute Loss:** The prediction $\hat{y}$ is compared to the true label $y$ using the loss function. This produces a single scalar $L$ — the height of the loss surface at the current weight configuration. A lower $L$ means the network is closer to correct.
 
-**Step 3 — Backward Pass:** Starting from ∂L/∂ŷ at the output, the chain rule is applied layer by layer in reverse — output → last hidden → ... → first hidden. Each layer's gradient is computed using the stored activations from the forward pass. The result is ∂L/∂W for every weight in the network simultaneously.
+**Step 3 — Backward Pass:** Starting from $\partial L / \partial \hat{y}$ at the output, the chain rule is applied layer by layer in reverse — output → last hidden → ... → first hidden. Each layer's gradient is computed using the stored activations from the forward pass. The result is $\partial L / \partial W$ for every weight in the network simultaneously.
 
-**Step 4 — Parameter Update:** Every weight is nudged in the direction that reduces L: `W ← W − η(∂L/∂W)`. The learning rate η controls the step size. Too large and the update overshoots; too small and training is impractically slow.
+**Step 4 — Parameter Update:** Every weight is nudged in the direction that reduces $L$:
+
+$$W \leftarrow W - \eta \frac{\partial L}{\partial W}$$
+
+The learning rate $\eta$ controls the step size. Too large and the update overshoots; too small and training is impractically slow.
 
 **Epoch:** One full pass through the entire training dataset. The loop repeats for E epochs — or until the loss stops decreasing (convergence). In practice, a network may be trained for hundreds or thousands of epochs on millions of examples before the weights stabilise.
 
@@ -489,11 +478,11 @@ How does representational capacity change as we increase depth?
 Can a network with just one hidden layer represent *any* mathematical function?
 
 > **Universal Approximation Theorem (Cybenko, 1989; Hornik, 1991):**
-> A feedforward network with a single hidden layer containing a finite number of neurons can approximate any continuous function on a compact (closed and bounded) subset of ℝⁿ to arbitrary precision, given a suitable non-linear activation function:
+> A feedforward network with a single hidden layer containing a finite number of neurons can approximate any continuous function on a compact (closed and bounded) subset of $\mathbb{R}^n$ to arbitrary precision, given a suitable non-linear activation function:
 >
-> `| F(x) - f(x) | < ε`  for all `x`
+> $$|F(x) - f(x)| < \varepsilon \quad \text{for all } x$$
 >
-> *(Here F denotes the network's output function and f the target function — both distinct from the activation function used elsewhere in this note.)*
+> *(Here $F$ denotes the network's output function and $f$ the target function — both distinct from the activation function used elsewhere in this note.)*
 
 #### What the Theorem Means — and What it Does NOT Mean
 
@@ -509,17 +498,13 @@ The theorem is not just a formal result — there is a concrete constructive arg
 
 A single sigmoid neuron with a steep slope approximates a step function — it transitions sharply from 0 to 1 at a location controlled by its bias. Take two such neurons and subtract them:
 
-```
-bump(x) = σ(w·x + b₁) − σ(w·x + b₂),   with b₁ > b₂
-```
+$$\text{bump}(x) = \sigma(wx + b_1) - \sigma(wx + b_2), \quad b_1 > b_2$$
 
 With b₁ > b₂, the first sigmoid transitions at a more negative x (rises earlier, further left) and the second transitions at a less negative x (rises later, further right). In the interval between the two transition points, the first sigmoid has already risen to ~1 while the second has not yet risen from ~0 — so their difference is positive. Outside this interval, both sigmoids are either both ~0 (far left) or both ~1 (far right), so the difference is ~0. The result is a localised positive bump. With a large weight w, the transitions are sharp and the bump is narrow. The position of the bump is controlled by b₁ and b₂; its width is controlled by w.
 
 Now tile the input domain with enough bumps, each scaled to the correct height:
 
-```
-F(x) ≈ Σₖ aₖ · bumpₖ(x)
-```
+$$F(x) \approx \sum_k a_k \cdot \text{bump}_k(x)$$
 
 This is a weighted sum of localised bumps — which is exactly what a single hidden layer computes. Each pair of neurons contributes one bump; the output neuron weights them. With enough neurons, the bumps can be made narrow enough and numerous enough to approximate any continuous shape to within ε.
 
@@ -599,3 +584,4 @@ Activation Function    Heaviside Step function       Smooth differentiable (ReLU
 3. **Representation Warping:** The hidden layer solves non-linear tasks (like XOR) by transforming the coordinate space such that the data becomes linearly separable by the time it reaches the output neuron.
 4. **Universal Approximation:** A network with a single hidden layer can approximate any continuous function to arbitrary precision, but may require exponential width. Deep networks achieve equal or greater expressive power with exponentially fewer parameters through hierarchical feature reuse.
 5. **The Training Hurdle:** The Perceptron Learning Rule cannot train hidden layers due to the credit assignment problem. Training deep networks requires smooth activations (Note 04), differentiable loss functions (Note 05), and backpropagation via the chain rule (Note 06).
+

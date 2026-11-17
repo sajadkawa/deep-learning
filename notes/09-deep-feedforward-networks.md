@@ -21,7 +21,7 @@ Width  (nₗ) — the number of neurons in layer l
 Architecture — the full specification: L, n₁, n₂, ..., nₗ, activations per layer
 ```
 
-A network is called **deep** when L ≥ 2 — when it has at least one hidden layer plus an output layer. The term "deep learning" refers specifically to this depth. A single-layer network (one output layer, no hidden layers) is a linear model — it is not deep.
+A network is called **deep** when $L \geq 2$ — when it has at least one hidden layer plus an output layer. The term "deep learning" refers specifically to this depth. A single-layer network (one output layer, no hidden layers) is a linear model — it is not deep.
 
 ```
 Shallow:                          Deep:
@@ -87,36 +87,35 @@ a⁽ˡ⁾     — post-activation vector,     shape: nₗ
 fₗ       — activation function for layer l (may differ per layer)
 ```
 
-The input is denoted a⁽⁰⁾ = x — the raw feature vector. This makes the layer equations uniform: every layer takes the previous layer's activations as input.
+The input is denoted $a^{(0)} = x$ — the raw feature vector. This makes the layer equations uniform: every layer takes the previous layer's activations as input.
 
 ### The Forward Pass — Layer by Layer
 
-For each layer l = 1, 2, ..., L:
+For each layer $l = 1, 2, \ldots, L$:
 
-```
-Step 1 — Weighted sum (pre-activation):
+**Step 1 — Weighted sum (pre-activation):**
 
-  z⁽ˡ⁾ = W⁽ˡ⁾ᵀ a⁽ˡ⁻¹⁾ + b⁽ˡ⁾
+$$z^{(l)} = W^{(l)\top} a^{(l-1)} + b^{(l)}$$
 
-Step 2 — Activation (post-activation):
+**Step 2 — Activation (post-activation):**
 
-  a⁽ˡ⁾ = fₗ(z⁽ˡ⁾)
-```
+$$a^{(l)} = f_l\!\left(z^{(l)}\right)$$
 
-The output of the network is a⁽ᴸ⁾ = ŷ.
+The output of the network is $a^{(L)} = \hat{y}$.
 
 Written out for a 4-layer network (3 hidden + 1 output):
 
-```
-a⁽⁰⁾ = x                                    ← input
+$$a^{(0)} = x \qquad \text{(input)}$$
 
-z⁽¹⁾ = W⁽¹⁾ᵀ a⁽⁰⁾ + b⁽¹⁾,   a⁽¹⁾ = f₁(z⁽¹⁾)  ← hidden layer 1
-z⁽²⁾ = W⁽²⁾ᵀ a⁽¹⁾ + b⁽²⁾,   a⁽²⁾ = f₂(z⁽²⁾)  ← hidden layer 2
-z⁽³⁾ = W⁽³⁾ᵀ a⁽²⁾ + b⁽³⁾,   a⁽³⁾ = f₃(z⁽³⁾)  ← hidden layer 3
-z⁽⁴⁾ = W⁽⁴⁾ᵀ a⁽³⁾ + b⁽⁴⁾,   a⁽⁴⁾ = f₄(z⁽⁴⁾)  ← output layer
+$$z^{(1)} = W^{(1)\top} a^{(0)} + b^{(1)}, \quad a^{(1)} = f_1\!\left(z^{(1)}\right) \qquad \text{(hidden layer 1)}$$
 
-ŷ = a⁽⁴⁾
-```
+$$z^{(2)} = W^{(2)\top} a^{(1)} + b^{(2)}, \quad a^{(2)} = f_2\!\left(z^{(2)}\right) \qquad \text{(hidden layer 2)}$$
+
+$$z^{(3)} = W^{(3)\top} a^{(2)} + b^{(3)}, \quad a^{(3)} = f_3\!\left(z^{(3)}\right) \qquad \text{(hidden layer 3)}$$
+
+$$z^{(4)} = W^{(4)\top} a^{(3)} + b^{(4)}, \quad a^{(4)} = f_4\!\left(z^{(4)}\right) \qquad \text{(output layer)}$$
+
+$$\hat{y} = a^{(4)}$$
 
 The same two-step pattern — weighted sum, then activation — repeats identically at every layer. The only things that change are the weight matrix, the bias vector, and possibly the activation function.
 
@@ -136,54 +135,40 @@ Before choosing an architecture, you need to know what it costs. Every weight an
 
 ### The Formula
 
-For a fully connected layer l connecting nₗ₋₁ neurons to nₗ neurons:
+For a fully connected layer $l$ connecting $n_{l-1}$ neurons to $n_l$ neurons:
 
-```
-Weights:   nₗ₋₁ × nₗ     (every input neuron connects to every output neuron)
-Biases:    nₗ             (one bias per output neuron)
+- Weights: $n_{l-1} \times n_l$ (every input neuron connects to every output neuron)
+- Biases: $n_l$ (one bias per output neuron)
 
-Parameters in layer l:   nₗ₋₁ × nₗ + nₗ  =  nₗ(nₗ₋₁ + 1)
-```
+$$\text{Parameters in layer } l = n_{l-1} \times n_l + n_l = n_l(n_{l-1} + 1)$$
 
-Total parameters across all L layers:
+Total parameters across all $L$ layers:
 
-```
-Total = Σₗ₌₁ᴸ [ nₗ₋₁ × nₗ + nₗ ]
-```
+$$\text{Total} = \sum_{l=1}^{L} \left[ n_{l-1} \times n_l + n_l \right]$$
 
 ### Worked Example
 
 Two architectures, both with input size 4 and output size 2. One is deep and narrow, one is shallow and wide.
 
-**Architecture A — Deep and Narrow:**
+**Architecture A — Deep and Narrow:** layer sizes $n_0=4,\ n_1=8,\ n_2=8,\ n_3=8,\ n_4=2$, depth $L=4$.
 
-```
-Layer sizes: n₀=4, n₁=8, n₂=8, n₃=8, n₄=2
-Depth L = 4
-```
+$$\text{Layer 1: } 4 \times 8 + 8 = 40$$
 
-```
-Layer 1:  4 × 8  + 8  =  32 + 8  =  40
-Layer 2:  8 × 8  + 8  =  64 + 8  =  72
-Layer 3:  8 × 8  + 8  =  64 + 8  =  72
-Layer 4:  8 × 2  + 2  =  16 + 2  =  18
+$$\text{Layer 2: } 8 \times 8 + 8 = 72$$
 
-Total:  40 + 72 + 72 + 18  =  202 parameters
-```
+$$\text{Layer 3: } 8 \times 8 + 8 = 72$$
 
-**Architecture B — Shallow and Wide:**
+$$\text{Layer 4: } 8 \times 2 + 2 = 18$$
 
-```
-Layer sizes: n₀=4, n₁=64, n₂=2
-Depth L = 2
-```
+$$\text{Total: } 40 + 72 + 72 + 18 = 202 \text{ parameters}$$
 
-```
-Layer 1:  4 × 64 + 64  =  256 + 64  =  320
-Layer 2:  64 × 2 + 2   =  128 + 2   =  130
+**Architecture B — Shallow and Wide:** layer sizes $n_0=4,\ n_1=64,\ n_2=2$, depth $L=2$.
 
-Total:  320 + 130  =  450 parameters
-```
+$$\text{Layer 1: } 4 \times 64 + 64 = 320$$
+
+$$\text{Layer 2: } 64 \times 2 + 2 = 130$$
+
+$$\text{Total: } 320 + 130 = 450 \text{ parameters}$$
 
 Architecture A is deeper but uses **less than half** the parameters of Architecture B. This is the efficiency of depth — the same representational power at lower parameter cost.
 
@@ -226,7 +211,7 @@ Every node's value depends only on the nodes that feed into it. There are no cyc
 
 ### A Simple Example
 
-Consider a single neuron: z = w₁x₁ + w₂x₂ + b, then a = f(z).
+Consider a single neuron: $z = w_1 x_1 + w_2 x_2 + b$, then $a = f(z)$.
 
 ```
 x₁ ──(×w₁)──┐
@@ -240,7 +225,7 @@ Each node is a value. Each edge is an operation. The graph flows left to right.
 
 ### A Two-Layer Network
 
-The graph below shows a 2-layer network. Blue nodes are values (inputs, intermediate results, outputs). Yellow nodes are operations (weighted sum, activation). The input a⁽⁰⁾ feeds into the layer 1 operation, producing z⁽¹⁾, then a⁽¹⁾, which feeds into the layer 2 operation, producing z⁽²⁾, then ŷ = a⁽²⁾.
+The graph below shows a 2-layer network. Blue nodes are values (inputs, intermediate results, outputs). Yellow nodes are operations (weighted sum, activation). The input $a^{(0)}$ feeds into the layer 1 operation, producing $z^{(1)}$, then $a^{(1)}$, which feeds into the layer 2 operation, producing $z^{(2)}$, then $\hat{y} = a^{(2)}$.
 
 ![Computational graph — 2-layer feedforward network](images/computational_graph.png)
 
@@ -263,10 +248,9 @@ This is why the forward pass must store intermediate values — they are needed 
 
 Because the graph is acyclic, there is always a valid evaluation order — a sequence in which nodes can be computed such that every node's inputs are available before it is evaluated. This is called a **topological ordering** of the graph.
 
-```
 For a feedforward network, the topological order is simply:
-  a⁽⁰⁾ → z⁽¹⁾ → a⁽¹⁾ → z⁽²⁾ → a⁽²⁾ → ... → z⁽ᴸ⁾ → a⁽ᴸ⁾ = ŷ
-```
+
+$$a^{(0)} \to z^{(1)} \to a^{(1)} \to z^{(2)} \to a^{(2)} \to \cdots \to z^{(L)} \to a^{(L)} = \hat{y}$$
 
 No layer can be evaluated before the layer before it. No layer needs to wait for any layer after it. The order is fixed and unambiguous.
 
@@ -288,29 +272,21 @@ The critical word is "sufficient width." For complex functions in high-dimension
 
 There is a precise formal result (Montufar et al., 2014) that quantifies the advantage of depth:
 
-```
-A deep ReLU network with L layers and n neurons per layer can represent
-functions with O(nᴸ) linear regions.
-
-A shallow ReLU network with the same total number of neurons (n × L neurons)
-can represent functions with O(n × L) linear regions.
-```
+A deep ReLU network with $L$ layers and $n$ neurons per layer can represent functions with $O(n^L)$ linear regions. A shallow ReLU network with the same total number of neurons ($n \times L$ neurons) can represent functions with $O(n \times L)$ linear regions.
 
 The number of linear regions is a measure of how complex a function the network can represent — more regions means finer-grained decision boundaries.
 
-```
-Deep network:    O(nᴸ)    — exponential in depth L
-Shallow network: O(n × L) — linear in depth L
+$$\text{Deep network: } O(n^L) \quad \text{— exponential in depth } L$$
 
-Example: n = 10, L = 4
+$$\text{Shallow network: } O(n \times L) \quad \text{— linear in depth } L$$
 
-  Deep:    10⁴ = 10,000 linear regions
-  Shallow: 10 × 4 = 40 linear regions
+For example, with $n = 10$ and $L = 4$:
 
-Same number of neurons. 250× more representational power from depth.
-```
+$$\text{Deep: } 10^4 = 10{,}000 \text{ linear regions}$$
 
-This is not a marginal difference. It is exponential. Depth buys representational power at a rate that width cannot match.
+$$\text{Shallow: } 10 \times 4 = 40 \text{ linear regions}$$
+
+Same number of neurons. 250× more representational power from depth. This is not a marginal difference. It is exponential. Depth buys representational power at a rate that width cannot match.
 
 ### Why Depth Works — The Reuse Argument
 
@@ -466,36 +442,29 @@ ReLU is the default for hidden layers in modern deep networks. The reasons — s
 
 Task: classify handwritten digits (0–9) from 28×28 grayscale images. 60,000 training examples.
 
-```
-Step 1 — Input:
-  n₀ = 28 × 28 = 784
+**Step 1 — Input:** $n_0 = 28 \times 28 = 784$
 
-Step 2 — Output:
-  10 classes → n_L = 10, Softmax activation
+**Step 2 — Output:** 10 classes → $n_L = 10$, Softmax activation
 
-Step 3 — Depth:
-  Moderate complexity, 60k examples → 3 hidden layers
+**Step 3 — Depth:** Moderate complexity, 60k examples → 3 hidden layers
 
-Step 4 — Width (funnel pattern):
-  n₁ = 512, n₂ = 256, n₃ = 128
+**Step 4 — Width (funnel pattern):** $n_1 = 512,\ n_2 = 256,\ n_3 = 128$
 
-Step 5 — Activations:
-  Hidden layers: ReLU
-  Output: Softmax
+**Step 5 — Activations:** Hidden layers: ReLU. Output: Softmax
 
-Step 6 — Parameter count:
-  Layer 1:  784 × 512 + 512  =  401,920
-  Layer 2:  512 × 256 + 256  =  131,328
-  Layer 3:  256 × 128 + 128  =   32,896
-  Layer 4:  128 × 10  + 10   =    1,290
+**Step 6 — Parameter count:**
 
-  Total:  567,434 parameters
+$$\text{Layer 1: } 784 \times 512 + 512 = 401{,}920$$
 
-Step 7 — Sanity check:
-  60,000 training examples, ~567k parameters
-  Ratio ≈ 0.1 examples per parameter — on the low side
-  → Consider adding dropout (Note 07) or reducing width
-```
+$$\text{Layer 2: } 512 \times 256 + 256 = 131{,}328$$
+
+$$\text{Layer 3: } 256 \times 128 + 128 = 32{,}896$$
+
+$$\text{Layer 4: } 128 \times 10 + 10 = 1{,}290$$
+
+$$\text{Total: } 567{,}434 \text{ parameters}$$
+
+**Step 7 — Sanity check:** 60,000 training examples, ~567k parameters. Ratio ≈ 0.1 examples per parameter — on the low side. Consider adding dropout (**Note 07**) or reducing width.
 
 The final architecture:
 
@@ -519,11 +488,11 @@ Output Layer: 10 neurons, Softmax
 
 Key takeaways:
 
-- A network is **deep** when it has at least one hidden layer plus an output layer (L ≥ 2). Depth is the number of computational layers; width is the number of neurons per layer; architecture is the full specification of both
-- The general L-layer forward pass follows the same two-step pattern at every layer: z⁽ˡ⁾ = W⁽ˡ⁾ᵀ a⁽ˡ⁻¹⁾ + b⁽ˡ⁾, then a⁽ˡ⁾ = fₗ(z⁽ˡ⁾). The input is a⁽⁰⁾ = x; the output is a⁽ᴸ⁾ = ŷ
-- Parameter count for a fully connected layer: nₗ₋₁ × nₗ + nₗ. Deep narrow networks use far fewer parameters than shallow wide ones for equivalent representational power
+- A network is **deep** when it has at least one hidden layer plus an output layer ($L \geq 2$). Depth is the number of computational layers; width is the number of neurons per layer; architecture is the full specification of both
+- The general L-layer forward pass follows the same two-step pattern at every layer: $z^{(l)} = W^{(l)\top} a^{(l-1)} + b^{(l)}$, then $a^{(l)} = f_l(z^{(l)})$. The input is $a^{(0)} = x$; the output is $a^{(L)} = \hat{y}$
+- Parameter count for a fully connected layer: $n_{l-1} \times n_l + n_l$. Deep narrow networks use far fewer parameters than shallow wide ones for equivalent representational power
 - The computational graph is a directed acyclic graph where nodes are values and edges are operations. The forward pass evaluates it left to right; backpropagation traverses it right to left. The topological ordering of a feedforward network is fixed and unambiguous
-- The UAT guarantees that a single hidden layer can approximate any continuous function — but may require exponential width. Deep networks achieve the same representational power with exponentially fewer parameters (Montufar et al., 2014: O(nᴸ) linear regions vs O(n × L) for shallow)
+- The UAT guarantees that a single hidden layer can approximate any continuous function — but may require exponential width. Deep networks achieve the same representational power with exponentially fewer parameters (Montufar et al., 2014: $O(n^L)$ linear regions vs $O(n \times L)$ for shallow)
 - Depth works through **feature reuse** — a feature computed in an early layer is available to all subsequent layers at no additional parameter cost. Shallow networks must recompute every feature independently for every output
 - Output layer design is fixed by the task: sigmoid for binary classification, softmax for multiclass, linear for regression. Hidden layers use ReLU by default
 - Practical design: fix input and output layers first, start with 2–3 hidden layers, use a funnel width profile, compute parameter count, then adjust based on underfitting or overfitting

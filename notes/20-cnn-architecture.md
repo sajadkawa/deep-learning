@@ -8,17 +8,17 @@
 
 ### The Operation
 
-A convolutional layer takes an input volume and produces an output volume. For a single-channel input of size H×W, a single filter of size F×F, and stride S=1 with no padding, the output at position (i, j) is:
+A convolutional layer takes an input volume and produces an output volume. For a single-channel input of size $H \times W$, a single filter of size $F \times F$, and stride $S=1$ with no padding, the output at position $(i, j)$ is:
 
 $$
 \text{output}[i,j] = b + \sum_{r=0}^{F-1} \sum_{c=0}^{F-1} \text{input}[i + r,\; j + c] \cdot \text{filter}[r,c]
 $$
 
-The double sum computes an element-wise multiply of the filter with the local patch starting at position (i, j), then sums all F² products and adds a bias b. One scalar output per position.
+The double sum computes an element-wise multiply of the filter with the local patch starting at position $(i, j)$, then sums all $F^2$ products and adds a bias $b$. One scalar output per position.
 
 ### Output Size Formula
 
-How many positions can the filter be placed? The filter of size F can start at position 0 and must end at position F−1. With padding P added on each side, the padded input has size W+2P. The last valid starting position is W+2P−F. With stride S, the number of steps is:
+How many positions can the filter be placed? The filter of size $F$ can start at position 0 and must end at position $F-1$. With padding $P$ added on each side, the padded input has size $W+2P$. The last valid starting position is $W+2P-F$. With stride $S$, the number of steps is:
 
 $$
 \text{output size} = \left\lfloor \frac{W + 2P - F}{S} \right\rfloor + 1
@@ -42,7 +42,7 @@ Stride controls how far the filter moves between positions. Stride=1 means the f
 
 Without padding, the filter can only be placed where it fits entirely within the input. This means the output is smaller than the input, and pixels at the edges are covered by fewer filter positions than pixels in the centre — edge information is underrepresented.
 
-**Zero padding** adds rows and columns of zeros around the input before applying the filter. With P=1 and F=3, S=1, the output has the same spatial size as the input. This is called **"same" padding** — it preserves spatial dimensions through the layer.
+**Zero padding** adds rows and columns of zeros around the input before applying the filter. With $P=1$ and $F=3$, $S=1$, the output has the same spatial size as the input. This is called **"same" padding** — it preserves spatial dimensions through the layer.
 
 With stride S and padding P, the general form of the convolution operation is:
 
@@ -80,7 +80,7 @@ Input (6×6):                    Filter (3×3):
   1  1  0  1  2  1
 ```
 
-Output size: (6 − 3) / 1 + 1 = **4×4**
+Output size: $(6 - 3) / 1 + 1 =$ **4×4**
 
 **Position (0,0) — patch is top-left 3×3:**
 
@@ -134,13 +134,13 @@ $$
 \text{Output:} \quad H' \times W' \times K
 $$
 
-Each filter has shape F×F×C_in — it spans the full depth of the input. The dot product at each position is computed across all input channels simultaneously:
+Each filter has shape $F \times F \times C_{\text{in}}$ — it spans the full depth of the input. The dot product at each position is computed across all input channels simultaneously:
 
 $$
 \text{output}[i,j,k] = b_k + \sum_{d=0}^{C_{\text{in}}-1} \sum_{r=0}^{F-1} \sum_{c=0}^{F-1} \text{input}[i \cdot S+r,\; j \cdot S+c,\; d] \cdot \text{filter}_k[r,c,d]
 $$
 
-where d indexes the input channel and k indexes the filter. The triple sum collapses the entire F×F×C_in patch into one scalar per output position per filter.
+where $d$ indexes the input channel and $k$ indexes the filter. The triple sum collapses the entire $F \times F \times C_{\text{in}}$ patch into one scalar per output position per filter.
 
 The diagram below shows K filters each producing one feature map, and the resulting output volume.
 
@@ -178,7 +178,7 @@ $$
 
 where $F \times F \times C_{\text{in}}$ is the number of weights per filter, $+1$ is one bias per filter, and $K$ is the number of filters.
 
-The critical insight: this does not depend on the input spatial size H or W. The same 3×3 filter applied to a 32×32 image or a 224×224 image has exactly the same number of parameters.
+The critical insight: this does not depend on the input spatial size $H$ or $W$. The same $3 \times 3$ filter applied to a $32 \times 32$ image or a $224 \times 224$ image has exactly the same number of parameters.
 
 ### Comparison with Fully Connected
 
@@ -284,7 +284,7 @@ After the convolutional and pooling layers have extracted spatial features, the 
 
 ### Flattening
 
-Flattening reshapes the 3D output volume (H×W×C) into a 1D vector of length H×W×C. No computation is performed — it is a reshape operation.
+Flattening reshapes the 3D output volume ($H \times W \times C$) into a 1D vector of length $H \times W \times C$. No computation is performed — it is a reshape operation.
 
 ```
 Volume:   2 × 2 × 1   →   Flat vector: [6, 7, 5, 6]   (length 4)
@@ -410,10 +410,7 @@ $$
 
 ### Step 6 — Softmax
 
-```
-exp(7.0) = 1096.6
-exp(6.0) =  403.4
-```
+$$\exp(7.0) = 1096.6 \qquad \exp(6.0) = 403.4$$
 
 $$
 \text{softmax}_0 = \frac{1096.6}{1096.6 + 403.4} = \frac{1096.6}{1500.0} = 0.731
@@ -445,7 +442,7 @@ $$
 RF_L = 1 + L \times (F - 1)
 $$
 
-For 3×3 filters (F=3):
+For $3 \times 3$ filters ($F=3$):
 
 ```
 After 1 layer:   RF = 3×3
@@ -460,7 +457,7 @@ The diagram below shows this growth: each additional 3×3 conv layer adds 2 to t
 
 ### Why Stack Small Filters Instead of Using One Large Filter?
 
-A single 7×7 filter has the same receptive field as three stacked 3×3 filters. But:
+A single $7 \times 7$ filter has the same receptive field as three stacked $3 \times 3$ filters. But:
 
 ```
 One 7×7 filter:          7 × 7 = 49 weights
@@ -469,7 +466,7 @@ Three 3×3 filters:   3 × (3 × 3) = 27 weights
 Same receptive field. 3 stacked 3×3 filters use 45% fewer parameters.
 ```
 
-Additionally, three stacked 3×3 filters with ReLU activations between them can represent more complex functions than one 7×7 filter — each ReLU adds a non-linearity. This is why VGG (2014) and virtually all modern architectures use 3×3 filters exclusively.
+Additionally, three stacked 3×3 filters with ReLU activations between them can represent more complex functions than one 7×7 filter — each ReLU adds a non-linearity. This is why VGG (2014) and virtually all modern architectures use $3 \times 3$ filters exclusively.
 
 ### A Complete Architecture — LeNet Style
 
@@ -498,12 +495,12 @@ This is essentially LeNet-5 (LeCun et al., 1998) — the first successful CNN, t
 
 Key takeaways:
 
-- The output size formula for a convolutional layer is (W + 2P − F) / S + 1, where W is input size, F is filter size, P is padding, S is stride — this must be memorised and applied correctly at every layer
-- Stride controls spatial downsampling within the conv layer; padding controls whether spatial size is preserved ("same" padding with P=1, F=3, S=1) or reduced
-- A convolutional layer with K filters produces an output volume of depth K — one feature map per filter; each filter spans the full input depth C_in
-- Parameter count for a conv layer: (F×F×C_in + 1) × K — independent of input spatial size, which is why CNNs scale to large images
+- The output size formula for a convolutional layer is $\lfloor(W + 2P - F) / S\rfloor + 1$, where $W$ is input size, $F$ is filter size, $P$ is padding, $S$ is stride — this must be memorised and applied correctly at every layer
+- Stride controls spatial downsampling within the conv layer; padding controls whether spatial size is preserved ("same" padding with $P=1$, $F=3$, $S=1$) or reduced
+- A convolutional layer with $K$ filters produces an output volume of depth $K$ — one feature map per filter; each filter spans the full input depth $C_{\text{in}}$
+- Parameter count for a conv layer: $(F \times F \times C_{\text{in}} + 1) \times K$ — independent of input spatial size, which is why CNNs scale to large images
 - Max pooling takes the maximum over non-overlapping regions; it has zero learnable parameters and provides translation invariance within each pooled region
 - Flattening reshapes the 3D feature volume into a 1D vector for the FC layers; the FC layers combine spatial features into a final prediction
 - The full forward pass: conv → ReLU → pool → (repeat) → flatten → FC → softmax; every dimension must be tracked at every step
-- Stacking three 3×3 conv layers achieves the same 7×7 receptive field as one 7×7 filter but with 45% fewer parameters and three non-linearities — this is why all modern architectures use small filters
+- Stacking three $3 \times 3$ conv layers achieves the same $7 \times 7$ receptive field as one $7 \times 7$ filter but with 45% fewer parameters and three non-linearities — this is why all modern architectures use small filters
 - In a typical CNN, the convolutional layers have far fewer parameters than the FC layers; modern architectures use global average pooling to eliminate the large FC layers entirely

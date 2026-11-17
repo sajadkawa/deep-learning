@@ -12,12 +12,12 @@ A neural network has two kinds of values that must be set before training can pr
 
 ```
 Parameters (learned by gradient descent):
-  W⁽ˡ⁾, b⁽ˡ⁾  — weights and biases at every layer
+  W, b  — weights and biases at every layer
 
 Hyperparameters (set before training):
-  Optimization:    learning rate η, batch size, number of epochs
+  Optimization:    learning rate, batch size, number of epochs
   Architecture:    number of layers, units per layer, activation functions
-  Regularization:  dropout rate p, L2 penalty λ, early stopping patience
+  Regularization:  dropout rate, L2 penalty, early stopping patience
   Initialization:  initialization scheme (He, Xavier)
 ```
 
@@ -29,19 +29,15 @@ The distinction matters because hyperparameters control the conditions under whi
 
 ## Part 2: Learning Rate
 
-The learning rate η is the single most important hyperparameter. It controls how large a step gradient descent takes at each update:
+The learning rate $\eta$ is the single most important hyperparameter. It controls how large a step gradient descent takes at each update:
 
-```
-w ← w − η · ∂L/∂w
-```
+$$w \leftarrow w - \eta \cdot \frac{\partial L}{\partial w}$$
 
 ### Effect on Training
 
-```
-η too large:   steps overshoot the minimum → loss oscillates or diverges
-η too small:   steps are tiny → training is extremely slow → may never converge
-η just right:  loss decreases steadily → converges to a good minimum
-```
+- $\eta$ too large: steps overshoot the minimum → loss oscillates or diverges
+- $\eta$ too small: steps are tiny → training is extremely slow → may never converge
+- $\eta$ just right: loss decreases steadily → converges to a good minimum
 
 The diagram below shows training loss over epochs under three learning rate conditions.
 
@@ -49,27 +45,21 @@ The diagram below shows training loss over epochs under three learning rate cond
 
 ### The Learning Rate Range Test
 
-A practical method for finding a good starting learning rate: start with a very small η (e.g. 10⁻⁷) and increase it exponentially over a short run (e.g. 100 steps). Plot the loss against η. The loss will initially decrease as η grows, then diverge when η becomes too large.
+A practical method for finding a good starting learning rate: start with a very small $\eta$ (e.g. $10^{-7}$) and increase it exponentially over a short run (e.g. 100 steps). Plot the loss against $\eta$. The loss will initially decrease as $\eta$ grows, then diverge when $\eta$ becomes too large.
 
 ```
 Region                    Interpretation
 ──────────────────────    ──────────────────────────────────────────
-Loss still decreasing     η is too small — can increase further
-Loss at minimum           good range for η
-Loss increasing sharply   η is too large — back off by one order of magnitude
+Loss still decreasing     eta is too small — can increase further
+Loss at minimum           good range for eta
+Loss increasing sharply   eta is too large — back off by one order of magnitude
 ```
 
-A good starting η is typically one order of magnitude below the value where the loss starts to increase.
+A good starting $\eta$ is typically one order of magnitude below the value where the loss starts to increase.
 
 ### Interaction with Batch Size
 
-Learning rate and batch size are coupled. When batch size is doubled, the gradient estimate becomes less noisy — the effective gradient is more accurate. To maintain the same training dynamics, the learning rate should be scaled proportionally:
-
-```
-Linear scaling rule:   if batch size × k, then η × k
-```
-
-This rule holds approximately for moderate scaling. For very large batch sizes it breaks down and more careful tuning is needed.
+Learning rate and batch size are coupled. When batch size is doubled, the gradient estimate becomes less noisy — the effective gradient is more accurate. To maintain the same training dynamics, the learning rate should be scaled proportionally: if batch size is multiplied by $k$, then $\eta$ should also be multiplied by $k$. This rule holds approximately for moderate scaling. For very large batch sizes it breaks down and more careful tuning is needed.
 
 ---
 
@@ -172,22 +162,17 @@ With many hyperparameters to tune, a systematic search strategy is needed. Three
 Define a discrete set of values for each hyperparameter and try every combination.
 
 ```
-Example: η ∈ {0.1, 0.01, 0.001},  batch size ∈ {32, 64, 128}
+Example: eta in {0.1, 0.01, 0.001},  batch size in {32, 64, 128}
 → 3 × 3 = 9 combinations to evaluate
 ```
 
-Grid search is exhaustive within the defined grid. Its weakness is the **curse of dimensionality** — with k hyperparameters each taking n values, the number of combinations is nᵏ. With 6 hyperparameters and 5 values each, that is 5⁶ = 15,625 training runs.
+Grid search is exhaustive within the defined grid. Its weakness is the **curse of dimensionality** — with $k$ hyperparameters each taking $n$ values, the number of combinations is $n^k$. With 6 hyperparameters and 5 values each, that is $5^6 = 15{,}625$ training runs.
 
 A subtler problem: grid search wastes evaluations. If the loss is insensitive to one hyperparameter, grid search still evaluates every value of it — spending most of its budget on a dimension that does not matter.
 
 ### Random Search
 
-Sample hyperparameter combinations randomly from a defined range rather than a fixed grid.
-
-```
-Example: η ~ LogUniform(10⁻⁴, 10⁻¹),  batch size ~ Uniform({32, 64, 128, 256})
-→ sample N combinations at random and evaluate each
-```
+Sample hyperparameter combinations randomly from a defined range rather than a fixed grid. For example: $\eta \sim \text{LogUniform}(10^{-4}, 10^{-1})$, batch size sampled uniformly from $\{32, 64, 128, 256\}$.
 
 Random search is more efficient than grid search when only a few hyperparameters matter. If 2 out of 6 hyperparameters are important, random search explores many different values of those 2, while grid search wastes most of its budget on the other 4.
 
@@ -223,11 +208,11 @@ Priority    Hyperparameter          Why first
 ─────────   ─────────────────────   ──────────────────────────────────────────────
 1           Learning rate           Largest impact on whether training works at all
 2           Batch size              Affects gradient noise and training stability
-3           Regularization         Dropout rate, L2 λ — address overfitting once
+3           Regularization         Dropout rate, L2 penalty — address overfitting once
             (dropout, L2)          the model is training correctly
 4           Architecture           Depth, width — only after optimization is stable
             (depth, width)
-5           Other                  Momentum β, β₁, β₂ — rarely need changing from
+5           Other                  Momentum b1, b2 — rarely need changing from
                                    defaults
 ```
 
@@ -238,7 +223,7 @@ Step 1:  Start with known-good defaults
          Adam (lr=0.001), batch size 32, He init, no dropout, 100 epochs + early stopping
 
 Step 2:  Run a learning rate range test
-         Find the range where loss decreases — pick η one order of magnitude below divergence
+         Find the range where loss decreases — pick eta one order of magnitude below divergence
 
 Step 3:  Confirm training is working
          Loss should decrease steadily, validation loss should track training loss early on

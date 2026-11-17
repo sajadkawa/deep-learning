@@ -24,14 +24,12 @@ The key insight is to treat stored patterns not as outputs to be computed, but a
 
 ## Part 2: Architecture
 
-A Hopfield network consists of **N binary neurons**. Each neuron has a state sᵢ ∈ {−1, +1}. The network is **fully connected** — every neuron is connected to every other neuron.
+A Hopfield network consists of $N$ binary neurons. Each neuron has a state $s_i \in \{-1, +1\}$. The network is **fully connected** — every neuron is connected to every other neuron.
 
 Two architectural constraints distinguish the Hopfield network from a general recurrent network:
 
-```
-1. Symmetric weights:     wᵢⱼ = wⱼᵢ   for all i, j
-2. No self-connections:   wᵢᵢ = 0      for all i
-```
+- Symmetric weights: $w_{ij} = w_{ji}$ for all $i, j$
+- No self-connections: $w_{ii} = 0$ for all $i$
 
 Symmetry is not a biological constraint — it is a mathematical requirement. Without symmetric weights, the energy function (Part 3) does not exist, and convergence is not guaranteed.
 
@@ -39,19 +37,15 @@ The diagram below shows a 4-neuron Hopfield network — every neuron connects to
 
 ![Hopfield network architecture — fully connected, symmetric, no self-connections](images/hopfield_architecture.png)
 
-The state of the network at any time is the vector **s** = (s₁, s₂, ..., sN). The network evolves by updating neuron states one at a time until no further changes occur.
+The state of the network at any time is the vector $\mathbf{s} = (s_1, s_2, \ldots, s_N)$. The network evolves by updating neuron states one at a time until no further changes occur.
 
 ### Update Rule
 
 Each neuron computes a weighted sum of all other neuron states and applies a sign threshold:
 
-```
-netᵢ = Σⱼ wᵢⱼ sⱼ
+$$\text{net}_i = \sum_j w_{ij} s_j$$
 
-         +1   if netᵢ ≥ 0
-sᵢ  ←  {
-         −1   if netᵢ < 0
-```
+$$s_i \leftarrow \begin{cases} +1 & \text{if } \text{net}_i \geq 0 \\ -1 & \text{if } \text{net}_i < 0 \end{cases}$$
 
 This is applied **asynchronously** — one neuron at a time, in any order. The network runs until a full pass through all neurons produces no state changes. At that point, the network has converged to a stable state.
 
@@ -61,38 +55,26 @@ This is applied **asynchronously** — one neuron at a time, in any order. The n
 
 The reason the Hopfield network converges — rather than cycling or diverging — is the **energy function**. Hopfield defined a scalar energy for every possible network state:
 
-```
-E = −½ Σᵢ Σⱼ wᵢⱼ sᵢ sⱼ
-```
+$$E = -\frac{1}{2} \sum_i \sum_j w_{ij} s_i s_j$$
 
-The sum is over all pairs i ≠ j (the diagonal is zero by the no-self-connection constraint). The factor of ½ avoids double-counting each pair.
+The sum is over all pairs $i \neq j$ (the diagonal is zero by the no-self-connection constraint). The factor of $\frac{1}{2}$ avoids double-counting each pair.
 
 ### Why Energy Always Decreases
 
-When neuron i updates its state, the change in energy is:
+When neuron $i$ updates its state, the change in energy is:
 
-```
-ΔE = −Δsᵢ × netᵢ
+$$\Delta E = -\Delta s_i \times \text{net}_i$$
 
-where  Δsᵢ = sᵢ(new) − sᵢ(old)
-       netᵢ = Σⱼ wᵢⱼ sⱼ
-```
+where $\Delta s_i = s_i^{\text{new}} - s_i^{\text{old}}$ and $\text{net}_i = \sum_j w_{ij} s_j$.
 
-The ½ in the energy function cancels with the factor of 2 from double-counting: when only sᵢ changes, the sum over all pairs (k, j) contributes two terms involving sᵢ — one for (i, j) and one for (j, i) — giving ½ × 2 = 1.
+The $\frac{1}{2}$ in the energy function cancels with the factor of 2 from double-counting: when only $s_i$ changes, the sum over all pairs $(k, j)$ contributes two terms involving $s_i$ — one for $(i, j)$ and one for $(j, i)$ — giving $\frac{1}{2} \times 2 = 1$.
 
-The update rule sets sᵢ = sign(netᵢ). This means:
+The update rule sets $s_i = \text{sign}(\text{net}_i)$. This means:
 
-```
-If netᵢ > 0:   sᵢ → +1
-  If sᵢ was −1:  Δsᵢ = +2,  ΔE = −(+2)(netᵢ) < 0   (energy decreases)
-  If sᵢ was +1:  Δsᵢ = 0,   ΔE = 0                  (no change)
+- If $\text{net}_i > 0$: $s_i \to +1$. If $s_i$ was $-1$: $\Delta s_i = +2$, $\Delta E < 0$ (energy decreases). If $s_i$ was $+1$: $\Delta s_i = 0$, $\Delta E = 0$.
+- If $\text{net}_i < 0$: $s_i \to -1$. If $s_i$ was $+1$: $\Delta s_i = -2$, $\Delta E < 0$ (energy decreases). If $s_i$ was $-1$: $\Delta s_i = 0$, $\Delta E = 0$.
 
-If netᵢ < 0:   sᵢ → −1
-  If sᵢ was +1:  Δsᵢ = −2,  ΔE = −(−2)(netᵢ) < 0   (energy decreases)
-  If sᵢ was −1:  Δsᵢ = 0,   ΔE = 0                  (no change)
-```
-
-Every update either decreases energy or leaves it unchanged. Energy never increases. Since the number of possible states is finite (2ᴺ), the network must eventually reach a state where no update changes any neuron — a **local energy minimum**.
+Every update either decreases energy or leaves it unchanged. Energy never increases. Since the number of possible states is finite ($2^N$), the network must eventually reach a state where no update changes any neuron — a **local energy minimum**.
 
 > The energy function is the guarantee of convergence. Every asynchronous update is a step downhill. The network cannot cycle because cycling would require energy to increase at some point, which the update rule forbids.
 
@@ -102,15 +84,13 @@ The stable states — the local minima of the energy function — are the **attr
 
 ## Part 4: Storing Patterns — The Hebbian Weight Rule
 
-To store a set of patterns, the weight matrix is constructed using the **Hebbian outer product rule**. For P patterns x¹, x², ..., xᴾ, each a vector of ±1 values of length N:
+To store a set of patterns, the weight matrix is constructed using the **Hebbian outer product rule**. For P patterns $\mathbf{x}^1, \mathbf{x}^2, \ldots, \mathbf{x}^P$, each a vector of $\pm 1$ values of length $N$:
 
-```
-W = (1/N) Σₘ xᵐ (xᵐ)ᵀ
+$$W = \frac{1}{N} \sum_m \mathbf{x}^m (\mathbf{x}^m)^\top$$
 
-with wᵢᵢ = 0   (zero diagonal enforced after construction)
-```
+with $w_{ii} = 0$ (zero diagonal enforced after construction)
 
-Each term xᵐ(xᵐ)ᵀ is the outer product of pattern m with itself — an N×N matrix where entry (i,j) is xᵢᵐ × xⱼᵐ. Summing over all patterns accumulates co-activation statistics: wᵢⱼ is large and positive when neurons i and j tend to be in the same state across stored patterns, and large and negative when they tend to be in opposite states.
+Each term $\mathbf{x}^m (\mathbf{x}^m)^\top$ is the outer product of pattern $m$ with itself — an $N \times N$ matrix where entry $(i,j)$ is $x_i^m \times x_j^m$. Summing over all patterns accumulates co-activation statistics: $w_{ij}$ is large and positive when neurons $i$ and $j$ tend to be in the same state across stored patterns, and large and negative when they tend to be in opposite states.
 
 This is exactly Hebbian learning applied once per pattern — neurons that fire together in a stored pattern wire together.
 
@@ -215,8 +195,8 @@ One neuron is selected at a time (randomly or in a fixed order) and its state is
 ```
 Asynchronous update:
   Pick neuron i
-  Compute netᵢ = Σⱼ wᵢⱼ sⱼ
-  Set sᵢ = sign(netᵢ)
+  Compute net_i = sum_j w_ij s_j
+  Set s_i = sign(net_i)
   Repeat for next neuron
 ```
 
@@ -228,8 +208,8 @@ All neurons update simultaneously, each computing its new state based on the sta
 
 ```
 Synchronous update:
-  Compute netᵢ = Σⱼ wᵢⱼ sⱼ   for all i simultaneously
-  Set sᵢ = sign(netᵢ)         for all i simultaneously
+  Compute net_i = sum_j w_ij s_j   for all i simultaneously
+  Set s_i = sign(net_i)             for all i simultaneously
 ```
 
 Synchronous update is computationally simpler and maps naturally to parallel hardware. However, it does **not** guarantee convergence. With symmetric weights, the network is guaranteed to either converge to a fixed point or enter a **2-cycle** — oscillating between two states indefinitely. Longer cycles are not possible with symmetric weights, but 2-cycles are a real failure mode.
@@ -251,11 +231,9 @@ The Hopfield network can store patterns reliably only up to a limit. Beyond that
 
 The theoretical storage capacity, derived by Amit, Gutfreund, and Sompolinsky (1985), is:
 
-```
-P_max ≈ 0.138 × N   ≈ 0.14N
-```
+$$P_{\max} \approx 0.138 \times N \approx 0.14N$$
 
-For a network of N neurons, approximately 0.14N patterns can be stored and reliably retrieved. Beyond this, retrieval errors increase rapidly.
+For a network of $N$ neurons, approximately $0.14N$ patterns can be stored and reliably retrieved. Beyond this, retrieval errors increase rapidly.
 
 ```
 N = 100 neurons:   store up to ~14 patterns reliably
@@ -291,9 +269,9 @@ Spurious states summary:
 
 ### What Happens Beyond Capacity
 
-When P > 0.14N, the energy landscape becomes disordered. The clean valleys corresponding to stored patterns fill in, and the network converges to spin-glass states — random configurations with no relationship to any stored pattern. Retrieval fails completely.
+When $P > 0.14N$, the energy landscape becomes disordered. The clean valleys corresponding to stored patterns fill in, and the network converges to spin-glass states — random configurations with no relationship to any stored pattern. Retrieval fails completely.
 
-> The 0.14N capacity limit is not a soft guideline — it is a phase transition. Below it, retrieval is reliable. Above it, the network enters a spin-glass phase and retrieval collapses. The transition is sharp.
+> The $0.14N$ capacity limit is not a soft guideline — it is a phase transition. Below it, retrieval is reliable. Above it, the network enters a spin-glass phase and retrieval collapses. The transition is sharp.
 
 ---
 
@@ -302,9 +280,9 @@ When P > 0.14N, the energy landscape becomes disordered. The clean valleys corre
 Key takeaways:
 
 - A Hopfield network implements associative memory — it retrieves a complete stored pattern from a partial or noisy input by converging to the nearest energy minimum
-- The network has N binary neurons (states ±1), fully connected with symmetric weights (wᵢⱼ = wⱼᵢ) and no self-connections (wᵢᵢ = 0)
-- The energy function E = −½ Σᵢⱼ wᵢⱼ sᵢ sⱼ is the convergence guarantee — every asynchronous update either decreases energy or leaves it unchanged, so the network always reaches a local minimum
-- Patterns are stored using the Hebbian outer product rule: W = (1/N) Σₘ xᵐ(xᵐ)ᵀ with the diagonal zeroed — neurons that co-activate in a stored pattern have strong positive weights
+- The network has $N$ binary neurons (states $\pm 1$), fully connected with symmetric weights ($w_{ij} = w_{ji}$) and no self-connections ($w_{ii} = 0$)
+- The energy function $E = -\frac{1}{2} \sum_{ij} w_{ij} s_i s_j$ is the convergence guarantee — every asynchronous update either decreases energy or leaves it unchanged, so the network always reaches a local minimum
+- Patterns are stored using the Hebbian outer product rule: $W = \frac{1}{N} \sum_m \mathbf{x}^m (\mathbf{x}^m)^\top$ with the diagonal zeroed — neurons that co-activate in a stored pattern have strong positive weights
 - Asynchronous update guarantees convergence to a fixed point; synchronous update can produce 2-cycles
-- Storage capacity is approximately 0.14N patterns — beyond this, crosstalk between patterns destroys the energy minima and retrieval fails
+- Storage capacity is approximately $0.14N$ patterns — beyond this, crosstalk between patterns destroys the energy minima and retrieval fails
 - Spurious states — mixture states, reversed patterns, and spin-glass states — are attractors that do not correspond to any stored pattern; they are an unavoidable consequence of the Hebbian weight construction

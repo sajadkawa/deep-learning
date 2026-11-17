@@ -12,19 +12,15 @@ A deterministic neuron always produces the same output for the same input. This 
 
 A **stochastic binary neuron** fires (outputs 1) with a probability that depends on its net input:
 
-```
-P(sᵢ = 1) = σ(netᵢ)  =  1 / (1 + e^(−netᵢ))
-```
+$$P(s_i = 1) = \sigma(\text{net}_i) = \frac{1}{1 + e^{-\text{net}_i}}$$
 
-Where netᵢ = Σⱼ wᵢⱼ sⱼ + bᵢ is the weighted sum of inputs plus bias. This is the sigmoid function — the same one used as a deterministic activation in feedforward networks, but here interpreted as a probability.
+Where $\text{net}_i = \sum_j w_{ij} s_j + b_i$ is the weighted sum of inputs plus bias. This is the sigmoid function — the same one used as a deterministic activation in feedforward networks, but here interpreted as a probability.
 
 ### Temperature
 
 The **temperature parameter T** controls how sharply the probability responds to the net input:
 
-```
-P(sᵢ = 1) = σ(netᵢ / T)  =  1 / (1 + e^(−netᵢ / T))
-```
+$$P(s_i = 1) = \sigma\!\left(\frac{\text{net}_i}{T}\right) = \frac{1}{1 + e^{-\text{net}_i / T}}$$
 
 ```
 T → 0:   σ(netᵢ / T) → step function
@@ -40,7 +36,7 @@ T = 1:   standard sigmoid — intermediate stochasticity
 
 Temperature comes from statistical physics, where it controls the tendency of a physical system to explore high-energy states. At low temperature, a physical system settles into its lowest-energy configuration. At high temperature, thermal fluctuations allow it to explore freely. The Boltzmann machine borrows this analogy directly.
 
-> Temperature controls the exploration-exploitation tradeoff in the network's state space. High temperature explores broadly; low temperature exploits the current energy landscape. Training typically uses T = 1 and anneals toward lower T to find stable configurations.
+> Temperature controls the exploration-exploitation tradeoff in the network's state space. High temperature explores broadly; low temperature exploits the current energy landscape. Training typically uses $T = 1$ and anneals toward lower $T$ to find stable configurations.
 
 ---
 
@@ -48,45 +44,35 @@ Temperature comes from statistical physics, where it controls the tendency of a 
 
 ### Energy Function
 
-The energy of a state s = (s₁, s₂, ..., sₙ) in a Boltzmann machine is:
+The energy of a state $s = (s_1, s_2, \ldots, s_n)$ in a Boltzmann machine is:
 
-```
-E(s) = −Σᵢ<ⱼ wᵢⱼ sᵢ sⱼ − Σᵢ bᵢ sᵢ
-```
+$$E(s) = -\sum_{i<j} w_{ij} s_i s_j - \sum_i b_i s_i$$
 
-Where wᵢⱼ is the symmetric weight between units i and j (wᵢⱼ = wⱼᵢ, no self-connections), and bᵢ is the bias of unit i. Lower energy means a more preferred configuration.
+Where $w_{ij}$ is the symmetric weight between units $i$ and $j$ ($w_{ij} = w_{ji}$, no self-connections), and $b_i$ is the bias of unit $i$. Lower energy means a more preferred configuration.
 
-For a network with visible units v and hidden units h, the energy is:
+For a network with visible units $v$ and hidden units $h$, the energy is:
 
-```
-E(v, h) = −Σᵢⱼ wᵢⱼ vᵢ hⱼ − Σᵢ aᵢ vᵢ − Σⱼ bⱼ hⱼ
-```
+$$E(v, h) = -\sum_{ij} w_{ij} v_i h_j - \sum_i a_i v_i - \sum_j b_j h_j$$
 
-Where aᵢ are visible biases and bⱼ are hidden biases.
+Where $a_i$ are visible biases and $b_j$ are hidden biases.
 
 ### Deriving the Boltzmann Distribution
 
-The probability of the network being in state s is proportional to e^(−E(s)/T). This is the **Boltzmann distribution** from statistical physics:
+The probability of the network being in state $s$ is proportional to $e^{-E(s)/T}$. This is the **Boltzmann distribution** from statistical physics:
 
-```
-P(s) = e^(−E(s)/T) / Z
-```
+$$P(s) = \frac{e^{-E(s)/T}}{Z}$$
 
-Where Z is the **partition function** — the sum over all possible states, ensuring probabilities sum to 1:
+Where $Z$ is the **partition function** — the sum over all possible states, ensuring probabilities sum to 1:
 
-```
-Z = Σₛ e^(−E(s)/T)
-```
+$$Z = \sum_s e^{-E(s)/T}$$
 
-**Why this form?** The Boltzmann distribution is the unique distribution that maximises entropy subject to a fixed expected energy. It assigns higher probability to lower-energy states, with the sharpness of that preference controlled by T.
+**Why this form?** The Boltzmann distribution is the unique distribution that maximises entropy subject to a fixed expected energy. It assigns higher probability to lower-energy states, with the sharpness of that preference controlled by $T$.
 
-At T = 1:
+At $T = 1$:
 
-```
-P(s) = e^(−E(s)) / Z
-```
+$$P(s) = \frac{e^{-E(s)}}{Z}$$
 
-Lower energy → larger e^(−E(s)) → higher probability. The network naturally favours low-energy states.
+Lower energy → larger $e^{-E(s)}$ → higher probability. The network naturally favours low-energy states.
 
 ### Worked Example
 
@@ -145,9 +131,7 @@ The state where all units are active (v₁=1, v₂=1, h₁=1) has the lowest ene
 
 The Boltzmann machine defines a probability distribution over its visible units by marginalising over the hidden units:
 
-```
-P(v) = Σₕ P(v, h) = Σₕ e^(−E(v,h)) / Z
-```
+$$P(v) = \sum_h P(v, h) = \frac{\sum_h e^{-E(v,h)}}{Z}$$
 
 This is the model's distribution over data. The goal of learning is to adjust the weights so that P(v) matches the empirical distribution of the training data — the network should assign high probability to configurations that look like training examples and low probability to configurations that do not.
 
@@ -169,21 +153,17 @@ Hidden units allow the model to capture statistical dependencies between visible
 
 ### Conditional Distributions
 
-Given the visible units, the probability that hidden unit j is active is:
+Given the visible units, the probability that hidden unit $j$ is active is:
 
-```
-P(hⱼ = 1 | v) = σ(Σᵢ wᵢⱼ vᵢ + bⱼ)
-```
+$$P(h_j = 1 \mid v) = \sigma\!\left(\sum_i w_{ij} v_i + b_j\right)$$
 
-This follows directly from the energy function — fixing v, the energy is linear in hⱼ, which gives a sigmoid conditional.
+This follows directly from the energy function — fixing $v$, the energy is linear in $h_j$, which gives a sigmoid conditional.
 
 Similarly, given the hidden units:
 
-```
-P(vᵢ = 1 | h) = σ(Σⱼ wᵢⱼ hⱼ + aᵢ)
-```
+$$P(v_i = 1 \mid h) = \sigma\!\left(\sum_j w_{ij} h_j + a_i\right)$$
 
-In a fully connected Boltzmann machine, these conditionals are not independent across units — computing P(h|v) requires knowing the states of all other hidden units simultaneously, which makes inference intractable.
+In a fully connected Boltzmann machine, these conditionals are not independent across units — computing $P(h|v)$ requires knowing the states of all other hidden units simultaneously, which makes inference intractable.
 
 ---
 
@@ -193,25 +173,19 @@ In a fully connected Boltzmann machine, these conditionals are not independent a
 
 The goal is to maximise the log-likelihood of the training data under the model:
 
-```
-log P(v) = log Σₕ e^(−E(v,h)) − log Z
-```
+$$\log P(v) = \log \sum_h e^{-E(v,h)} - \log Z$$
 
-Taking the gradient with respect to a weight wᵢⱼ:
+Taking the gradient with respect to a weight $w_{ij}$:
 
-```
-∂ log P(v) / ∂wᵢⱼ = ⟨vᵢ hⱼ⟩_data − ⟨vᵢ hⱼ⟩_model
-```
+$$\frac{\partial \log P(v)}{\partial w_{ij}} = \langle v_i h_j \rangle_{\text{data}} - \langle v_i h_j \rangle_{\text{model}}$$
 
 Where:
-- ⟨vᵢ hⱼ⟩_data = expected co-activation of vᵢ and hⱼ when v is clamped to training data
-- ⟨vᵢ hⱼ⟩_model = expected co-activation when the network runs freely
+- $\langle v_i h_j \rangle_{\text{data}}$ = expected co-activation of $v_i$ and $h_j$ when $v$ is clamped to training data
+- $\langle v_i h_j \rangle_{\text{model}}$ = expected co-activation when the network runs freely
 
 The weight update is:
 
-```
-Δwᵢⱼ = η × (⟨vᵢ hⱼ⟩_data − ⟨vᵢ hⱼ⟩_model)
-```
+$$\Delta w_{ij} = \eta \left( \langle v_i h_j \rangle_{\text{data}} - \langle v_i h_j \rangle_{\text{model}} \right)$$
 
 This is **contrastive Hebbian learning** — a difference of two Hebbian terms.
 
@@ -222,7 +196,7 @@ This is **contrastive Hebbian learning** — a difference of two Hebbian terms.
 ```
 v is fixed to training data
 Hidden units update stochastically until equilibrium
-Measure ⟨vᵢ hⱼ⟩_data — the co-activation statistics under the data
+Measure <v_i h_j>_data — the co-activation statistics under the data
 ```
 
 The positive phase strengthens connections between units that co-activate when the data is present.
@@ -232,7 +206,7 @@ The positive phase strengthens connections between units that co-activate when t
 ```
 All units update freely — no clamping
 Network samples from its own distribution P(v, h)
-Measure ⟨vᵢ hⱼ⟩_model — the co-activation statistics under the model
+Measure <v_i h_j>_model — the co-activation statistics under the model
 ```
 
 The negative phase weakens connections between units that co-activate in the model's fantasy — configurations the model currently over-represents.
@@ -244,13 +218,13 @@ The diagram below shows the two phases and the weight update that follows.
 ### Intuition
 
 ```
-⟨vᵢ hⱼ⟩_data > ⟨vᵢ hⱼ⟩_model:
-  vᵢ and hⱼ co-activate more in the data than the model predicts
-  → increase wᵢⱼ — make this co-activation more probable
+<v_i h_j>_data > <v_i h_j>_model:
+  v_i and h_j co-activate more in the data than the model predicts
+  → increase w_ij — make this co-activation more probable
 
-⟨vᵢ hⱼ⟩_data < ⟨vᵢ hⱼ⟩_model:
-  vᵢ and hⱼ co-activate more in the model than in the data
-  → decrease wᵢⱼ — suppress this spurious co-activation
+<v_i h_j>_data < <v_i h_j>_model:
+  v_i and h_j co-activate more in the model than in the data
+  → decrease w_ij — suppress this spurious co-activation
 ```
 
 ### Worked Example
@@ -259,46 +233,41 @@ A network with 2 visible units and 1 hidden unit. Weights: w₁₁ = 0.5, w₂�
 
 **Training example:** v = (1, 0).
 
-**Positive phase** — clamp v = (1, 0), compute P(h₁ = 1 | v):
+**Positive phase** — clamp $v = (1, 0)$, compute $P(h_1 = 1 \mid v)$:
 
-```
-net_h₁ = w₁₁ × v₁ + w₂₁ × v₂ = 0.5 × 1 + 0.3 × 0 = 0.5
-P(h₁ = 1 | v) = σ(0.5) = 1 / (1 + e^(−0.5)) = 0.6225
+$$\text{net}_{h_1} = w_{11} \times v_1 + w_{21} \times v_2 = 0.5 \times 1 + 0.3 \times 0 = 0.5$$
 
-⟨v₁ h₁⟩_data = v₁ × P(h₁=1|v) = 1 × 0.6225 = 0.6225
-⟨v₂ h₁⟩_data = v₂ × P(h₁=1|v) = 0 × 0.6225 = 0.0000
-```
+$$P(h_1 = 1 \mid v) = \sigma(0.5) = \frac{1}{1 + e^{-0.5}} = 0.6225$$
+
+$$\langle v_1 h_1 \rangle_{\text{data}} = v_1 \times P(h_1{=}1|v) = 1 \times 0.6225 = 0.6225$$
+
+$$\langle v_2 h_1 \rangle_{\text{data}} = v_2 \times P(h_1{=}1|v) = 0 \times 0.6225 = 0.0000$$
 
 **Negative phase** — reconstruct v̂ from h₁, then re-infer h̃₁.
 
-Sample h₁ ~ P(h₁=1|v) = 0.6225. Use the expectation directly (mean-field approximation):
+Sample $h_1 \sim P(h_1{=}1|v) = 0.6225$. Use the expectation directly (mean-field approximation):
 
-```
-h₁ ≈ 0.6225
+$$h_1 \approx 0.6225$$
 
-Reconstruct visible units:
-  P(v₁=1 | h₁) = σ(w₁₁ × h₁) = σ(0.5 × 0.6225) = σ(0.3113) = 0.5771
-  P(v₂=1 | h₁) = σ(w₂₁ × h₁) = σ(0.3 × 0.6225) = σ(0.1868) = 0.5466
+$$P(v_1{=}1 \mid h_1) = \sigma(w_{11} \times h_1) = \sigma(0.5 \times 0.6225) = \sigma(0.3113) = 0.5771$$
 
-Re-infer hidden:
-  net_h̃₁ = w₁₁ × P(v₁=1|h₁) + w₂₁ × P(v₂=1|h₁)
-           = 0.5 × 0.5771 + 0.3 × 0.5466
-           = 0.2886 + 0.1640 = 0.4526
-  P(h̃₁=1 | v̂) = σ(0.4526) = 0.6113
+$$P(v_2{=}1 \mid h_1) = \sigma(w_{21} \times h_1) = \sigma(0.3 \times 0.6225) = \sigma(0.1868) = 0.5466$$
 
-⟨v₁ h₁⟩_model = P(v₁=1|h₁) × P(h̃₁=1|v̂) = 0.5771 × 0.6113 = 0.3528
-⟨v₂ h₁⟩_model = P(v₂=1|h₁) × P(h̃₁=1|v̂) = 0.5466 × 0.6113 = 0.3341
-```
+$$\text{net}_{\tilde{h}_1} = w_{11} \times P(v_1{=}1|h_1) + w_{21} \times P(v_2{=}1|h_1) = 0.5 \times 0.5771 + 0.3 \times 0.5466 = 0.2886 + 0.1640 = 0.4526$$
+
+$$P(\tilde{h}_1{=}1 \mid \hat{v}) = \sigma(0.4526) = 0.6113$$
+
+$$\langle v_1 h_1 \rangle_{\text{model}} = P(v_1{=}1|h_1) \times P(\tilde{h}_1{=}1|\hat{v}) = 0.5771 \times 0.6113 = 0.3528$$
+
+$$\langle v_2 h_1 \rangle_{\text{model}} = P(v_2{=}1|h_1) \times P(\tilde{h}_1{=}1|\hat{v}) = 0.5466 \times 0.6113 = 0.3341$$
 
 **Weight updates:**
 
-```
-Δw₁₁ = 0.1 × (0.6225 − 0.3528) = 0.1 × 0.2697 = 0.0270
-Δw₂₁ = 0.1 × (0.0000 − 0.3341) = 0.1 × (−0.3341) = −0.0334
+$$\Delta w_{11} = 0.1 \times (0.6225 - 0.3528) = 0.1 \times 0.2697 = 0.0270$$
 
-w₁₁ ← 0.5 + 0.0270 = 0.5270
-w₂₁ ← 0.3 − 0.0334 = 0.2666
-```
+$$\Delta w_{21} = 0.1 \times (0.0000 - 0.3341) = 0.1 \times (-0.3341) = -0.0334$$
+
+$$w_{11} \leftarrow 0.5 + 0.0270 = 0.5270 \qquad w_{21} \leftarrow 0.3 - 0.0334 = 0.2666$$
 
 w₁₁ increased — the connection between v₁ and h₁ strengthened because v₁ was active in the data. w₂₁ decreased — the model was over-representing the v₂–h₁ co-activation relative to the data.
 
@@ -324,35 +293,27 @@ The diagram below shows the RBM architecture — a bipartite graph with no withi
 
 The energy function simplifies to:
 
-```
-E(v, h) = −Σᵢⱼ wᵢⱼ vᵢ hⱼ − Σᵢ aᵢ vᵢ − Σⱼ bⱼ hⱼ
-```
+$$E(v, h) = -\sum_{ij} w_{ij} v_i h_j - \sum_i a_i v_i - \sum_j b_j h_j$$
 
-This is the same form as the full Boltzmann machine, but now there are no hᵢ hⱼ or vᵢ vⱼ terms.
+This is the same form as the full Boltzmann machine, but now there are no $h_i h_j$ or $v_i v_j$ terms.
 
 ### Conditional Independence
 
 The restriction has a critical consequence. Given the visible units, the hidden units are **conditionally independent** of each other:
 
-```
-P(h | v) = Π_j P(hⱼ | v)
-```
+$$P(h \mid v) = \prod_j P(h_j \mid v)$$
 
-Because there are no hidden-to-hidden connections, knowing v tells you everything about each hⱼ independently — no hidden unit's state depends on any other hidden unit's state.
+Because there are no hidden-to-hidden connections, knowing $v$ tells you everything about each $h_j$ independently — no hidden unit's state depends on any other hidden unit's state.
 
 Similarly, given the hidden units, the visible units are conditionally independent:
 
-```
-P(v | h) = Π_i P(vᵢ | h)
-```
+$$P(v \mid h) = \prod_i P(v_i \mid h)$$
 
 The conditional probabilities are:
 
-```
-P(hⱼ = 1 | v) = σ(Σᵢ wᵢⱼ vᵢ + bⱼ)
+$$P(h_j = 1 \mid v) = \sigma\!\left(\sum_i w_{ij} v_i + b_j\right)$$
 
-P(vᵢ = 1 | h) = σ(Σⱼ wᵢⱼ hⱼ + aᵢ)
-```
+$$P(v_i = 1 \mid h) = \sigma\!\left(\sum_j w_{ij} h_j + a_i\right)$$
 
 ### Contrastive Divergence (CD-k)
 
@@ -372,7 +333,7 @@ CD-k algorithm for one training example v⁽⁰⁾:
    ... repeat k times ...
 
 3. Weight update using k-step approximation:
-   Δwᵢⱼ = η × (vᵢ⁽⁰⁾ hⱼ⁽⁰⁾ − vᵢ⁽ᵏ⁾ hⱼ⁽ᵏ⁾)
+   Δw_ij = η × (v_i^(0) h_j^(0) − v_i^(k) h_j^(k))
 ```
 
 **CD-1** (k = 1) is the standard in practice — one Gibbs step is sufficient for useful learning, even though it is a rough approximation of the true gradient. The approximation works because the reconstructed v⁽¹⁾ is already close to the data distribution after one step, so the negative phase statistics are a reasonable estimate of ⟨vᵢ hⱼ⟩_model.
@@ -383,10 +344,7 @@ CD-k algorithm for one training example v⁽⁰⁾:
 
 The bias updates follow the same contrastive structure:
 
-```
-Δaᵢ = η × (vᵢ⁽⁰⁾ − vᵢ⁽¹⁾)     ← visible bias
-Δbⱼ = η × (hⱼ⁽⁰⁾ − hⱼ⁽¹⁾)     ← hidden bias
-```
+$$\Delta a_i = \eta \left( v_i^{(0)} - v_i^{(1)} \right) \qquad \Delta b_j = \eta \left( h_j^{(0)} - h_j^{(1)} \right)$$
 
 ---
 
@@ -462,10 +420,10 @@ Why DBNs are no longer the standard:
 
 Key takeaways:
 
-- Stochastic neurons fire with probability P(sᵢ=1) = σ(netᵢ/T) — temperature T controls sharpness: T→0 is deterministic, T→∞ is uniform random
-- The Boltzmann distribution P(s) = e^(−E(s)/T) / Z assigns higher probability to lower-energy states; the partition function Z sums over all states to normalise
+- Stochastic neurons fire with probability $P(s_i=1) = \sigma(\text{net}_i/T)$ — temperature $T$ controls sharpness: $T \to 0$ is deterministic, $T \to \infty$ is uniform random
+- The Boltzmann distribution $P(s) = e^{-E(s)/T} / Z$ assigns higher probability to lower-energy states; the partition function $Z$ sums over all states to normalise
 - Visible units represent observed data; hidden units represent latent features the network discovers to explain statistical structure in the data
-- Contrastive Hebbian learning: Δwᵢⱼ = η(⟨vᵢhⱼ⟩_data − ⟨vᵢhⱼ⟩_model) — the positive phase measures co-activation under data, the negative phase measures co-activation under the model's own distribution
+- Contrastive Hebbian learning: $\Delta w_{ij} = \eta(\langle v_i h_j \rangle_{\text{data}} - \langle v_i h_j \rangle_{\text{model}})$ — the positive phase measures co-activation under data, the negative phase measures co-activation under the model's own distribution
 - The full Boltzmann machine is intractable — the negative phase requires Gibbs sampling to equilibrium, which is exponentially slow for large networks
 - The RBM removes within-layer connections, making hidden units conditionally independent given visible units (and vice versa) — this makes the positive phase exact and enables the CD-k approximation
 - CD-1 runs one Gibbs step to approximate the negative phase — sufficient in practice despite being a rough approximation of the true gradient

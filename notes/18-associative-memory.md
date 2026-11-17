@@ -33,17 +33,15 @@ The weight matrix for an associative memory is built from the stored association
 
 ### Auto-Associative Storage
 
-To store P patterns x¹, x², ..., xᴾ (each a vector of ±1 values of length N) as auto-associations:
+To store $P$ patterns $\mathbf{x}^1, \mathbf{x}^2, \ldots, \mathbf{x}^P$ (each a vector of $\pm 1$ values of length $N$) as auto-associations:
 
-```
-W = (1/N) Σₘ xᵐ (xᵐ)ᵀ
+$$W = \frac{1}{N} \sum_m \mathbf{x}^m (\mathbf{x}^m)^\top$$
 
-with wᵢᵢ = 0   (zero diagonal enforced after construction)
-```
+with $w_{ii} = 0$ (zero diagonal enforced after construction)
 
-Each term xᵐ(xᵐ)ᵀ is the N×N outer product of pattern m with itself. Entry (i, j) of this matrix is xᵢᵐ × xⱼᵐ — positive when neurons i and j have the same sign in pattern m, negative when they differ. Summing over all patterns accumulates these co-activation statistics across the full set of stored patterns.
+Each term $\mathbf{x}^m(\mathbf{x}^m)^\top$ is the $N \times N$ outer product of pattern $m$ with itself. Entry $(i, j)$ of this matrix is $x_i^m \times x_j^m$ — positive when neurons $i$ and $j$ have the same sign in pattern $m$, negative when they differ. Summing over all patterns accumulates these co-activation statistics across the full set of stored patterns.
 
-The factor 1/N normalises by network size so that the signal-to-noise ratio (Part 4) scales predictably with N.
+The factor $1/N$ normalises by network size so that the signal-to-noise ratio (Part 4) scales predictably with $N$.
 
 ### Worked Example — Auto-Associative Storage
 
@@ -54,7 +52,7 @@ x¹ = (+1, +1, −1, +1)
 x² = (−1, +1, +1, +1)
 ```
 
-Note that x¹ · x² = (1)(−1) + (1)(1) + (−1)(1) + (1)(1) = 0. The patterns are orthogonal — this minimises crosstalk (Part 4).
+Note that $\mathbf{x}^1 \cdot \mathbf{x}^2 = (1)(-1) + (1)(1) + (-1)(1) + (1)(1) = 0$. The patterns are orthogonal — this minimises crosstalk (Part 4).
 
 **Step 1 — Outer product for x¹:**
 
@@ -107,40 +105,29 @@ This is the weight matrix that stores both patterns as stable attractors.
 
 Once the weight matrix is constructed, retrieval proceeds by the same asynchronous update rule used in the Hopfield network (**Note 15**, Part 2):
 
-```
-netᵢ = Σⱼ wᵢⱼ sⱼ
+$$\text{net}_i = \sum_j w_{ij} s_j$$
 
-         +1   if netᵢ ≥ 0
-sᵢ  ←  {
-         −1   if netᵢ < 0
-```
+$$s_i \leftarrow \begin{cases} +1 & \text{if } \text{net}_i \geq 0 \\ -1 & \text{if } \text{net}_i < 0 \end{cases}$$
 
 Neurons update one at a time. Each update either decreases the energy or leaves it unchanged. The network converges to a local energy minimum — a stored pattern (or a spurious state, discussed in Part 4).
 
 ### Why Stored Patterns Are Fixed Points
 
-A stored pattern xᵐ is a fixed point of the update rule if, for every neuron i:
+A stored pattern $\mathbf{x}^m$ is a fixed point of the update rule if, for every neuron $i$:
 
-```
-sign(netᵢ) = xᵢᵐ
-```
+$$\text{sign}(\text{net}_i) = x_i^m$$
 
-Substituting the weight matrix W = (1/N) Σₖ xᵏ(xᵏ)ᵀ (diagonal zeroed):
+Substituting the weight matrix $W = (1/N) \sum_k \mathbf{x}^k(\mathbf{x}^k)^\top$ (diagonal zeroed):
 
-```
-netᵢ = Σⱼ wᵢⱼ xⱼᵐ
-     = (1/N) Σⱼ Σₖ xᵢᵏ xⱼᵏ xⱼᵐ   (j ≠ i)
-     = (1/N) Σₖ xᵢᵏ (Σⱼ xⱼᵏ xⱼᵐ)
-     = (1/N) Σₖ xᵢᵏ (xᵏ · xᵐ)
-```
+$$\text{net}_i = \sum_j w_{ij} x_j^m = \frac{1}{N} \sum_j \sum_k x_i^k x_j^k x_j^m \quad (j \neq i)$$
 
-For the target pattern k = m, the dot product xᵐ · xᵐ = N (since each component is ±1). This gives a **signal term**:
+$$= \frac{1}{N} \sum_k x_i^k \left( \sum_j x_j^k x_j^m \right) = \frac{1}{N} \sum_k x_i^k (\mathbf{x}^k \cdot \mathbf{x}^m)$$
 
-```
-Signal:   (1/N) × xᵢᵐ × N = xᵢᵐ
-```
+For the target pattern $k = m$, the dot product $\mathbf{x}^m \cdot \mathbf{x}^m = N$ (since each component is $\pm 1$). This gives a **signal term**:
 
-For all other patterns k ≠ m, the dot products xᵏ · xᵐ are the **crosstalk terms** — interference from the other stored patterns. If the patterns are orthogonal, these terms are zero and retrieval is exact. In general, they are small but nonzero.
+$$\text{Signal:} \quad \frac{1}{N} \times x_i^m \times N = x_i^m$$
+
+For all other patterns $k \neq m$, the dot products $\mathbf{x}^k \cdot \mathbf{x}^m$ are the **crosstalk terms** — interference from the other stored patterns. If the patterns are orthogonal, these terms are zero and retrieval is exact. In general, they are small but nonzero.
 
 > The signal term always points in the direction of the stored pattern. The crosstalk terms are noise from the other stored patterns. Retrieval succeeds when the signal dominates the crosstalk — which holds when P is small relative to N.
 
@@ -186,11 +173,9 @@ Three quantities characterise how well an associative memory performs: storage c
 
 The maximum number of patterns that can be stored and reliably retrieved is approximately:
 
-```
-P_max ≈ 0.14 × N
-```
+$$P_{\max} \approx 0.14 \times N$$
 
-This is the same capacity limit derived for the Hopfield network in **Note 15**. It arises from the crosstalk terms in the net input. When P is small, the crosstalk is weak and the signal dominates. As P grows, the crosstalk accumulates and eventually overwhelms the signal, causing retrieval to fail.
+This is the same capacity limit derived for the Hopfield network in **Note 15**. It arises from the crosstalk terms in the net input. When $P$ is small, the crosstalk is weak and the signal dominates. As $P$ grows, the crosstalk accumulates and eventually overwhelms the signal, causing retrieval to fail.
 
 The diagram below shows retrieval success rate as a function of P/N for a network of N = 100 neurons. The transition near P/N = 0.14 is sharp — below it, retrieval is reliable; above it, it collapses.
 
@@ -198,49 +183,39 @@ The diagram below shows retrieval success rate as a function of P/N for a networ
 
 ### Error Correction Radius
 
-The error correction radius is the maximum number of bit errors in the probe that the network can still correct. For a network storing P patterns with N neurons, the radius is approximately:
+The error correction radius is the maximum number of bit errors in the probe that the network can still correct. For a network storing $P$ patterns with $N$ neurons, the radius is approximately:
 
-```
-r ≈ N/2 × (1 − P/P_max)
-```
+$$r \approx \frac{N}{2} \left(1 - \frac{P}{P_{\max}}\right)$$
 
-When P is well below capacity (P ≪ P_max), the radius approaches N/2 — the network can correct nearly half the bits. As P approaches P_max, the radius shrinks to zero.
+When $P$ is well below capacity ($P \ll P_{\max}$), the radius approaches $N/2$ — the network can correct nearly half the bits. As $P$ approaches $P_{\max}$, the radius shrinks to zero.
 
 ### Crosstalk Noise
 
-The signal-to-noise ratio for retrieving pattern xᵐ is:
+The signal-to-noise ratio for retrieving pattern $\mathbf{x}^m$ is:
 
-```
-SNR = signal / crosstalk = N / sqrt(P − 1)
-```
+$$\text{SNR} = \frac{\text{signal}}{\text{crosstalk}} = \frac{N}{\sqrt{P-1}}$$
 
-This follows from the signal term being xᵢᵐ (magnitude 1, scaled by N/N = 1) and the crosstalk terms being a sum of P−1 random ±1 contributions, each scaled by 1/N. By the central limit theorem, the crosstalk has standard deviation sqrt(P−1)/N, giving SNR = N/sqrt(P−1).
+This follows from the signal term being $x_i^m$ (magnitude 1, scaled by $N/N = 1$) and the crosstalk terms being a sum of $P-1$ random $\pm 1$ contributions, each scaled by $1/N$. By the central limit theorem, the crosstalk has standard deviation $\sqrt{P-1}/N$, giving $\text{SNR} = N/\sqrt{P-1}$.
 
-```
-P = 1:    SNR = infinity   (no crosstalk, perfect retrieval)
-P = 14:   SNR ≈ N/sqrt(13) ≈ 0.27N   (near capacity for N=100)
-P = 0.14N: SNR ≈ sqrt(N/0.14) ≈ 2.7 for N=100   (marginal)
-```
+- $P = 1$: $\text{SNR} = \infty$ (no crosstalk, perfect retrieval)
+- $P = 14$: $\text{SNR} \approx N/\sqrt{13} \approx 0.27N$
+- $P = 0.14N$: $\text{SNR} \approx \sqrt{N/0.14} \approx 2.7$ for $N = 100$ (marginal)
 
-> The capacity limit P_max ≈ 0.14N is the point where the SNR drops below the threshold for reliable retrieval. It is not a design choice — it is a consequence of the Hebbian weight construction.
+> The capacity limit $P_{\max} \approx 0.14N$ is the point where the SNR drops below the threshold for reliable retrieval. It is not a design choice — it is a consequence of the Hebbian weight construction.
 
 ---
 
 ## Part 5: Hetero-Associative Memory
 
-In hetero-associative memory, each input pattern xᵐ is paired with a distinct output pattern yᵐ. The weight matrix is constructed from the cross-outer products of output with input:
+In hetero-associative memory, each input pattern $\mathbf{x}^m$ is paired with a distinct output pattern $\mathbf{y}^m$. The weight matrix is constructed from the cross-outer products of output with input:
 
-```
-W = (1/N) Σₘ yᵐ (xᵐ)ᵀ
-```
+$$W = \frac{1}{N} \sum_m \mathbf{y}^m (\mathbf{x}^m)^\top$$
 
-Entry (i, j) of this matrix is (1/N) Σₘ yᵢᵐ xⱼᵐ — the co-activation of output neuron i and input neuron j across all stored pairs.
+Entry $(i, j)$ of this matrix is $\frac{1}{N} \sum_m y_i^m x_j^m$ — the co-activation of output neuron $i$ and input neuron $j$ across all stored pairs.
 
-Retrieval is a single forward pass — not an iterative update. Given input x, the output is:
+Retrieval is a single forward pass — not an iterative update. Given input $\mathbf{x}$, the output is:
 
-```
-y = sign(W x)
-```
+$$\mathbf{y} = \text{sign}(W \mathbf{x})$$
 
 There is no energy function and no convergence dynamics. The hetero-associative memory is a one-shot lookup: present the input, compute the weighted sum, threshold.
 
@@ -317,9 +292,9 @@ Hopfield network:          Auto-associative memory (general):
   Hebbian outer product rule   Hebbian outer product rule (same)
 ```
 
-They are the same model. "Hopfield network" refers to the specific architecture and energy analysis; "auto-associative memory" refers to the functional role it plays. The capacity limit 0.14N, the spurious states, and the convergence guarantee all carry over directly.
+They are the same model. "Hopfield network" refers to the specific architecture and energy analysis; "auto-associative memory" refers to the functional role it plays. The capacity limit $0.14N$, the spurious states, and the convergence guarantee all carry over directly.
 
-The hetero-associative memory is a generalisation: it relaxes the constraint that input and output must be the same pattern. The weight matrix is no longer symmetric (W ≠ Wᵀ in general), so there is no energy function and no convergence dynamics — retrieval is a single matrix-vector product.
+The hetero-associative memory is a generalisation: it relaxes the constraint that input and output must be the same pattern. The weight matrix is no longer symmetric ($W \neq W^\top$ in general), so there is no energy function and no convergence dynamics — retrieval is a single matrix-vector product.
 
 ### Relationship to Modern Attention
 
@@ -327,25 +302,19 @@ The attention mechanism in transformers (**Note 27**) can be understood as a con
 
 In hetero-associative memory:
 
-```
-y = sign(W x)   where   W = (1/N) Σₘ yᵐ (xᵐ)ᵀ
-```
+$$\mathbf{y} = \text{sign}(W \mathbf{x}) \quad \text{where} \quad W = \frac{1}{N} \sum_m \mathbf{y}^m (\mathbf{x}^m)^\top$$
 
-Substituting W:
+Substituting $W$:
 
-```
-y = sign( (1/N) Σₘ yᵐ (xᵐ · x) )
-```
+$$\mathbf{y} = \text{sign}\!\left( \frac{1}{N} \sum_m \mathbf{y}^m (\mathbf{x}^m \cdot \mathbf{x}) \right)$$
 
-The term xᵐ · x is the dot product between the stored input pattern xᵐ and the query x — a similarity score. The output is a weighted combination of stored output patterns yᵐ, where the weights are the similarity scores.
+The term $\mathbf{x}^m \cdot \mathbf{x}$ is the dot product between the stored input pattern $\mathbf{x}^m$ and the query $\mathbf{x}$ — a similarity score. The output is a weighted combination of stored output patterns $\mathbf{y}^m$, where the weights are the similarity scores.
 
 Scaled dot-product attention does exactly this, but continuously:
 
-```
-Attention(Q, K, V) = softmax( Q Kᵀ / sqrt(d) ) V
-```
+$$\text{Attention}(Q, K, V) = \text{softmax}\!\left(\frac{Q K^\top}{\sqrt{d}}\right) V$$
 
-Here Q is the query, K are the keys (stored input patterns), V are the values (stored output patterns), and the softmax replaces the hard sign threshold with a soft weighted sum. The division by sqrt(d) is a normalisation analogous to the 1/N factor.
+Here $Q$ is the query, $K$ are the keys (stored input patterns), $V$ are the values (stored output patterns), and the softmax replaces the hard sign threshold with a soft weighted sum. The division by $\sqrt{d}$ is a normalisation analogous to the $1/N$ factor.
 
 ```
 Associative memory:   hard threshold,  discrete retrieval,  exact match
@@ -363,10 +332,10 @@ This connection was made explicit by Ramsauer et al. (2020), who showed that mod
 Key takeaways:
 
 - Auto-associative memory maps a noisy or partial input to the same stored pattern; hetero-associative memory maps an input pattern to a paired but different output pattern
-- Both use the Hebbian outer product rule: auto-associative stores W = (1/N) Σₘ xᵐ(xᵐ)ᵀ; hetero-associative stores W = (1/N) Σₘ yᵐ(xᵐ)ᵀ
-- Auto-associative retrieval is iterative — asynchronous updates converge to a stored attractor via energy descent; hetero-associative retrieval is a single forward pass y = sign(Wx)
-- The signal term in the net input is always xᵢᵐ (pointing toward the stored pattern); the crosstalk terms are interference from other stored patterns
-- Storage capacity is approximately 0.14N patterns — the same limit as the Hopfield network — arising from the SNR dropping below the reliable retrieval threshold
+- Both use the Hebbian outer product rule: auto-associative stores $W = (1/N) \sum_m \mathbf{x}^m(\mathbf{x}^m)^\top$; hetero-associative stores $W = (1/N) \sum_m \mathbf{y}^m(\mathbf{x}^m)^\top$
+- Auto-associative retrieval is iterative — asynchronous updates converge to a stored attractor via energy descent; hetero-associative retrieval is a single forward pass $\mathbf{y} = \text{sign}(W\mathbf{x})$
+- The signal term in the net input is always $x_i^m$ (pointing toward the stored pattern); the crosstalk terms are interference from other stored patterns
+- Storage capacity is approximately $0.14N$ patterns — the same limit as the Hopfield network — arising from the SNR dropping below the reliable retrieval threshold
 - The error correction radius shrinks as P approaches capacity; orthogonal patterns minimise crosstalk and maximise capacity
 - The Hopfield network is a special case of auto-associative memory — same architecture, same rule, same energy function
 - Scaled dot-product attention is a continuous, differentiable generalisation of hetero-associative memory: keys are stored input patterns, values are stored output patterns, the query is the probe, and softmax replaces the sign threshold

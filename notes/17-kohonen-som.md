@@ -58,9 +58,7 @@ After training:    weight vectors form a smooth map of the input space
 
 For each input x, the **Best Matching Unit (BMU)** is the map neuron whose weight vector is closest to x:
 
-```
-j* = argmin_j ‖x − wⱼ‖
-```
+$$j^* = \underset{j}{\arg\min} \; \|\mathbf{x} - \mathbf{w}_j\|$$
 
 The distance is Euclidean. The BMU is the neuron that best represents the current input — the one whose prototype is most similar to x.
 
@@ -90,11 +88,9 @@ Competitive learning updates only the BMU. The SOM updates the BMU **and its nei
 
 The **Gaussian neighbourhood function** h(j, j*) gives the update strength for neuron j when the BMU is j*:
 
-```
-h(j, j*) = exp(−d(j, j*)² / 2σ²)
-```
+$$h(j, j^*) = \exp\!\left(\frac{-d(j,j^*)^2}{2\sigma^2}\right)$$
 
-Where d(j, j*) is the grid distance between neuron j and the BMU j*, and σ is the neighbourhood radius.
+Where $d(j, j^*)$ is the grid distance between neuron $j$ and the BMU $j^*$, and $\sigma$ is the neighbourhood radius.
 
 ```
 j = j*:   d = 0  →  h = exp(0) = 1.0        ← BMU gets full update
@@ -111,12 +107,11 @@ The plot below shows h(d) as a function of grid distance for two values of σ �
 
 For each input x, after finding the BMU j*, update every neuron j:
 
-```
-Δwⱼ = η · h(j, j*) · (x − wⱼ)
-wⱼ ← wⱼ + Δwⱼ
-```
+$$\Delta \mathbf{w}_j = \eta \cdot h(j, j^*) \cdot (\mathbf{x} - \mathbf{w}_j)$$
 
-Where η is the learning rate. The update moves wⱼ toward x, scaled by both η and h(j, j*). The BMU moves the most; neurons far from the BMU move very little or not at all.
+$$\mathbf{w}_j \leftarrow \mathbf{w}_j + \Delta \mathbf{w}_j$$
+
+Where $\eta$ is the learning rate. The update moves $\mathbf{w}_j$ toward $\mathbf{x}$, scaled by both $\eta$ and $h(j, j^*)$. The BMU moves the most; neurons far from the BMU move very little or not at all.
 
 ### Worked Example
 
@@ -124,33 +119,25 @@ Continuing from Part 3. BMU is j=2. σ = 1.5, η = 0.5. Grid distances: d(1,2)=1
 
 **Neighbourhood strengths:**
 
-```
-h(1, 2) = exp(−1² / (2 × 1.5²)) = exp(−1/4.5) = exp(−0.2222) = 0.8007
-h(2, 2) = exp(−0² / (2 × 1.5²)) = exp(0)      = 1.0000
-h(3, 2) = exp(−1² / (2 × 1.5²)) = exp(−0.2222) = 0.8007
-```
+$$h(1, 2) = \exp\!\left(\frac{-1^2}{2 \times 1.5^2}\right) = \exp(-1/4.5) = \exp(-0.2222) = 0.8007$$
+
+$$h(2, 2) = \exp\!\left(\frac{-0^2}{2 \times 1.5^2}\right) = \exp(0) = 1.0000$$
+
+$$h(3, 2) = \exp\!\left(\frac{-1^2}{2 \times 1.5^2}\right) = \exp(-0.2222) = 0.8007$$
 
 **Weight updates** (x = (0.7, 0.4)):
 
-```
-Δw₁ = 0.5 × 0.8007 × ((0.7, 0.4) − (0.2, 0.8))
-     = 0.5 × 0.8007 × (0.5, −0.4)
-     = (0.2002, −0.1601)
+$$\Delta \mathbf{w}_1 = 0.5 \times 0.8007 \times ((0.7, 0.4) - (0.2, 0.8)) = 0.5 \times 0.8007 \times (0.5, -0.4) = (0.2002, -0.1601)$$
 
-w₁ ← (0.2 + 0.2002, 0.8 − 0.1601) = (0.4002, 0.6399)
+$$\mathbf{w}_1 \leftarrow (0.2 + 0.2002,\ 0.8 - 0.1601) = (0.4002,\ 0.6399)$$
 
-Δw₂ = 0.5 × 1.0000 × ((0.7, 0.4) − (0.6, 0.3))
-     = 0.5 × 1.0000 × (0.1, 0.1)
-     = (0.0500, 0.0500)
+$$\Delta \mathbf{w}_2 = 0.5 \times 1.0000 \times ((0.7, 0.4) - (0.6, 0.3)) = 0.5 \times 1.0000 \times (0.1, 0.1) = (0.0500,\ 0.0500)$$
 
-w₂ ← (0.6 + 0.0500, 0.3 + 0.0500) = (0.6500, 0.3500)
+$$\mathbf{w}_2 \leftarrow (0.6 + 0.0500,\ 0.3 + 0.0500) = (0.6500,\ 0.3500)$$
 
-Δw₃ = 0.5 × 0.8007 × ((0.7, 0.4) − (0.9, 0.1))
-     = 0.5 × 0.8007 × (−0.2, 0.3)
-     = (−0.0801, 0.1201)
+$$\Delta \mathbf{w}_3 = 0.5 \times 0.8007 \times ((0.7, 0.4) - (0.9, 0.1)) = 0.5 \times 0.8007 \times (-0.2, 0.3) = (-0.0801,\ 0.1201)$$
 
-w₃ ← (0.9 − 0.0801, 0.1 + 0.1201) = (0.8199, 0.2201)
-```
+$$\mathbf{w}_3 \leftarrow (0.9 - 0.0801,\ 0.1 + 0.1201) = (0.8199,\ 0.2201)$$
 
 All three neurons moved toward x = (0.7, 0.4). The BMU (j=2) moved the most. Neurons j=1 and j=3 moved less, scaled by h = 0.8007. After many such updates, the weight vectors will organise so that j=1, j=2, j=3 represent a smooth progression across the input space.
 
@@ -164,15 +151,13 @@ The solution is to decay both parameters over time.
 
 ### Exponential Decay
 
-Both η and σ decay exponentially from their initial values to their final values over T total training steps:
+Both $\eta$ and $\sigma$ decay exponentially from their initial values to their final values over $T$ total training steps:
 
-```
-η(t) = η₀ · exp(−t / τ_η)
+$$\eta(t) = \eta_0 \cdot \exp\!\left(-\frac{t}{\tau_\eta}\right)$$
 
-σ(t) = σ₀ · exp(−t / τ_σ)
-```
+$$\sigma(t) = \sigma_0 \cdot \exp\!\left(-\frac{t}{\tau_\sigma}\right)$$
 
-Where t is the current training step, and τ_η, τ_σ are time constants controlling the decay rate. A common choice is τ = T / log(σ₀) for σ, so that σ decays to approximately 1 by the end of training.
+Where $t$ is the current training step, and $\tau_\eta$, $\tau_\sigma$ are time constants controlling the decay rate. A common choice is $\tau = T / \log(\sigma_0)$ for $\sigma$, so that $\sigma$ decays to approximately 1 by the end of training.
 
 ### The Two Phases
 
@@ -205,9 +190,9 @@ After training, the SOM is a **topographic map** — a 2D projection of the inpu
 ```
 Input space:   high-dimensional, complex structure
 Map grid:      2D, simple — but topology is preserved
-
-If x₁ ≈ x₂ in input space  →  j*(x₁) ≈ j*(x₂) on the map
 ```
+
+The key property: if $\mathbf{x}_1 \approx \mathbf{x}_2$ in input space, then $j^*(\mathbf{x}_1) \approx j^*(\mathbf{x}_2)$ on the map.
 
 This is the key property that distinguishes the SOM from k-means or competitive learning. K-means assigns inputs to clusters but the cluster labels are arbitrary — cluster 3 is not necessarily near cluster 4. In a SOM, the spatial arrangement of neurons is meaningful.
 
@@ -215,9 +200,7 @@ This is the key property that distinguishes the SOM from k-means or competitive 
 
 The **U-matrix** (Unified Distance Matrix) visualises the distances between adjacent neuron weight vectors on the map:
 
-```
-U(j) = average of ‖wⱼ − wₖ‖ for all immediate neighbours k of j
-```
+$$U(j) = \text{average of } \|\mathbf{w}_j - \mathbf{w}_k\| \text{ for all immediate neighbours } k \text{ of } j$$
 
 High U-matrix values between two neurons indicate a large gap in weight space — a cluster boundary. Low values indicate a smooth transition — neurons in the same cluster.
 
@@ -252,9 +235,9 @@ Anomaly detection:        inputs that activate neurons far from their usual regi
 Key takeaways:
 
 - The SOM extends competitive learning with a topology-preserving constraint — nearby neurons on the map learn to respond to similar inputs, so the map reflects the structure of the input space
-- Each map neuron has a weight vector (prototype) of the same dimension as the input; the BMU is the neuron whose weight vector is closest to the current input: j* = argmin_j ‖x − wⱼ‖
-- The Gaussian neighbourhood function h(j, j*) = exp(−d² / 2σ²) scales the update for each neuron by its grid distance from the BMU — the BMU gets a full update, neighbours get partial updates, distant neurons are unaffected
-- The weight update rule Δwⱼ = η · h(j, j*) · (x − wⱼ) moves every neuron toward the input, scaled by neighbourhood strength
-- Both η and σ decay exponentially over training — the ordering phase (large η, large σ) establishes global topology; the convergence phase (small η, small σ) refines local precision
+- Each map neuron has a weight vector (prototype) of the same dimension as the input; the BMU is the neuron whose weight vector is closest to the current input: $j^* = \underset{j}{\arg\min} \; \|\mathbf{x} - \mathbf{w}_j\|$
+- The Gaussian neighbourhood function $h(j, j^*) = \exp(-d^2 / 2\sigma^2)$ scales the update for each neuron by its grid distance from the BMU — the BMU gets a full update, neighbours get partial updates, distant neurons are unaffected
+- The weight update rule $\Delta \mathbf{w}_j = \eta \cdot h(j, j^*) \cdot (\mathbf{x} - \mathbf{w}_j)$ moves every neuron toward the input, scaled by neighbourhood strength
+- Both $\eta$ and $\sigma$ decay exponentially over training — the ordering phase (large $\eta$, large $\sigma$) establishes global topology; the convergence phase (small $\eta$, small $\sigma$) refines local precision
 - A trained SOM is a topographic map: inputs close in the original space map to neurons close on the grid — topology is preserved, unlike k-means where cluster labels are arbitrary
 - The U-matrix visualises distances between adjacent neuron weight vectors — high values mark cluster boundaries, low values mark within-cluster regions

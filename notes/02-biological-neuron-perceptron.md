@@ -47,19 +47,15 @@ The McCulloch-Pitts (MP) neuron takes binary inputs and produces a binary output
 
 | Component | Description |
 |---|---|
-| Inputs xᵢ | Binary only — 0 or 1 |
-| Weights wᵢ | Fixed integers — set by the designer, not learned |
-| Weighted sum z | z = Σ wᵢxᵢ (no bias term) |
-| Threshold θ | Fixed — fires if z ≥ θ, silent otherwise |
-| Output ŷ | Binary — 0 or 1 |
+| Inputs $x_i$ | Binary only — 0 or 1 |
+| Weights $w_i$ | Fixed integers — set by the designer, not learned |
+| Weighted sum $z$ | $z = \sum w_i x_i$ (no bias term) |
+| Threshold $\theta$ | Fixed — fires if $z \geq \theta$, silent otherwise |
+| Output $\hat{y}$ | Binary — 0 or 1 |
 
 ### The Rule
 
-```
-         ┌ 1   if z ≥ θ
-ŷ  =     │
-         └ 0   if z < θ
-```
+$$\hat{y} = \begin{cases} 1 & \text{if } z \geq \theta \\ 0 & \text{if } z < \theta \end{cases}$$
 
 ### Worked Example — AND Gate
 
@@ -138,12 +134,12 @@ The perceptron (Rosenblatt, 1958) is the direct mathematical model of the biolog
 
 | Biological | Artificial / Perceptron |
 |---|---|
-| Dendrites | Inputs x₁, x₂, ..., xₙ |
-| Synapse strength | Weights w₁, w₂, ..., wₙ |
-| Cell body accumulation | Weighted sum z = Σ wᵢxᵢ + b |
-| Threshold / firing | Activation function f(z) |
-| Axon output | Output ŷ = f(z) |
-| Resting state | Bias term b |
+| Dendrites | Inputs $x_1, x_2, \ldots, x_n$ |
+| Synapse strength | Weights $w_1, w_2, \ldots, w_n$ |
+| Cell body accumulation | Weighted sum $z = \sum w_i x_i + b$ |
+| Threshold / firing | Activation function $f(z)$ |
+| Axon output | Output $\hat{y} = f(z)$ |
+| Resting state | Bias term $b$ |
 
 The diagram below shows the perceptron structure: real-valued inputs, learnable weights, a bias, a weighted sum, and a differentiable activation function.
 
@@ -153,19 +149,15 @@ The diagram below shows the perceptron structure: real-valued inputs, learnable 
 
 **Step 1 — Weighted sum (pre-activation):**
 
-```
-z = w₁x₁ + w₂x₂ + ... + wₙxₙ + b
+$$z = w_1 x_1 + w_2 x_2 + \cdots + w_n x_n + b$$
 
 or in vector form:
 
-z = wᵀx + b
-```
+$$z = \mathbf{w}^\top \mathbf{x} + b$$
 
 **Step 2 — Activation (post-activation):**
 
-```
-ŷ = f(z)
-```
+$$\hat{y} = f(z)$$
 
 ---
 
@@ -173,46 +165,31 @@ z = wᵀx + b
 
 This is a connection most textbooks skip. Look at the weighted sum for two inputs:
 
-```
-z = w₁x₁ + w₂x₂ + b
-```
+$$z = w_1 x_1 + w_2 x_2 + b$$
 
 Now compare to the equation of a straight line:
 
-```
-y = mx + c
-```
+$$y = mx + c$$
 
-They are the same structure:
+They are the same structure — $w_1, w_2$ are slopes and $b$ is the intercept.
 
-```
-  z  = w₁x₁  +  w₂x₂  +  b
-  │     │           │       │
-  │     └── slope ──┘       └── intercept
-  │
- output (before activation)
-```
+For two inputs, the decision boundary $z = 0$ becomes:
 
-For two inputs, the decision boundary `z = 0` becomes:
-
-```
-w₁x₁ + w₂x₂ + b = 0
+$$w_1 x_1 + w_2 x_2 + b = 0$$
 
 Rearranging:
-x₂ = -(w₁/w₂)x₁ - (b/w₂)
-      └── slope ──┘  └── intercept
-```
+
+$$x_2 = -\frac{w_1}{w_2} x_1 - \frac{b}{w_2}$$
 
 This is literally a straight line in the x₁-x₂ plane. One side gives z > 0 (neuron fires, class 1); the other gives z < 0 (neuron silent, class 0). A single perceptron can only ever draw one straight line to separate classes — exactly why it fails on XOR and why we need multiple layers.
 
 ### What is the Bias?
 
-The bias b is the intercept of that line:
+The bias $b$ is the intercept of that line:
 
-```
-Without bias:   x₂ = -(w₁/w₂)x₁         (line always passes through origin)
-With bias:      x₂ = -(w₁/w₂)x₁ - b/w₂  (line can shift freely)
-```
+$$\text{Without bias:} \quad x_2 = -\frac{w_1}{w_2} x_1 \qquad \text{(line always passes through origin)}$$
+
+$$\text{With bias:} \quad x_2 = -\frac{w_1}{w_2} x_1 - \frac{b}{w_2} \qquad \text{(line can shift freely)}$$
 
 The diagram below shows the geometric effect: without bias every decision boundary passes through the origin; with bias it can shift freely.
 
@@ -226,11 +203,7 @@ Without bias, the decision boundary is forced through the origin — severely li
 
 The original perceptron uses a **step function** (Heaviside function):
 
-```
-         ┌ 1   if z ≥ 0
-f(z)  =  │
-         └ 0   if z < 0
-```
+$$f(z) = \begin{cases} 1 & \text{if } z \geq 0 \\ 0 & \text{if } z < 0 \end{cases}$$
 
 The diagram below shows the step function: output jumps from 0 to 1 at z = 0.
 
@@ -260,20 +233,13 @@ But there is a deeper problem that goes beyond the step function — it applies 
 
 Suppose we stack two neurons with no activation function (or a linear one):
 
-```
-Layer 1 output:   z₁ = W₁x + b₁
-Layer 2 output:   z₂ = W₂z₁ + b₂
-                     = W₂(W₁x + b₁) + b₂
-                     = (W₂W₁)x + (W₂b₁ + b₂)
-                     = Wx + b        ← still a single line
-```
+$$z_1 = W_1 x + b_1$$
+
+$$z_2 = W_2 z_1 + b_2 = W_2(W_1 x + b_1) + b_2 = (W_2 W_1)x + (W_2 b_1 + b_2) = Wx + b$$
 
 Now stack 10 layers:
 
-```
-Layer 10 output = W₁₀(W₉(...(W₁x + b₁)...)) + b₁₀
-                = Wx + b             ← still a single line
-```
+$$\text{Layer 10 output} = W_{10}(W_9(\cdots(W_1 x + b_1)\cdots)) + b_{10} = Wx + b$$
 
 **No matter how many layers you stack, without non-linear activation, the entire network collapses to a single linear transformation — equivalent to one neuron.**
 
@@ -309,10 +275,12 @@ FORWARD PASS
         ↓
   z = wᵀx + b        ← weighted sum
         ↓
-  ŷ = f(z)           ← apply activation (step function)
+  ŷ = f(z)           ← apply activation
         ↓
   Output ŷ
 ```
+
+$$z = \mathbf{w}^\top \mathbf{x} + b \qquad \hat{y} = f(z)$$
 
 ### Example
 
@@ -337,18 +305,21 @@ The perceptron learns by adjusting weights when it makes a wrong prediction.
 
 ```
 For each training example (x, y):
-
-  1. Compute prediction:   ŷ = f(wᵀx + b)
-  2. Compute error:        e = y - ŷ
-  3. Update weights:       wᵢ ← wᵢ + η × e × xᵢ
-  4. Update bias:          b  ← b  + η × e
+  1. Compute prediction
+  2. Compute error
+  3. Update weights
+  4. Update bias
 ```
 
-Where:
-- y  = true label
-- ŷ  = predicted label
-- e  = error (0 if correct, ±1 if wrong)
-- η  = learning rate (small positive number, e.g. 0.1)
+$$\hat{y} = f(\mathbf{w}^\top \mathbf{x} + b)$$
+
+$$e = y - \hat{y}$$
+
+$$w_i \leftarrow w_i + \eta \cdot e \cdot x_i$$
+
+$$b \leftarrow b + \eta \cdot e$$
+
+Where $y$ is the true label, $\hat{y}$ is the predicted label, $e$ is the error (0 if correct, $\pm 1$ if wrong), and $\eta$ is the learning rate.
 
 ### Intuition
 
@@ -511,12 +482,13 @@ All correct. The perceptron learned the OR function in 2 epochs.
 
 The learned decision boundary is:
 
-```
-w₁x₁ + w₂x₂ + b = 0.5   (our threshold)
-0.2x₁ + 0.2x₂ + 0.3 = 0.5
-0.2x₁ + 0.2x₂ = 0.2
-x₁ + x₂ = 1
-```
+$$w_1 x_1 + w_2 x_2 + b = 0.5$$
+
+$$0.2x_1 + 0.2x_2 + 0.3 = 0.5$$
+
+$$0.2x_1 + 0.2x_2 = 0.2$$
+
+$$x_1 + x_2 = 1$$
 
 The diagram below shows the four OR points and the learned decision boundary x₁ + x₂ = 1 that correctly separates them.
 
@@ -550,37 +522,22 @@ The three panels below show three different line attempts — every one misclass
 
 A perceptron computes:
 
-```
-ŷ = 1  if  w₁x₁ + w₂x₂ + b ≥ 0
-ŷ = 0  otherwise
-```
+$$\hat{y} = \begin{cases} 1 & \text{if } w_1 x_1 + w_2 x_2 + b \geq 0 \\ 0 & \text{otherwise} \end{cases}$$
 
 For XOR to be solved, we need all four conditions simultaneously:
 
-```
-(0,0) → 0:   b < 0                    ... (i)
-(0,1) → 1:   w₂ + b ≥ 0              ... (ii)
-(1,0) → 1:   w₁ + b ≥ 0              ... (iii)
-(1,1) → 0:   w₁ + w₂ + b < 0         ... (iv)
-```
+$$\text{(i)}\quad b < 0$$
+$$\text{(ii)}\quad w_2 + b \geq 0$$
+$$\text{(iii)}\quad w_1 + b \geq 0$$
+$$\text{(iv)}\quad w_1 + w_2 + b < 0$$
 
-From (ii):  w₂ ≥ -b > 0  (using i)
-From (iii): w₁ ≥ -b > 0
+From (ii): $w_2 \geq -b > 0$. From (iii): $w_1 \geq -b > 0$. Adding (ii) and (iii):
 
-Adding (ii) and (iii):
+$$w_1 + w_2 + 2b \geq 0 \implies w_1 + w_2 + b \geq -b > 0$$
 
-```
-w₁ + w₂ + 2b ≥ 0
-w₁ + w₂ + b  ≥ -b > 0
-```
+But condition (iv) requires $w_1 + w_2 + b < 0$.
 
-But condition (iv) requires:
-
-```
-w₁ + w₂ + b < 0
-```
-
-**Contradiction.** No values of w₁, w₂, b can satisfy all four conditions.
+**Contradiction.** No values of $w_1, w_2, b$ can satisfy all four conditions.
 
 ### The Conclusion
 
@@ -601,24 +558,22 @@ The solution: **stack multiple layers** → Multilayer Perceptron (Note 03).
 
 ## Summary
 
-```
-BIOLOGICAL NEURON          ARTIFICIAL NEURON / PERCEPTRON
-──────────────────         ───────────────────────────────
-Dendrites                  Inputs x
-Synapse strength           Weights w
-Cell body                  Weighted sum z = wᵀx + b  ≡  y = mx + c
-Threshold / firing         Activation function f(z)
-Axon output                Output ŷ = f(z)
-```
+| Biological | Artificial / Perceptron |
+|---|---|
+| Dendrites | Inputs $\mathbf{x}$ |
+| Synapse strength | Weights $\mathbf{w}$ |
+| Cell body | Weighted sum $z = \mathbf{w}^\top \mathbf{x} + b \equiv y = mx + c$ |
+| Threshold / firing | Activation function $f(z)$ |
+| Axon output | Output $\hat{y} = f(z)$ |
 
 Key takeaways:
 
 - The McCulloch-Pitts neuron (1943) was the first mathematical model of a neuron — binary inputs, fixed weights, hard threshold, no learning
 - The perceptron (1958) extended MP by making weights learnable from data — that is the key advance
 - Artificial neuron and perceptron are the same thing — the perceptron is the artificial neuron with a step function
-- The neuron formula `z = wᵀx + b` is a straight line — the decision boundary is literally `y = mx + c`
+- The neuron formula $z = \mathbf{w}^\top \mathbf{x} + b$ is a straight line — the decision boundary is literally $y = mx + c$
 - Without non-linear activation, stacking any number of layers collapses to a single line — depth is meaningless
-- A perceptron learns using the perceptron learning rule: `w ← w + η(y - ŷ)x`
+- A perceptron learns using the perceptron learning rule: $w_i \leftarrow w_i + \eta(y - \hat{y})x_i$
 - It can solve linearly separable problems (OR, AND)
 - It **cannot** solve non-linearly separable problems (XOR) — proven geometrically and mathematically
 - Stacking multiple perceptrons into layers solves the XOR problem → **Note 03**

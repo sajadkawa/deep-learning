@@ -31,16 +31,14 @@ If neuron A consistently activates at the same time as neuron B, the connection 
 
 ### The Hebbian Learning Rule
 
-```
-Δwᵢⱼ = η × xᵢ × yⱼ
-```
+$$\Delta w_{ij} = \eta \times x_i \times y_j$$
 
 Where:
-- wᵢⱼ = weight from input neuron i to output neuron j
-- xᵢ = activation of input neuron i
-- yⱼ = activation of output neuron j
-- η = learning rate
-- Δwᵢⱼ = change in weight
+- $w_{ij}$ = weight from input neuron $i$ to output neuron $j$
+- $x_i$ = activation of input neuron $i$
+- $y_j$ = activation of output neuron $j$
+- $\eta$ = learning rate
+- $\Delta w_{ij}$ = change in weight
 
 The weight between two neurons increases when both are simultaneously active, and does not change when either is inactive.
 
@@ -82,9 +80,7 @@ Several modifications address this:
 
 **Oja's Rule** — normalises the weight vector after each update, keeping its magnitude bounded:
 
-```
-Δwᵢⱼ = η × yⱼ × (xᵢ − yⱼ × wᵢⱼ)
-```
+$$\Delta w_{ij} = \eta \times y_j \times (x_i - y_j \times w_{ij})$$
 
 The second term `−yⱼ × wᵢⱼ` acts as a decay that prevents unbounded growth. Oja's rule converges to the **principal component** of the input distribution — it performs a form of PCA (Principal Component Analysis) online.
 
@@ -129,13 +125,11 @@ Losers do not update
 
 ### The Update Rule
 
-The winning neuron j* updates its weight vector toward the input:
+The winning neuron $j^*$ updates its weight vector toward the input:
 
-```
-j* = argmax_j (similarity(wⱼ, x))
+$$j^* = \arg\max_j \; \text{similarity}(\mathbf{w}_j, \mathbf{x})$$
 
-Δwⱼ* = η × (x − wⱼ*)
-```
+$$\Delta \mathbf{w}_{j^*} = \eta \times (\mathbf{x} - \mathbf{w}_{j^*})$$
 
 The weight vector of the winner moves toward the current input. Over many inputs, each neuron's weight vector converges to the centroid of the cluster of inputs it wins on.
 
@@ -217,24 +211,20 @@ Visible units (v):   connected to the data — we observe these
 Hidden units (h):    internal — we do not observe these directly
 ```
 
-The energy of a state (v, h) is:
+The energy of a state $(v, h)$ is:
 
-```
-E(v, h) = −Σᵢⱼ wᵢⱼ vᵢ hⱼ − Σᵢ aᵢ vᵢ − Σⱼ bⱼ hⱼ
-```
+$$E(v, h) = -\sum_{ij} w_{ij} v_i h_j - \sum_i a_i v_i - \sum_j b_j h_j$$
 
 Where:
-- wᵢⱼ = weight between visible unit i and hidden unit j
-- aᵢ = bias of visible unit i
-- bⱼ = bias of hidden unit j
+- $w_{ij}$ = weight between visible unit $i$ and hidden unit $j$
+- $a_i$ = bias of visible unit $i$
+- $b_j$ = bias of hidden unit $j$
 
-Lower energy = more probable state. The probability of a state is given by the **Boltzmann distribution** (from statistical physics):
+Lower energy = more probable state. The probability of a state is given by the **Boltzmann distribution**:
 
-```
-P(v, h) = e^(−E(v,h)) / Z
-```
+$$P(v, h) = \frac{e^{-E(v,h)}}{Z}$$
 
-Where Z is the partition function — the sum of e^(−E) over all possible states, ensuring probabilities sum to 1.
+Where $Z$ is the partition function — the sum of $e^{-E}$ over all possible states, ensuring probabilities sum to 1.
 
 ### What the Hidden Units Do
 
@@ -254,13 +244,11 @@ The hidden units capture statistical regularities in the data that are not direc
 
 The Boltzmann learning rule adjusts weights to make the model's distribution match the data distribution:
 
-```
-Δwᵢⱼ = η × (⟨vᵢ hⱼ⟩_data − ⟨vᵢ hⱼ⟩_model)
-```
+$$\Delta w_{ij} = \eta \times \left( \langle v_i h_j \rangle_{\text{data}} - \langle v_i h_j \rangle_{\text{model}} \right)$$
 
 Where:
-- ⟨vᵢ hⱼ⟩_data = average co-activation of vᵢ and hⱼ when the visible units are clamped to training data
-- ⟨vᵢ hⱼ⟩_model = average co-activation when the network runs freely (no data clamped)
+- $\langle v_i h_j \rangle_{\text{data}}$ = average co-activation of $v_i$ and $h_j$ when the visible units are clamped to training data
+- $\langle v_i h_j \rangle_{\text{model}}$ = average co-activation when the network runs freely (no data clamped)
 
 **Intuition:**
 
@@ -320,19 +308,17 @@ Modern relevance      Attention, Hopfield  K-means, SOM         VAE, GAN, self-s
 
 The perceptron learning rule:
 
-```
-Δwᵢ = η × (y − ŷ) × xᵢ
-```
+$$\Delta w_i = \eta \times (y - \hat{y}) \times x_i$$
 
-requires a **labeled target y**. The error `(y − ŷ)` is the signal. Without a label, there is no error, and the rule produces no update.
+requires a **labeled target $y$**. The error $(y - \hat{y})$ is the signal. Without a label, there is no error, and the rule produces no update.
 
 All three mechanisms in this note operate without labels:
 
-```
-Hebbian:      Δwᵢⱼ = η × xᵢ × yⱼ              (co-activation, no error term)
-Competitive:  Δwⱼ* = η × (x − wⱼ*)             (distance to input, no error term)
-Boltzmann:    Δwᵢⱼ = η × (⟨vᵢhⱼ⟩_data − ⟨vᵢhⱼ⟩_model)  (statistics, no error term)
-```
+$$\text{Hebbian:} \quad \Delta w_{ij} = \eta \times x_i \times y_j$$
+
+$$\text{Competitive:} \quad \Delta \mathbf{w}_{j^*} = \eta \times (\mathbf{x} - \mathbf{w}_{j^*})$$
+
+$$\text{Boltzmann:} \quad \Delta w_{ij} = \eta \times \left( \langle v_i h_j \rangle_{\text{data}} - \langle v_i h_j \rangle_{\text{model}} \right)$$
 
 The signal in each case comes from the structure of the data itself, not from an external teacher.
 

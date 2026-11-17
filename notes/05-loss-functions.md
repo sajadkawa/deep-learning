@@ -6,11 +6,9 @@
 
 Before defining what a loss function is, we need to be precise about what a neural network actually is — not architecturally, but mathematically.
 
-A neural network is a **parametric function**. It takes an input vector x and produces an output ŷ. The mapping from x to ŷ is controlled entirely by a set of learned numerical values — the weights and biases — collectively written as θ:
+A neural network is a **parametric function**. It takes an input vector $x$ and produces an output $\hat{y}$. The mapping from $x$ to $\hat{y}$ is controlled entirely by a set of learned numerical values — the weights and biases — collectively written as $\theta$:
 
-```
-ŷ = F(x ; θ)
-```
+$$\hat{y} = F(x\,;\,\theta)$$
 
 This single expression is the most important abstraction in the course. Everything from here onwards — loss functions, gradient descent, backpropagation, regularisation, optimisation — is about one thing: finding the right θ.
 
@@ -26,11 +24,11 @@ It is the raw feature vector fed into the network
 The network does not change x — it transforms it
 ```
 
-**θ — the parameters**
+**$\theta$ — the parameters**
+
+$$\theta = \{ W^{(1)}, b^{(1)}, W^{(2)}, b^{(2)}, \ldots, W^{(L)}, b^{(L)} \}$$
 
 ```
-θ = { W⁽¹⁾, b⁽¹⁾, W⁽²⁾, b⁽²⁾, ..., W⁽ᴸ⁾, b⁽ᴸ⁾ }
-
 θ is everything the network learns
 Before training: θ is random
 After training:  θ encodes everything the network has learned about the task
@@ -51,23 +49,17 @@ It determines what functions F(x ; θ) is capable of representing
 No amount of training can compensate for a wrong architecture
 ```
 
-The semicolon in F(x ; θ) is deliberate notation from the literature. It separates the variable the function acts on (x) from the parameters that define the function (θ). During inference, x varies and θ is fixed. During training, x is fixed (the dataset) and θ is what changes.
+The semicolon in $F(x\,;\,\theta)$ is deliberate notation from the literature. It separates the variable the function acts on ($x$) from the parameters that define the function ($\theta$). During inference, $x$ varies and $\theta$ is fixed. During training, $x$ is fixed (the dataset) and $\theta$ is what changes.
 
 ### What the Network is Trying to Approximate
 
-Why do we want F(x ; θ) ≈ y? Because y was not generated arbitrarily — it came from some process.
+Why do we want $F(x\,;\,\theta) \approx y$? Because $y$ was not generated arbitrarily — it came from some process.
 
-There exists a true underlying function f* that maps inputs to outputs. You do not have access to f* directly. What you have is a finite set of input-output pairs sampled from it:
+There exists a true underlying function $f^*$ that maps inputs to outputs. You do not have access to $f^*$ directly. What you have is a finite set of input-output pairs sampled from it:
 
-```
-True unknown function:     y = f*(x)
+$$y = f^*(x)$$
 
-What you observe:          (x₁, y₁), (x₂, y₂), ..., (xₙ, yₙ)
-                           — a finite sample from f*
-
-What you build:            ŷ = F(x ; θ)
-                           — a parametric approximation of f*
-```
+$$\hat{y} = F(x\,;\,\theta) \approx f^*(x)$$
 
 ### Why f* is Unknown
 
@@ -125,34 +117,25 @@ This framing makes three things precise that are otherwise left vague:
 ```
 1. f* exists but is never directly accessible
    — you can only observe samples from it
-   — the true function could be anything: a physical law, a biological process,
-     a human decision, a statistical regularity in language
 
 2. The training data is a finite, noisy sample from f*
-   — it does not cover all of f*
-   — it may contain measurement noise: y = f*(x) + ε
-   — this is why generalisation is hard and not guaranteed
+   — it may contain measurement noise
 
 3. F(x ; θ) approximates f*, it does not recover it exactly
-   — the architecture constrains what F can represent
-   — the training data constrains which θ is found
-   — the optimisation algorithm constrains how well θ* is reached
+   — the architecture, data, and optimisation all constrain what is found
 ```
 
-> A neural network does not learn a rule. It approximates an unknown function f* from a finite sample of its input-output behaviour. Everything that can go wrong in deep learning — overfitting, underfitting, poor generalisation — is a consequence of the gap between the finite sample and the true f*.
+> A neural network does not learn a rule. It approximates an unknown function $f^*$ from a finite sample of its input-output behaviour. Everything that can go wrong in deep learning — overfitting, underfitting, poor generalisation — is a consequence of the gap between the finite sample and the true $f^*$.
 
-This also clarifies what generalisation means precisely: training minimises L on the observed samples, but the actual goal is F(x ; θ) ≈ f*(x) for all x — including inputs never seen during training. The gap between those two objectives is the subject of **Note 07**.
+This also clarifies what generalisation means precisely: training minimises $L$ on the observed samples, but the actual goal is $F(x\,;\,\theta) \approx f^*(x)$ for all $x$ — including inputs never seen during training. The gap between those two objectives is the subject of **Note 07**.
 
 ### What Training Formally Is
 
 Given a dataset of input-output pairs (x, y), training is the process of finding the parameter values θ that make F(x ; θ) as close to y as possible across all examples.
 
-This is an optimisation problem. We need a scalar measure of how wrong the current θ is — that is the loss function L(y, ŷ). Training is then:
+This is an optimisation problem. We need a scalar measure of how wrong the current $\theta$ is — that is the loss function $L(y, \hat{y})$. Training is then:
 
-```
-θ* = argmin L( y,  F(x ; θ) )
-          θ
-```
+$$\theta^* = \arg\min_{\theta}\, L\bigl(y,\, F(x\,;\,\theta)\bigr)$$
 
 Read: find the θ that minimises the loss between the true labels y and the network's predictions F(x ; θ).
 
@@ -195,9 +178,9 @@ The loss function is the signal that drives all learning. Without it, gradient d
 
 ### Three Requirements for a Loss Function
 
-- **L = 0 when ŷ = y exactly** — perfect prediction costs nothing
-- **L increases as ŷ diverges from y** — worse predictions cost more
-- **L is differentiable with respect to ŷ** — gradient descent requires ∂L/∂ŷ
+- $L = 0$ when $\hat{y} = y$ exactly — perfect prediction costs nothing
+- $L$ increases as $\hat{y}$ diverges from $y$ — worse predictions cost more
+- $L$ is differentiable with respect to $\hat{y}$ — gradient descent requires $\partial L / \partial \hat{y}$
 
 Different tasks require different loss functions. The choice is not arbitrary — it determines the shape of the gradient signal and therefore what the network learns to optimise.
 
@@ -220,21 +203,17 @@ Examples:
 
 For a single sample:
 
-```
-L = (y − ŷ)²
-```
+$$L = (y - \hat{y})^2$$
 
-For a dataset of n samples:
+For a dataset of $n$ samples:
 
-```
-L = (1/n) Σᵢ (yᵢ − ŷᵢ)²
-```
+$$L = \frac{1}{n} \sum_{i} (y_i - \hat{y}_i)^2$$
 
 The squared difference between the true value and the predicted value, averaged over all samples.
 
 ### Geometric Intuition
 
-MSE measures the squared distance between the prediction and the truth on a number line. The left panel below shows this geometrically — a small error of 1 costs 1, but a large error of 3 costs 9, not 3. The middle panel shows the full parabola: the loss surface is bowl-shaped with the minimum at zero error. The right panel shows the gradient ∂L/∂ŷ = 2(ŷ − y) as a straight line — large when the prediction is far from the truth, zero when it is exactly right.
+MSE measures the squared distance between the prediction and the truth on a number line. The left panel below shows this geometrically — a small error of 1 costs 1, but a large error of 3 costs 9, not 3. The middle panel shows the full parabola: the loss surface is bowl-shaped with the minimum at zero error. The right panel shows the gradient $\partial L / \partial \hat{y} = 2(\hat{y} - y)$ as a straight line — large when the prediction is far from the truth, zero when it is exactly right.
 
 ![MSE — geometric intuition, parabola, and gradient](images/mse_loss.png)
 
@@ -256,11 +235,9 @@ Both models have the same total absolute error (8). But MSE penalises Model B fa
 
 ### Gradient of MSE
 
-Differentiating L = (y − ŷ)² with respect to ŷ:
+Differentiating $L = (y - \hat{y})^2$ with respect to $\hat{y}$:
 
-```
-∂L/∂ŷ = −2(y − ŷ) = 2(ŷ − y)
-```
+$$\frac{\partial L}{\partial \hat{y}} = -2(y - \hat{y}) = 2(\hat{y} - y)$$
 
 The gradient is **linear in the error** — when the prediction is far from the truth the gradient is large, and when the prediction is close the gradient is small. This means the network automatically takes larger steps when it is more wrong and smaller steps as it converges. This is well-behaved for regression with a linear output layer.
 
@@ -291,51 +268,35 @@ BCE is not an arbitrary formula — it is derived from the principle of maximum 
 
 **Step 1 — Model the output as a probability.**
 
-The network outputs ŷ ∈ (0, 1) via sigmoid. We interpret this as the probability that the input belongs to class 1:
+The network outputs $\hat{y} \in (0,1)$ via sigmoid. We interpret this as the probability that the input belongs to class 1:
 
-```
-P(y = 1 | x) = ŷ
-P(y = 0 | x) = 1 − ŷ
-```
+$$P(y=1 \mid x) = \hat{y} \qquad P(y=0 \mid x) = 1 - \hat{y}$$
 
 **Step 2 — Write both cases as one expression.**
 
-Writing two separate cases is inconvenient. Notice that both can be captured in a single formula using the label y as an exponent:
+Both cases can be captured in a single formula using the label $y$ as an exponent:
 
-```
-P(y | x) = ŷʸ · (1 − ŷ)^(1−y)
-```
+$$P(y \mid x) = \hat{y}^{\,y} \cdot (1 - \hat{y})^{1-y}$$
 
-Verify this works for both cases:
+Verify:
 
-```
-y = 1:   ŷ¹ · (1−ŷ)⁰ = ŷ · 1 = ŷ          ✓
-y = 0:   ŷ⁰ · (1−ŷ)¹ = 1 · (1−ŷ) = 1 − ŷ  ✓
-```
+$$y=1:\quad \hat{y}^1 \cdot (1-\hat{y})^0 = \hat{y} \checkmark \qquad y=0:\quad \hat{y}^0 \cdot (1-\hat{y})^1 = 1-\hat{y} \checkmark$$
 
 **Step 3 — Write the likelihood over the full dataset.**
 
-Maximum likelihood says: find the weights that make the observed training labels as probable as possible. Assuming the n training samples are independent, the probability of observing all of them together is the product of their individual probabilities:
+Assuming the $n$ training samples are independent:
 
-```
-likelihood = Π P(yᵢ | xᵢ) = Π ŷᵢʸⁱ · (1 − ŷᵢ)^(1−yᵢ)
-```
+$$\text{likelihood} = \prod_i P(y_i \mid x_i) = \prod_i \hat{y}_i^{\,y_i} \cdot (1-\hat{y}_i)^{1-y_i}$$
 
 **Step 4 — Take the log.**
 
-Products of many small numbers are numerically unstable — they underflow to zero in floating point. More importantly, products are hard to differentiate. The logarithm converts the product into a sum, which is both numerically stable and easy to differentiate. Since log is a monotonically increasing function, maximising the log-likelihood is exactly equivalent to maximising the likelihood:
+The logarithm converts the product into a sum:
 
-```
-log-likelihood = Σ [ yᵢ log(ŷᵢ) + (1 − yᵢ) log(1 − ŷᵢ) ]
-```
+$$\log\text{-likelihood} = \sum_i \left[ y_i \log(\hat{y}_i) + (1-y_i)\log(1-\hat{y}_i) \right]$$
 
 **Step 5 — Negate to get a loss.**
 
-We want to *minimise* a loss, not maximise a likelihood. Negating flips the direction:
-
-```
-BCE = −(1/n) Σ [ yᵢ log(ŷᵢ) + (1 − yᵢ) log(1 − ŷᵢ) ]
-```
+$$\text{BCE} = -\frac{1}{n} \sum_i \left[ y_i \log(\hat{y}_i) + (1-y_i)\log(1-\hat{y}_i) \right]$$
 
 The 1/n averages over the dataset so the loss scale does not grow with dataset size.
 
@@ -347,7 +308,7 @@ The following plot shows how BCE behaves for y = 1 (left) and y = 0 (right):
 
 ![Binary cross-entropy loss curves](images/bce_loss.png)
 
-The log is what gives BCE its key property: as ŷ → 0 when y = 1, −log(ŷ) → ∞. A confidently wrong prediction is not just penalised — it is penalised without bound. MSE caps the penalty at 1 for a binary output; BCE has no ceiling.
+The log is what gives BCE its key property: as $\hat{y} \to 0$ when $y = 1$, $-\log(\hat{y}) \to \infty$. A confidently wrong prediction is not just penalised — it is penalised without bound.
 
 For a single sample:
 
@@ -364,38 +325,21 @@ The loss grows without bound as the prediction becomes confidently wrong. A netw
 
 ### Gradient of BCE with Sigmoid
 
-The raw gradient of BCE with respect to ŷ is:
+The raw gradient of BCE with respect to $\hat{y}$:
 
-```
-∂L/∂ŷ = −y/ŷ + (1−y)/(1−ŷ)
-```
+$$\frac{\partial L}{\partial \hat{y}} = -\frac{y}{\hat{y}} + \frac{1-y}{1-\hat{y}}$$
 
-When BCE is paired with sigmoid, ŷ = σ(z), and we need ∂L/∂z via the chain rule:
+When BCE is paired with sigmoid, $\hat{y} = \sigma(z)$, and we need $\partial L / \partial z$ via the chain rule:
 
-```
-∂L/∂z = ∂L/∂ŷ · dσ/dz
-       = [ −y/ŷ + (1−y)/(1−ŷ) ] · σ(z)(1 − σ(z))
-```
+$$\frac{\partial L}{\partial z} = \frac{\partial L}{\partial \hat{y}} \cdot \frac{d\sigma}{dz} = \left(-\frac{y}{\hat{y}} + \frac{1-y}{1-\hat{y}}\right) \cdot \sigma(z)(1-\sigma(z))$$
 
-Substituting ŷ = σ(z):
+Substituting $\hat{y} = \sigma(z)$ and expanding:
 
-```
-= [ −y/σ(z) + (1−y)/(1−σ(z)) ] · σ(z)(1 − σ(z))
-
-= −y · (1 − σ(z)) + (1−y) · σ(z)
-
-= −y + y·σ(z) + σ(z) − y·σ(z)
-
-= σ(z) − y
-
-= ŷ − y
-```
+$$= -y(1-\sigma(z)) + (1-y)\sigma(z) = -y + y\sigma(z) + \sigma(z) - y\sigma(z) = \sigma(z) - y$$
 
 So:
 
-```
-∂L/∂z = ŷ − y
-```
+$$\frac{\partial L}{\partial z} = \hat{y} - y$$
 
 The gradient is simply the prediction error. The sigmoid derivative cancels out completely — BCE is specifically designed to pair with sigmoid so that saturation does not suppress the gradient.
 
@@ -414,27 +358,17 @@ Examples:
   Language model next-word prediction (vocabulary size classes)
 ```
 
-The network's output layer uses softmax, producing a probability distribution ŷ = [ŷ₁, ŷ₂, ..., ŷ_K] where Σ ŷₖ = 1.
+The network's output layer uses softmax, producing a probability distribution $\hat{y} = [\hat{y}_1, \hat{y}_2, \ldots, \hat{y}_K]$ where $\sum_k \hat{y}_k = 1$.
 
 ### Formula
 
-The true label y is represented as a **one-hot vector** — a vector of zeros with a single 1 at the correct class position:
+The true label $y$ is represented as a **one-hot vector**:
 
-```
-Class 2 out of 4:   y = [0, 1, 0, 0]
-```
+$$L = -\sum_k y_k \log(\hat{y}_k)$$
 
-The loss for a single sample:
+Because $y$ is one-hot, only the term for the correct class $c$ is non-zero:
 
-```
-L = −Σₖ yₖ log(ŷₖ)
-```
-
-Because y is one-hot, only one term in the sum is non-zero — the term for the correct class c:
-
-```
-L = −log(ŷ_c)
-```
+$$L = -\log(\hat{y}_c)$$
 
 The loss is simply the negative log of the probability assigned to the correct class.
 
@@ -460,18 +394,11 @@ The loss only cares about the probability assigned to the correct class. All oth
 
 ### Gradient of CCE with Softmax
 
-The gradient of CCE with respect to the pre-softmax score zₖ is derived using the chain rule through the softmax. For the correct class c and any class k:
+The gradient of CCE with respect to the pre-softmax score $z_k$:
 
-```
-∂L/∂zₖ = ŷₖ − yₖ
-```
+$$\frac{\partial L}{\partial z_k} = \hat{y}_k - y_k$$
 
-Expanding:
-
-```
-For the correct class (k = c):    ∂L/∂z_c = ŷ_c − 1   (push probability up toward 1)
-For all other classes (k ≠ c):    ∂L/∂zₖ  = ŷₖ − 0    (push probability down toward 0)
-```
+Expanding: for the correct class $k = c$, $\partial L / \partial z_c = \hat{y}_c - 1$ (push probability up toward 1); for all other classes $k \neq c$, $\partial L / \partial z_k = \hat{y}_k$ (push probability down toward 0).
 
 This is the same clean form as BCE + sigmoid. Softmax and cross-entropy are natural conjugates — the softmax Jacobian and the cross-entropy gradient cancel in exactly the same way that sigmoid and BCE cancel, leaving prediction error as the gradient.
 
@@ -566,14 +493,14 @@ The choice of loss function directly determines:
 
 Key takeaways:
 
-- A neural network is a parametric function ŷ = F(x ; θ) — x is the input, θ are the learned weights and biases, and the architecture is the designer's fixed choice of structure
-- The network approximates an unknown true function f* from a finite sample of its input-output behaviour — this is the function approximation framing of Goodfellow et al. (2016)
-- Training is the optimisation problem θ* = argmin L(y, F(x ; θ)) — finding the parameters that minimise the loss over the training data
-- x, θ, and the architecture are three distinct things — conflating them is the source of most conceptual errors in deep learning
+- A neural network is a parametric function $\hat{y} = F(x\,;\,\theta)$ — $x$ is the input, $\theta$ are the learned weights and biases, and the architecture is the designer's fixed choice of structure
+- The network approximates an unknown true function $f^*$ from a finite sample of its input-output behaviour — this is the function approximation framing of Goodfellow et al. (2016)
+- Training is the optimisation problem $\theta^* = \arg\min_\theta L(y, F(x\,;\,\theta))$ — finding the parameters that minimise the loss over the training data
+- $x$, $\theta$, and the architecture are three distinct things — conflating them is the source of most conceptual errors in deep learning
 - The loss function is the mathematical measure of prediction error — it is the signal that drives all learning; without it backpropagation has no starting point
 - MSE measures average squared error — appropriate for regression, penalises large errors disproportionately, well-behaved gradient for linear outputs
-- Binary cross-entropy is derived from maximum likelihood for Bernoulli outputs — the principled loss for binary classification with sigmoid; gradient simplifies to ŷ − y
-- Categorical cross-entropy extends BCE to K classes — always paired with softmax, reduces to −log(probability of correct class); gradient also simplifies to ŷₖ − yₖ
+- Binary cross-entropy is derived from maximum likelihood for Bernoulli outputs — the principled loss for binary classification with sigmoid; gradient simplifies to $\hat{y} - y$
+- Categorical cross-entropy extends BCE to $K$ classes — always paired with softmax, reduces to $-\log(\hat{y}_c)$; gradient also simplifies to $\hat{y}_k - y_k$
 - Cross-entropy outperforms MSE for classification because it cancels sigmoid/softmax saturation algebraically — the gradient is always proportional to the prediction error, not suppressed by the activation derivative
 - The loss function defines the shape of the parameter space landscape that gradient descent navigates — it is a fundamental design choice, not a detail
 - Practical defaults: MSE for regression, BCE for binary classification, CCE for multiclass classification

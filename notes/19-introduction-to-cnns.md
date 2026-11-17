@@ -8,7 +8,7 @@ Every network covered so far in this course is **fully connected** — every neu
 
 ### The Parameter Explosion
 
-A modest image — 224×224 pixels in colour — has 224 × 224 × 3 = 150,528 input values. A single fully connected hidden layer with 512 neurons would require:
+A modest image — $224 \times 224$ pixels in colour — has $224 \times 224 \times 3 = 150{,}528$ input values. A single fully connected hidden layer with 512 neurons would require:
 
 ```
 150,528 × 512 = 77,070,336 weights
@@ -48,7 +48,7 @@ The solution is to build the spatial structure into the architecture itself. Thi
 
 The first key idea in CNNs is **local connectivity**. Instead of connecting each neuron to every pixel in the image, each neuron connects only to a small local region — its **receptive field**.
 
-A neuron with a 3×3 receptive field connects to 9 pixels instead of all 150,528. It learns to detect a local pattern — an edge, a corner, a colour gradient — within that small region.
+A neuron with a $3 \times 3$ receptive field connects to 9 pixels instead of all 150,528. It learns to detect a local pattern — an edge, a corner, a colour gradient — within that small region.
 
 ```
 FC neuron:    connects to all N pixels   →   N weights per neuron
@@ -71,11 +71,11 @@ Local connectivity is justified by the structure of natural images. Meaningful p
 
 ## Part 3: Parameter Sharing and Filters
 
-Local connectivity reduces the number of weights per neuron from N to k². But a 224×224 image has roughly (224−k+1)² ≈ 50,000 positions where a 3×3 receptive field can be placed. If each position has its own 9 weights, the total is still 450,000 weights — just for detecting one type of pattern.
+Local connectivity reduces the number of weights per neuron from $N$ to $k^2$. But a $224 \times 224$ image has roughly $(224-k+1)^2 \approx 50{,}000$ positions where a $3 \times 3$ receptive field can be placed. If each position has its own 9 weights, the total is still 450,000 weights — just for detecting one type of pattern.
 
 The second key idea is **parameter sharing**: use the same weights at every position.
 
-A single set of k×k weights — called a **filter** or **kernel** — is applied at every position in the image. The filter slides across the image, computing a dot product at each position. The result is a 2D array of responses called a **feature map**.
+A single set of $k \times k$ weights — called a **filter** or **kernel** — is applied at every position in the image. The filter slides across the image, computing a dot product at each position. The result is a 2D array of responses called a **feature map**.
 
 ```
 Filter:       a k×k matrix of learnable weights
@@ -100,7 +100,7 @@ The diagram below shows a 3×3 filter applied to a 5×5 input at one specific po
 
 ### Parameter Sharing Reduces the Weight Count Dramatically
 
-With parameter sharing, the number of weights for one filter is just k² — regardless of the image size. For a 3×3 filter applied to a 224×224 image:
+With parameter sharing, the number of weights for one filter is just $k^2$ — regardless of the image size. For a $3 \times 3$ filter applied to a $224 \times 224$ image:
 
 ```
 Without parameter sharing:   9 weights × 50,000 positions = 450,000 weights
@@ -225,9 +225,9 @@ Transfer learning (**Note 21**) is particularly valuable here: a CNN pre-trained
 
 Key takeaways:
 
-- Fully connected networks fail on images for two reasons: parameter explosion (a single layer on a 224×224 image requires tens of millions of weights) and loss of spatial structure (flattening destroys the neighbourhood relationships between pixels)
-- Local receptive fields fix the spatial structure problem: each neuron connects to a small k×k patch, encoding the assumption that meaningful visual patterns are local
-- Parameter sharing fixes the parameter explosion: the same filter (k×k weights) is applied at every position in the image, reducing the weight count from N×k² to k² per filter
+- Fully connected networks fail on images for two reasons: parameter explosion (a single layer on a $224 \times 224$ image requires tens of millions of weights) and loss of spatial structure (flattening destroys the neighbourhood relationships between pixels)
+- Local receptive fields fix the spatial structure problem: each neuron connects to a small $k \times k$ patch, encoding the assumption that meaningful visual patterns are local
+- Parameter sharing fixes the parameter explosion: the same filter ($k \times k$ weights) is applied at every position in the image, reducing the weight count from $N \times k^2$ to $k^2$ per filter
 - The convolution operation slides a filter over the input, computing an element-wise multiply-and-sum at each position to produce a feature map
 - Translation invariance follows from parameter sharing: the same filter detects the same feature regardless of where it appears in the image
 - Stacking convolutional layers produces a hierarchy of features: edges in early layers, shapes and textures in middle layers, object parts and whole objects in later layers — this hierarchy is not designed but discovered during training

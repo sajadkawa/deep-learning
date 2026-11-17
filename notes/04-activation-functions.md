@@ -8,13 +8,9 @@ A neural network without non-linear activation functions is not a deep model —
 
 Stacking linear layers collapses to one layer regardless of depth:
 
-```
-Layer 1:   z₁ = W₁x + b₁
-Layer 2:   z₂ = W₂z₁ + b₂
-                = W₂(W₁x + b₁) + b₂
-                = (W₂W₁)x + (W₂b₁ + b₂)
-                = Wx + b          ← single linear transformation
-```
+$$z_1 = W_1 x + b_1$$
+
+$$z_2 = W_2 z_1 + b_2 = W_2(W_1 x + b_1) + b_2 = (W_2 W_1)x + (W_2 b_1 + b_2) = Wx + b$$
 
 No matter how many layers you stack, the result is always `Wx + b`. The network can only ever draw a single hyperplane as its decision boundary. Depth is meaningless. This is the linearity collapse problem established in **Note 02** and carried forward through **Note 03**.
 
@@ -28,7 +24,7 @@ With activation:      x → [L1] → f → [L2] → f → [L3] → ŷ   ← genu
 Three properties are required of any activation function used in training:
 
 - **Non-linearity** — breaks the collapse, enables complex decision boundaries
-- **Differentiability** — gradient descent requires ∂f/∂z to exist and be informative
+- **Differentiability** — gradient descent requires $\partial f / \partial z$ to exist and be informative
 - **Computational efficiency** — applied millions of times per training step, must be fast
 
 ### Why Differentiability is Non-Negotiable
@@ -46,13 +42,7 @@ f'(z) = 0  everywhere (undefined at z = 0)
 
 This was fine for a single perceptron because the perceptron learning rule does not use gradients — it only uses the output error directly. But the moment hidden layers exist and backpropagation must carry a gradient signal backwards, the step function breaks everything:
 
-```
-Chain rule for a hidden weight w⁽¹⁾:
-
-  ∂L/∂w⁽¹⁾ = dL/dŷ · f'(z⁽²⁾) · w⁽²⁾ · f'(z⁽¹⁾) · x
-            = dL/dŷ · f'(z⁽²⁾) · w⁽²⁾ · 0 · x
-            = 0
-```
+$$\frac{\partial L}{\partial w^{(1)}} = \frac{dL}{d\hat{y}} \cdot f'(z^{(2)}) \cdot w^{(2)} \cdot f'(z^{(1)}) \cdot x = \frac{dL}{d\hat{y}} \cdot f'(z^{(2)}) \cdot w^{(2)} \cdot 0 \cdot x = 0$$
 
 The zero from f'(z⁽¹⁾) kills the entire product. No gradient reaches the hidden weight — not because the network is wrong, but because the activation function has no slope to carry the signal back through. Every hidden weight receives a zero update, every epoch, forever.
 
@@ -66,9 +56,7 @@ A fourth desirable property — not always achievable — is that gradients rema
 
 ### Formula
 
-```
-σ(z) = 1 / (1 + e⁻ᶻ)
-```
+$$\sigma(z) = \frac{1}{1 + e^{-z}}$$
 
 ### Shape and Derivative
 
@@ -80,27 +68,17 @@ The following plot shows the sigmoid function (left) and its derivative (right):
 
 ### Deriving the Derivative
 
-Starting from σ(z) = (1 + e⁻ᶻ)⁻¹, apply the chain rule:
+Starting from $\sigma(z) = (1 + e^{-z})^{-1}$, apply the chain rule:
 
-```
-dσ/dz = −1 · (1 + e⁻ᶻ)⁻² · (−e⁻ᶻ)
-       = e⁻ᶻ / (1 + e⁻ᶻ)²
-```
+$$\frac{d\sigma}{dz} = -1 \cdot (1 + e^{-z})^{-2} \cdot (-e^{-z}) = \frac{e^{-z}}{(1 + e^{-z})^2}$$
 
 Now rewrite the numerator by adding and subtracting 1:
 
-```
-e⁻ᶻ / (1 + e⁻ᶻ)²  =  (1 + e⁻ᶻ − 1) / (1 + e⁻ᶻ)²
-                    =  1/(1 + e⁻ᶻ)  −  1/(1 + e⁻ᶻ)²
-                    =  σ(z)  −  σ(z)²
-                    =  σ(z) · (1 − σ(z))
-```
+$$\frac{e^{-z}}{(1+e^{-z})^2} = \frac{1+e^{-z}-1}{(1+e^{-z})^2} = \frac{1}{1+e^{-z}} - \frac{1}{(1+e^{-z})^2} = \sigma(z) - \sigma(z)^2 = \sigma(z)(1-\sigma(z))$$
 
 So:
 
-```
-dσ/dz = σ(z) · (1 − σ(z))
-```
+$$\frac{d\sigma}{dz} = \sigma(z)(1 - \sigma(z))$$
 
 This is elegant — the derivative is expressed entirely in terms of the output itself, which is already computed during the forward pass. No extra computation is needed.
 
@@ -123,17 +101,13 @@ dσ/dz  = 0.8808 × (1 − 0.8808)
 
 ### The Vanishing Gradient Problem
 
-Backpropagation computes gradients by multiplying derivatives layer by layer via the chain rule. Each hidden layer contributes a factor of `dσ/dz` to the gradient flowing back through it:
+Backpropagation computes gradients by multiplying derivatives layer by layer via the chain rule. Each hidden layer contributes a factor of $d\sigma/dz$ to the gradient flowing back through it:
 
-```
-Gradient at layer l = dσ/dz at layer l  ×  gradient from layer l+1
-```
+$$\text{Gradient at layer } l = \frac{d\sigma}{dz}\bigg|_{\text{layer } l} \times \text{gradient from layer } l+1$$
 
-The maximum value of `dσ/dz` is 0.25. In a network with L hidden layers:
+The maximum value of $d\sigma/dz$ is 0.25. In a network with $L$ hidden layers:
 
-```
-Gradient reaching layer 1  ≈  0.25ᴸ × gradient at output
-```
+$$\text{Gradient reaching layer 1} \approx 0.25^L \times \text{gradient at output}$$
 
 For L = 4 layers:   0.25⁴ = 0.0039
 For L = 8 layers:   0.25⁸ ≈ 0.0000153
@@ -158,9 +132,7 @@ Sigmoid outputs are always positive (range 0 to 1). This means the gradient with
 
 ### Formula
 
-```
-tanh(z) = (eᶻ − e⁻ᶻ) / (eᶻ + e⁻ᶻ)
-```
+$$\tanh(z) = \frac{e^z - e^{-z}}{e^z + e^{-z}}$$
 
 Tanh maps any real number to the range (−1, 1). At z = 0, tanh(0) = 0. The function is antisymmetric: tanh(−z) = −tanh(z).
 
@@ -168,49 +140,29 @@ Tanh maps any real number to the range (−1, 1). At z = 0, tanh(0) = 0. The fun
 
 Tanh is a rescaled and shifted sigmoid. Starting from the sigmoid formula:
 
-```
-σ(z) = 1 / (1 + e⁻ᶻ)
+$$2\sigma(2z) - 1 = \frac{2}{1+e^{-2z}} - 1 = \frac{2 - (1+e^{-2z})}{1+e^{-2z}} = \frac{1-e^{-2z}}{1+e^{-2z}}$$
 
-2σ(2z) = 2 / (1 + e⁻²ᶻ)
+Multiplying numerator and denominator by $e^z$:
 
-2σ(2z) − 1 = 2 / (1 + e⁻²ᶻ)  −  1
-            = (2 − (1 + e⁻²ᶻ)) / (1 + e⁻²ᶻ)
-            = (1 − e⁻²ᶻ) / (1 + e⁻²ᶻ)
+$$= \frac{e^z - e^{-z}}{e^z + e^{-z}} = \tanh(z)$$
 
-Multiply numerator and denominator by eᶻ:
-
-            = (eᶻ − e⁻ᶻ) / (eᶻ + e⁻ᶻ)
-            = tanh(z)
-```
-
-So `tanh(z) = 2σ(2z) − 1`. Tanh is sigmoid stretched vertically by 2 and shifted down by 1.
+So $\tanh(z) = 2\sigma(2z) - 1$. Tanh is sigmoid stretched vertically by 2 and shifted down by 1.
 
 ### Deriving the Derivative
 
-```
-d(tanh)/dz = d/dz [ (eᶻ − e⁻ᶻ) / (eᶻ + e⁻ᶻ) ]
-```
+Apply the quotient rule with $u = e^z - e^{-z}$ and $v = e^z + e^{-z}$:
 
-Apply the quotient rule with u = eᶻ − e⁻ᶻ and v = eᶻ + e⁻ᶻ:
+$$\frac{d(\tanh)}{dz} = \frac{v \cdot du/dz - u \cdot dv/dz}{v^2}$$
 
-```
-= (v · du/dz − u · dv/dz) / v²
+Since $du/dz = e^z + e^{-z} = v$ and $dv/dz = e^z - e^{-z} = u$:
 
-du/dz = eᶻ + e⁻ᶻ = v
-dv/dz = eᶻ − e⁻ᶻ = u
-
-= (v² − u²) / v²
-= 1 − (u/v)²
-= 1 − tanh²(z)
-```
+$$= \frac{v^2 - u^2}{v^2} = 1 - \left(\frac{u}{v}\right)^2 = 1 - \tanh^2(z)$$
 
 So:
 
-```
-d(tanh)/dz = 1 − tanh²(z)
-```
+$$\frac{d(\tanh)}{dz} = 1 - \tanh^2(z)$$
 
-At z = 0: derivative = 1 − 0² = 1 — four times larger than sigmoid's maximum of 0.25.
+At $z = 0$: derivative $= 1 - 0^2 = 1$ — four times larger than sigmoid's maximum of 0.25.
 
 ### Worked Example
 
@@ -256,19 +208,13 @@ The vanishing gradient problem is reduced compared to sigmoid but not eliminated
 
 ### Formula
 
-```
-f(z) = max(0, z)
-```
+$$f(z) = \max(0, z)$$
 
 If the input is positive, pass it through unchanged. If negative, output zero.
 
 ### Derivative
 
-```
-f'(z) = 1   if z > 0
-f'(z) = 0   if z < 0
-f'(z) = undefined at z = 0  (in practice, set to 0)
-```
+$$f'(z) = \begin{cases} 1 & \text{if } z > 0 \\ 0 & \text{if } z \leq 0 \end{cases}$$
 
 ### Worked Example
 
@@ -300,8 +246,9 @@ For any input where z < 0, ReLU outputs exactly zero. In a typical network, roug
 
 ReLU's weakness is the flip side of its strength. When z < 0, the gradient is exactly zero. If a neuron's weighted sum is consistently negative across all training examples — due to a large negative bias or unfortunate weight initialisation — it will never receive a gradient and will never update:
 
+$$z = \mathbf{w}^\top \mathbf{x} + b < 0 \quad \text{for all } x \text{ in training set}$$
+
 ```
-Neuron state:   z = wᵀx + b < 0   for all x in training set
 Gradient:       0 × upstream_gradient = 0
 Weight update:  w ← w + 0 = w     (no change, ever)
 ```
@@ -323,19 +270,13 @@ The neuron is permanently dead. It contributes nothing to the network and cannot
 
 ### Formula
 
-```
-f(z) = z     if z > 0
-f(z) = αz    if z ≤ 0
-```
+$$f(z) = \begin{cases} z & \text{if } z > 0 \\ \alpha z & \text{if } z \leq 0 \end{cases}$$
 
-Where α is a small positive constant, typically 0.01.
+Where $\alpha$ is a small positive constant, typically 0.01.
 
 ### Derivative
 
-```
-f'(z) = 1    if z > 0
-f'(z) = α    if z ≤ 0
-```
+$$f'(z) = \begin{cases} 1 & \text{if } z > 0 \\ \alpha & \text{if } z \leq 0 \end{cases}$$
 
 ### Worked Example
 
@@ -351,10 +292,8 @@ z = −2.1:  f(z) = 0.01 × −2.1 = −0.021,   f'(z) = 0.01
 
 By allowing a small non-zero gradient (α) for negative inputs, Leaky ReLU ensures that neurons in the negative region still receive a gradient signal — small, but non-zero. A dead neuron can recover:
 
-```
-ReLU:         z < 0  →  gradient = 0     → neuron dies permanently
-Leaky ReLU:   z < 0  →  gradient = α     → neuron can still update
-```
+- ReLU: $z < 0 \Rightarrow$ gradient $= 0$ → neuron dies permanently
+- Leaky ReLU: $z < 0 \Rightarrow$ gradient $= \alpha$ → neuron can still update
 
 ### Parametric ReLU (PReLU)
 
@@ -384,11 +323,9 @@ Softmax achieves all three.
 
 ### Formula
 
-For a vector of raw scores z = [z₁, z₂, ..., z_K]:
+For a vector of raw scores $z = [z_1, z_2, \ldots, z_K]$:
 
-```
-softmax(zₖ) = e^zₖ / Σⱼ e^zⱼ
-```
+$$\text{softmax}(z_k) = \frac{e^{z_k}}{\sum_j e^{z_j}}$$
 
 Each output is the exponentiated score of class k divided by the sum of all exponentiated scores.
 
@@ -430,11 +367,9 @@ This amplification is intentional — it makes the network's confidence more dec
 
 ### Temperature
 
-The softmax can be generalised with a temperature parameter T:
+The softmax can be generalised with a temperature parameter $T$:
 
-```
-softmax(zₖ, T) = e^(zₖ/T) / Σⱼ e^(zⱼ/T)
-```
+$$\text{softmax}(z_k, T) = \frac{e^{z_k/T}}{\sum_j e^{z_j/T}}$$
 
 ```
 T → 0:   output approaches a one-hot vector (winner takes all)
@@ -502,9 +437,9 @@ This combination avoids vanishing gradients in hidden layers while producing int
 Key takeaways:
 
 - Without non-linear activation, any depth of network collapses to a single linear transformation — depth is meaningless
-- Sigmoid maps to (0, 1) with derivative σ(z)(1 − σ(z)) — maximum 0.25 — causing vanishing gradients in deep hidden layers; also not zero-centred
-- Tanh maps to (−1, 1) with derivative 1 − tanh²(z) — zero-centred, which improves gradient flow, but still saturates at large |z|
-- ReLU (max(0, z)) passes gradient through unchanged for z > 0 — solved the vanishing gradient problem and enabled deep networks; dying ReLU occurs when neurons are permanently stuck in the negative region
-- Leaky ReLU fixes dying ReLU by allowing a small slope α for z ≤ 0 — gradient is never exactly zero
+- Sigmoid maps to $(0, 1)$ with derivative $\sigma(z)(1 - \sigma(z))$ — maximum 0.25 — causing vanishing gradients in deep hidden layers; also not zero-centred
+- Tanh maps to $(-1, 1)$ with derivative $1 - \tanh^2(z)$ — zero-centred, which improves gradient flow, but still saturates at large $|z|$
+- ReLU ($\max(0, z)$) passes gradient through unchanged for $z > 0$ — solved the vanishing gradient problem and enabled deep networks; dying ReLU occurs when neurons are permanently stuck in the negative region
+- Leaky ReLU fixes dying ReLU by allowing a small slope $\alpha$ for $z \leq 0$ — gradient is never exactly zero
 - Softmax converts a vector of raw scores into a probability distribution summing to 1 — used exclusively at the output layer for multiclass classification, always paired with categorical cross-entropy (→ **Note 05**)
 - Practical default: ReLU in hidden layers, Sigmoid or Softmax at the output

@@ -4,11 +4,9 @@
 
 ## Part 1: Why Accuracy Is Not Enough
 
-The most natural way to measure a classifier is accuracy — the fraction of predictions that are correct:
+Accuracy is the fraction of predictions that are correct:
 
-```
-Accuracy = (number of correct predictions) / (total predictions)
-```
+$$\text{Accuracy} = \frac{\text{number of correct predictions}}{\text{total predictions}}$$
 
 For balanced datasets, accuracy is a reasonable starting point. For imbalanced datasets, it is actively misleading.
 
@@ -85,9 +83,7 @@ Actual −                8             52
 
 Accuracy from the confusion matrix:
 
-```
-Accuracy = (TP + TN) / total = (28 + 52) / 100 = 80%
-```
+$$\text{Accuracy} = \frac{TP + TN}{\text{total}} = \frac{28 + 52}{100} = 0.80$$
 
 All metrics in Parts 3, 4, and 5 are derived from these same four numbers.
 
@@ -105,17 +101,13 @@ Precision and recall each answer a different question about the classifier's beh
 
 **Precision** asks: of all the samples the classifier predicted as positive, what fraction actually are positive?
 
-```
-Precision = TP / (TP + FP)
-```
+$$\text{Precision} = \frac{TP}{TP + FP}$$
 
 Precision measures the **quality of positive predictions** — how trustworthy a positive prediction is. A classifier with high precision rarely raises false alarms.
 
 From the worked example:
 
-```
-Precision = 28 / (28 + 8) = 28 / 36 = 0.778
-```
+$$\text{Precision} = \frac{28}{28 + 8} = \frac{28}{36} = 0.778$$
 
 78% of the samples predicted positive were actually positive. 22% were false alarms.
 
@@ -123,17 +115,13 @@ Precision = 28 / (28 + 8) = 28 / 36 = 0.778
 
 **Recall** asks: of all the samples that actually are positive, what fraction did the classifier find?
 
-```
-Recall = TP / (TP + FN)
-```
+$$\text{Recall} = \frac{TP}{TP + FN}$$
 
 Recall measures the **coverage of actual positives** — how many real cases the classifier catches. A classifier with high recall misses few actual positives.
 
 From the worked example:
 
-```
-Recall = 28 / (28 + 12) = 28 / 40 = 0.700
-```
+$$\text{Recall} = \frac{28}{28 + 12} = \frac{28}{40} = 0.700$$
 
 70% of the actual positives were found. 30% were missed.
 
@@ -186,29 +174,21 @@ Legal document review       Precision   Flagging irrelevant documents (FP) waste
 
 When both precision and recall matter, a single number that combines them is useful. The **F1 score** is the harmonic mean of precision and recall:
 
-```
-F1 = 2 × (Precision × Recall) / (Precision + Recall)
-```
+$$F_1 = \frac{2 \times \text{Precision} \times \text{Recall}}{\text{Precision} + \text{Recall}}$$
 
 From the worked example:
 
-```
-F1 = 2 × (0.778 × 0.700) / (0.778 + 0.700)
-   = 2 × 0.5446 / 1.478
-   = 1.0892 / 1.478
-   = 0.737
-```
+$$F_1 = \frac{2 \times 0.778 \times 0.700}{0.778 + 0.700} = \frac{2 \times 0.5446}{1.478} = \frac{1.0892}{1.478} = 0.737$$
 
 ### Why Harmonic Mean, Not Arithmetic Mean
 
-The arithmetic mean of precision and recall would be (0.778 + 0.700) / 2 = 0.739 — close to F1 here, but the difference matters when precision and recall are very different.
+The arithmetic mean of precision and recall would be $(0.778 + 0.700) / 2 = 0.739$ — close to F1 here, but the difference matters when precision and recall are very different.
 
-Consider a classifier with precision = 1.0 and recall = 0.01 — it makes very few positive predictions, all of them correct, but misses 99% of actual positives.
+Consider a classifier with precision $= 1.0$ and recall $= 0.01$ — it makes very few positive predictions, all of them correct, but misses 99% of actual positives.
 
-```
-Arithmetic mean:  (1.0 + 0.01) / 2 = 0.505   ← suggests reasonable performance
-Harmonic mean:    2 × (1.0 × 0.01) / (1.0 + 0.01) = 0.020   ← correctly penalises the imbalance
-```
+$$\text{Arithmetic mean} = \frac{1.0 + 0.01}{2} = 0.505 \quad \text{(suggests reasonable performance)}$$
+
+$$\text{Harmonic mean} = \frac{2 \times 1.0 \times 0.01}{1.0 + 0.01} = 0.020 \quad \text{(correctly penalises the imbalance)}$$
 
 The harmonic mean is dominated by the smaller value. A classifier that is excellent on one metric but terrible on the other gets a low F1 — which is the correct behaviour. The arithmetic mean would give it a passing score.
 
@@ -216,15 +196,13 @@ The harmonic mean is dominated by the smaller value. A classifier that is excell
 
 ### F1 in Context
 
-F1 is appropriate when both false positives and false negatives matter and neither dominates. When one type of error is much more costly than the other, use precision or recall directly — or the Fβ score, which weights recall β times more than precision:
+F1 is appropriate when both false positives and false negatives matter and neither dominates. When one type of error is much more costly than the other, use precision or recall directly — or the $F_\beta$ score, which weights recall $\beta$ times more than precision:
 
-```
-Fβ = (1 + β²) × (Precision × Recall) / (β² × Precision + Recall)
+$$F_\beta = \frac{(1 + \beta^2) \times \text{Precision} \times \text{Recall}}{\beta^2 \times \text{Precision} + \text{Recall}}$$
 
-β > 1:   weights recall more heavily   (missing positives is more costly)
-β < 1:   weights precision more heavily (false alarms are more costly)
-β = 1:   F1 — equal weight
-```
+- $\beta > 1$: weights recall more heavily (missing positives is more costly)
+- $\beta < 1$: weights precision more heavily (false alarms are more costly)
+- $\beta = 1$: $F_1$ — equal weight
 
 ---
 
@@ -236,13 +214,9 @@ Precision, recall, and F1 are all computed at a single threshold. The **ROC curv
 
 A binary classifier outputs a score for each sample. By varying the threshold from 0 to 1, we get different confusion matrices — and different values of two rates:
 
-```
-True Positive Rate (TPR) = Recall = TP / (TP + FN)
-    — fraction of actual positives correctly identified
+$$\text{TPR} = \text{Recall} = \frac{TP}{TP + FN} \quad \text{(fraction of actual positives correctly identified)}$$
 
-False Positive Rate (FPR) = FP / (FP + TN)
-    — fraction of actual negatives incorrectly flagged
-```
+$$\text{FPR} = \frac{FP}{FP + TN} \quad \text{(fraction of actual negatives incorrectly flagged)}$$
 
 The ROC curve plots TPR (y-axis) against FPR (x-axis) as the threshold varies from 1 down to 0.
 
@@ -381,10 +355,10 @@ Key takeaways:
 
 - Accuracy is misleading on imbalanced datasets — a classifier that always predicts the majority class achieves high accuracy while being completely useless for the minority class
 - The confusion matrix organises predictions into TP, TN, FP, FN — all evaluation metrics are derived from these four numbers
-- Precision = TP / (TP + FP) — measures the quality of positive predictions; high precision means few false alarms
-- Recall = TP / (TP + FN) — measures coverage of actual positives; high recall means few missed cases
+- Precision $= TP / (TP + FP)$ — measures the quality of positive predictions; high precision means few false alarms
+- Recall $= TP / (TP + FN)$ — measures coverage of actual positives; high recall means few missed cases
 - Precision and recall trade off against each other as the classification threshold changes — lowering the threshold increases recall and decreases precision
-- F1 = harmonic mean of precision and recall — dominated by the smaller value, correctly penalising classifiers that sacrifice one metric for the other
+- $F_1$ = harmonic mean of precision and recall — dominated by the smaller value, correctly penalising classifiers that sacrifice one metric for the other
 - The ROC curve plots TPR vs FPR across all thresholds; AUC summarises it as a single number equal to the probability that a random positive scores higher than a random negative
 - The precision-recall curve is preferred over ROC when the positive class is rare — ROC can be misleadingly optimistic on imbalanced datasets because FPR is diluted by the large number of true negatives
 - Metric choice is a domain decision based on the relative cost of false positives and false negatives — not a technical default
