@@ -163,3 +163,49 @@ Postgraduate level course.
 - Performance measures — storage capacity, error correction ability, crosstalk
 - Relationship to Hopfield networks and modern attention mechanisms
 
+---
+
+## Unit III — Convolutional Neural Networks
+
+### 19 — Introduction to Convolutional Neural Networks
+- Why fully connected networks fail on images — parameter explosion and loss of spatial structure
+- Local receptive fields — each neuron connects to a small patch, not the whole image
+- Parameter sharing — the same filter applied at every position reduces weights from N×k² to k²
+- The convolution operation — element-wise multiply and sum at each position
+- Translation invariance — parameter sharing makes the same filter detect features anywhere
+- Hierarchical feature learning — edges → shapes → parts → objects across layers
+
+### 20 — CNN Architecture: Convolutional, Pooling, and Fully Connected Layers
+- Convolutional layer — output size formula, stride, padding, bias, activation
+- Multiple filters and the depth dimension — K filters produce a volume of depth K
+- Parameter count for conv layers — (F×F×C_in + 1) × K, independent of spatial size
+- Pooling layers — max pooling, average pooling, output size, zero learnable parameters
+- Flattening and fully connected layers — collapsing the feature volume for prediction
+- Full forward pass worked example — conv → ReLU → pool → flatten → FC → softmax
+- Receptive field growth — stacking 3×3 filters vs one large filter
+
+### 21 — Transfer Learning and Pre-trained Models
+- Why training from scratch is expensive — data scarcity and compute cost
+- What transfers — early layers learn universal features, late layers are task-specific
+- Feature extraction — freeze the backbone, train only a new classification head
+- Fine-tuning — unfreeze top layers and continue training at a low learning rate
+- VGG16 — uniform 3×3 filter design, 138M parameters, 89% in FC layers
+- ResNet and residual connections — output = F(x) + x, gradient highway, degradation problem solved
+- When to use transfer learning vs train from scratch — dataset size and domain similarity
+
+### 22 — Data Augmentation
+- Why augmentation helps — artificially increases effective training set size
+- Augmentation as regularisation — prevents memorisation, forces transformation-invariant features
+- Geometric transforms — horizontal flip, rotation, random crop, scale
+- Colour transforms — brightness, contrast, saturation, hue jitter
+- Augmentation at training time only — test set uses deterministic preprocessing
+- Test-time augmentation (TTA) — inference technique, not a training technique
+
+### 23 — Case Studies: Image Classification and Object Detection
+- Image classification pipeline — conv blocks → feature volume → flatten → FC → softmax → argmax
+- From classification to detection — adding localisation, variable output size, two simultaneous tasks
+- Bounding boxes as regression targets — corner and centre formats, smooth L1 loss
+- Sliding window detection — exhaustive but computationally prohibitive
+- Region proposal networks — anchor boxes, two-stage detection (Faster R-CNN)
+- YOLO — S×S grid, single forward pass, confidence = P(object) × IoU
+- IoU and non-maximum suppression — measuring box quality and removing duplicates
