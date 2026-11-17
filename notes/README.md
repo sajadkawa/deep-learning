@@ -31,3 +31,4 @@ Lecture notes in order. Each note includes formulas, diagrams, and worked exampl
 | 25 | LSTM and GRU | [25-lstm-gru.md](25-lstm-gru.md) |
 | 26 | Encoder-Decoder Architectures | [26-encoder-decoder.md](26-encoder-decoder.md) |
 | 27 | Transformers and Attention Mechanism | [27-transformers-attention.md](27-transformers-attention.md) |
+| 28 | Attention and Memory Models | [28-attention-memory-models.md](28-attention-memory-models.md) |
