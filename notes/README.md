@@ -30,3 +30,4 @@ Lecture notes in order. Each note includes formulas, diagrams, and worked exampl
 | 24 | Recurrent Neural Networks | [24-recurrent-neural-networks.md](24-recurrent-neural-networks.md) |
 | 25 | LSTM and GRU | [25-lstm-gru.md](25-lstm-gru.md) |
 | 26 | Encoder-Decoder Architectures | [26-encoder-decoder.md](26-encoder-decoder.md) |
+| 27 | Transformers and Attention Mechanism | [27-transformers-attention.md](27-transformers-attention.md) |
