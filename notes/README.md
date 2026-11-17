@@ -27,3 +27,4 @@ Lecture notes in order. Each note includes formulas, diagrams, and worked exampl
 | 21 | Transfer Learning and Pre-trained Models | [21-transfer-learning.md](21-transfer-learning.md) |
 | 22 | Data Augmentation | [22-data-augmentation.md](22-data-augmentation.md) |
 | 23 | Case Studies: Image Classification and Object Detection | [23-case-studies.md](23-case-studies.md) |
+| 24 | Recurrent Neural Networks | [24-recurrent-neural-networks.md](24-recurrent-neural-networks.md) |
