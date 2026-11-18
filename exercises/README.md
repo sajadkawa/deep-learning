@@ -37,3 +37,4 @@ Practice problems per topic. Added as the course progresses.
 | 31 | Generative Adversarial Networks | [31-generative-adversarial-networks.md](31-generative-adversarial-networks.md) |
 | 32 | Applications in Computer Vision | [32-applications-computer-vision.md](32-applications-computer-vision.md) |
 | 33 | Applications in NLP | [33-applications-nlp.md](33-applications-nlp.md) |
+| 34 | Applications in Healthcare | [34-applications-healthcare.md](34-applications-healthcare.md) |
