@@ -33,3 +33,4 @@ Practice problems per topic. Added as the course progresses.
 | 27 | Transformers and Attention Mechanism | [27-transformers-attention.md](27-transformers-attention.md) |
 | 28 | Attention and Memory Models | [28-attention-memory-models.md](28-attention-memory-models.md) |
 | 29 | Autoencoders | [29-autoencoders.md](29-autoencoders.md) |
+| 30 | Variational Autoencoders | [30-variational-autoencoders.md](30-variational-autoencoders.md) |
