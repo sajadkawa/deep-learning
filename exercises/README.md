@@ -38,3 +38,4 @@ Practice problems per topic. Added as the course progresses.
 | 32 | Applications in Computer Vision | [32-applications-computer-vision.md](32-applications-computer-vision.md) |
 | 33 | Applications in NLP | [33-applications-nlp.md](33-applications-nlp.md) |
 | 34 | Applications in Healthcare | [34-applications-healthcare.md](34-applications-healthcare.md) |
+| 35 | Deep Learning Tools: PyTorch, TensorFlow, Keras | [35-deep-learning-tools.md](35-deep-learning-tools.md) |
