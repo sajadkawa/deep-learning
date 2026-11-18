@@ -35,3 +35,4 @@ Lecture notes in order. Each note includes formulas, diagrams, and worked exampl
 | 29 | Autoencoders | [29-autoencoders.md](29-autoencoders.md) |
 | 30 | Variational Autoencoders | [30-variational-autoencoders.md](30-variational-autoencoders.md) |
 | 31 | Generative Adversarial Networks | [31-generative-adversarial-networks.md](31-generative-adversarial-networks.md) |
+| 32 | Applications in Computer Vision | [32-applications-computer-vision.md](32-applications-computer-vision.md) |
